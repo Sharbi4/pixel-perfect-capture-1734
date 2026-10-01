@@ -14,7 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      salons: {
+        Row: {
+          address: string
+          booking_app: string
+          cancellation_policy: string
+          contact_name: string
+          created_at: string
+          deposit_policy: string
+          hours: string
+          id: string
+          languages: string[]
+          launched_at: string | null
+          name: string
+          owner_id: string
+          phone: string
+          setup_method: string
+          status: string
+          updated_at: string
+          voice: string
+          walk_ins: boolean
+          website: string
+        }
+        Insert: {
+          address?: string
+          booking_app?: string
+          cancellation_policy?: string
+          contact_name?: string
+          created_at?: string
+          deposit_policy?: string
+          hours?: string
+          id?: string
+          languages?: string[]
+          launched_at?: string | null
+          name?: string
+          owner_id: string
+          phone?: string
+          setup_method?: string
+          status?: string
+          updated_at?: string
+          voice?: string
+          walk_ins?: boolean
+          website?: string
+        }
+        Update: {
+          address?: string
+          booking_app?: string
+          cancellation_policy?: string
+          contact_name?: string
+          created_at?: string
+          deposit_policy?: string
+          hours?: string
+          id?: string
+          languages?: string[]
+          launched_at?: string | null
+          name?: string
+          owner_id?: string
+          phone?: string
+          setup_method?: string
+          status?: string
+          updated_at?: string
+          voice?: string
+          walk_ins?: boolean
+          website?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          id: string
+          is_addon: boolean
+          minutes: number
+          name: string
+          position: number
+          price: number
+          salon_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_addon?: boolean
+          minutes?: number
+          name: string
+          position?: number
+          price?: number
+          salon_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_addon?: boolean
+          minutes?: number
+          name?: string
+          position?: number
+          price?: number
+          salon_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -358,7 +358,7 @@ export function FinalCta() {
         <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">Your next appointment may already be calling.</h2>
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <NdButton size="lg" href="#pricing">Get NailDesk</NdButton>
+          <NdButton size="lg" href="#pricing">{plan.cta}</NdButton>
           <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Pro</NdButton>
         </div>
       </Reveal>

@@ -6,7 +6,7 @@ const metrics = [
   { label: "Texts handled", value: "419", delta: "+24%", icon: MessageSquare },
   { label: "Est. revenue captured", value: "$8,420", delta: "+31%", icon: TrendingUp },
 ];
-const tabs = ["Inbox", "Calls", "Appointments", "Customers", "AI Receptionist", "Analytics"];
+const tabs = ["Inbox", "Calls", "Appointments", "Customers", "NailDesk Pro", "Analytics"];
 const convos = [
   { n: "Jessica R.", c: "Call", m: "Booked gel manicure · 4:15 PM with Mia", t: "2m" },
   { n: "Hannah P.", c: "Text", m: "Rescheduled to Saturday 11:00 AM", t: "9m" },

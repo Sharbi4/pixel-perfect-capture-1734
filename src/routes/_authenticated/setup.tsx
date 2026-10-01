@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, Check, Globe, Loader2, Pause, Play, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -293,7 +293,7 @@ function ReviewStep({ salon, services }: { salon: Salon; services: Service[] }) 
     <>
       <H t="Review & launch" d="Everything look right? You can still change it later." />
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[140px_1fr]">
-        {rows.map(([k, val]) => <><dt key={k + "k"} className="text-muted-foreground">{k}</dt><dd key={k + "v"}>{val || "—"}</dd></>)}
+        {rows.map(([k, val]) => <Fragment key={k}><dt className="text-muted-foreground">{k}</dt><dd>{val || "—"}</dd></Fragment>)}
         <dt className="text-muted-foreground">Services</dt>
         <dd>{services.filter((s) => s.name).map((s) => `${s.name} ($${s.price}, ${s.minutes}m)`).join(" · ") || "—"}</dd>
       </dl>

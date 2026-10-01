@@ -50,7 +50,7 @@ export function Nav() {
             <a key={h} href={h} onClick={() => setOpen(false)} className="block rounded-2xl px-4 py-3 text-sm hover:bg-accent">{l}</a>
           ))}
           <div className="mt-2 flex gap-2 p-1">
-            <NdButton variant="ghost" size="sm" href="#" className="flex-1">Sign In</NdButton>
+            <NdButton variant="ghost" size="sm" href="/auth" className="flex-1">Sign In</NdButton>
             <NdButton size="sm" href="/setup" className="flex-1">{plan.cta}</NdButton>
           </div>
         </div>

@@ -101,4 +101,3 @@ export function Logo() {
   );
 }
 
-/** Loops a step counter 0..total-1 */

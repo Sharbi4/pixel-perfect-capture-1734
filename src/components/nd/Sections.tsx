@@ -37,8 +37,8 @@ export function Nav() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
-          <NdButton variant="link" size="sm" href="#">Sign In</NdButton>
-          <NdButton size="sm" href="#pricing">{plan.cta}</NdButton>
+          <NdButton variant="link" size="sm" href="/auth">Sign In</NdButton>
+          <NdButton size="sm" href="/setup">{plan.cta}</NdButton>
         </div>
         <button className="grid size-9 place-items-center rounded-full lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -50,8 +50,8 @@ export function Nav() {
             <a key={h} href={h} onClick={() => setOpen(false)} className="block rounded-2xl px-4 py-3 text-sm hover:bg-accent">{l}</a>
           ))}
           <div className="mt-2 flex gap-2 p-1">
-            <NdButton variant="ghost" size="sm" href="#" className="flex-1">Sign In</NdButton>
-            <NdButton size="sm" href="#pricing" className="flex-1">{plan.cta}</NdButton>
+            <NdButton variant="ghost" size="sm" href="/auth" className="flex-1">Sign In</NdButton>
+            <NdButton size="sm" href="/setup" className="flex-1">{plan.cta}</NdButton>
           </div>
         </div>
       )}
@@ -182,7 +182,7 @@ export function VoiceUpsell() {
                 </li>
               ))}
             </ul>
-            <NdButton variant="brand" size="lg" href="#pricing" className="mt-10">{plan.cta} <ArrowRight className="size-4" /></NdButton>
+            <NdButton variant="brand" size="lg" href="/setup" className="mt-10">{plan.cta} <ArrowRight className="size-4" /></NdButton>
           </Reveal>
           <Reveal delay={150}>
             <div className="glass rounded-[28px] p-5">
@@ -329,7 +329,7 @@ export function Pricing() {
                     <span className="font-medium">{plan.setupLabel}</span>
                     <span className="text-muted-foreground">{plan.setupPrice} {plan.setupNote}</span>
                   </div>
-                  <NdButton size="lg" href="#" className="mt-8 w-full sm:w-auto">{plan.cta} <ArrowRight className="size-4" /></NdButton>
+                  <NdButton size="lg" href="/setup" className="mt-8 w-full sm:w-auto">{plan.cta} <ArrowRight className="size-4" /></NdButton>
                 </div>
                 <div className="lg:border-l lg:border-border lg:pl-12">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What's included</span>
@@ -358,7 +358,7 @@ export function FinalCta() {
         <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">Your next appointment may already be calling.</h2>
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <NdButton size="lg" href="#pricing">{plan.cta}</NdButton>
+          <NdButton size="lg" href="/setup">{plan.cta}</NdButton>
           <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Pro</NdButton>
         </div>
       </Reveal>
@@ -375,5 +375,48 @@ export function Footer() {
         <span>© {new Date().getFullYear()} NailDesk AI</span>
       </div>
     </footer>
+  );
+}
+
+export function SetupFlow() {
+  const steps = [
+    ["Tell us about your salon", "Name, hours, languages, and your services. Upload a menu or paste your website and we fill it in."],
+    ["Pick your voice", "Choose from six receptionists, then hear each one answer with your salon's name."],
+    ["We build your receptionist", "NailDesk Pro learns your prices, policies and booking rules for you. No tech skills needed."],
+    ["Go live", "Forward your calls and you're answering 24/7. Texting starts once business texting is approved."],
+  ];
+  const ways = [
+    ["Online", "Finish setup yourself in about 10 minutes."],
+    ["By phone", "Call NailDesk Pro and it sets things up with you."],
+    ["Done for you", "Our team handles every step."],
+  ];
+  return (
+    <section id="setup" className="scroll-mt-24 px-4 py-28">
+      <div className="mx-auto max-w-6xl">
+        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. NailDesk Pro builds itself around your salon." />
+        <div className="mt-16 grid gap-4 md:grid-cols-4">
+          {steps.map(([t, d], i) => (
+            <Reveal key={t} delay={i * 80}>
+              <div className="glass h-full rounded-3xl p-6">
+                <div className="font-mono text-xs text-muted-foreground">0{i + 1}</div>
+                <h3 className="mt-3 text-lg font-semibold tracking-tight">{t}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{d}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {ways.map(([t, d]) => (
+            <div key={t} className="rounded-3xl border border-border p-5">
+              <div className="font-medium">{t}</div>
+              <div className="text-sm text-muted-foreground">{d}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 text-center">
+          <NdButton size="lg" href="/setup">Start setup <ArrowRight className="size-4" /></NdButton>
+        </div>
+      </div>
+    </section>
   );
 }

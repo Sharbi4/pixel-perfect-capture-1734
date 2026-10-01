@@ -102,7 +102,3 @@ export function Logo() {
 }
 
 /** Loops a step counter 0..total-1 */
-export function useStepLoop(durations: number[]) {
-  // implemented in caller via useState; helper kept simple
-  return durations;
-}

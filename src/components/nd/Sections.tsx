@@ -12,7 +12,7 @@ import { useSequence } from "./useSequence";
 
 const nav = [
   ["Product", "#product"],
-  ["AI Receptionist", "#receptionist"],
+  ["NailDesk Pro", "#receptionist"],
   ["Text to Book", "#text-to-book"],
   ["How It Works", "#how"],
   ["Pricing", "#pricing"],
@@ -167,12 +167,12 @@ export function VoiceUpsell() {
         <div className="aurora -top-40 right-0 size-[500px] bg-cobalt opacity-40 [animation-delay:-8s]" />
         <div className="relative grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>Upgrade NailDesk</Eyebrow>
+            <Eyebrow>NailDesk Pro · Premium add-on</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
               Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
             </h2>
             <p className="mt-5 text-lg text-muted-foreground">
-              NailDesk Voice answers your salon's phone 24/7 — so your technicians stay focused on the client in their chair, not the one on hold.
+              NailDesk Pro is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {voiceFeatures.map(([I, t]) => (
@@ -372,7 +372,7 @@ export function FinalCta() {
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <NdButton size="lg" href="#pricing">Get NailDesk</NdButton>
-          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear the AI Receptionist</NdButton>
+          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Pro</NdButton>
         </div>
       </Reveal>
     </section>

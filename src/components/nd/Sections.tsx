@@ -3,7 +3,7 @@ import {
   ArrowRight, BellRing, CalendarCheck, Check, HelpCircle, Languages, Menu, MessageSquareText,
   Moon, Phone, PhoneForwarded, Repeat, UserRound, X,
 } from "lucide-react";
-import { corePlan, voiceAddon } from "@/lib/pricing";
+import { plan } from "@/lib/pricing";
 import { CallDemo } from "./CallDemo";
 import { TextDemo } from "./TextDemo";
 import { Dashboard } from "./Dashboard";
@@ -38,7 +38,7 @@ export function Nav() {
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
           <NdButton variant="link" size="sm" href="#">Sign In</NdButton>
-          <NdButton size="sm" href="#pricing">Get NailDesk</NdButton>
+          <NdButton size="sm" href="#pricing">{plan.cta}</NdButton>
         </div>
         <button className="grid size-9 place-items-center rounded-full lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -51,7 +51,7 @@ export function Nav() {
           ))}
           <div className="mt-2 flex gap-2 p-1">
             <NdButton variant="ghost" size="sm" href="#" className="flex-1">Sign In</NdButton>
-            <NdButton size="sm" href="#pricing" className="flex-1">Get NailDesk</NdButton>
+            <NdButton size="sm" href="#pricing" className="flex-1">{plan.cta}</NdButton>
           </div>
         </div>
       )}
@@ -167,7 +167,7 @@ export function VoiceUpsell() {
         <div className="aurora -top-40 right-0 size-[500px] bg-cobalt opacity-40 [animation-delay:-8s]" />
         <div className="relative grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>NailDesk Pro · Premium add-on</Eyebrow>
+            <Eyebrow>NailDesk Pro · AI phone receptionist</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
               Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
             </h2>
@@ -182,7 +182,7 @@ export function VoiceUpsell() {
                 </li>
               ))}
             </ul>
-            <NdButton variant="brand" size="lg" href="#pricing" className="mt-10">{voiceAddon.cta} <ArrowRight className="size-4" /></NdButton>
+            <NdButton variant="brand" size="lg" href="#pricing" className="mt-10">{plan.cta} <ArrowRight className="size-4" /></NdButton>
           </Reveal>
           <Reveal delay={150}>
             <div className="glass rounded-[28px] p-5">
@@ -310,52 +310,39 @@ export function Pricing() {
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
         <SectionHead eyebrow="Pricing" title="One plan. Built around your salon." body="Everything you need to run an AI front desk, set up for you by our team." />
-        <div className="mt-16 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-          <Reveal>
-            <div className="relative h-full overflow-hidden rounded-[28px] p-px">
-              <div className="bg-brand absolute inset-0" />
-              <div className="relative h-full rounded-[27px] bg-surface p-8 md:p-10">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h3 className="text-2xl font-semibold tracking-tight">{corePlan.name}</h3>
-                  <span className="rounded-full bg-accent px-3 py-1 text-xs">Core platform</span>
+        <Reveal>
+          <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
+            <div className="bg-brand absolute inset-0" />
+            <div className="relative rounded-[27px] bg-surface p-8 md:p-12">
+              <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-2xl font-semibold tracking-tight">{plan.name}</h3>
+                    <span className="rounded-full bg-accent px-3 py-1 text-xs">{plan.badge}</span>
+                  </div>
+                  <p className="mt-4 max-w-md text-muted-foreground">{plan.description}</p>
+                  <div className="mt-8 flex items-baseline gap-1">
+                    <span className="text-6xl font-semibold tracking-[-0.04em]">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                  <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/50 px-4 py-2.5 text-sm">
+                    <span className="font-medium">{plan.setupLabel}</span>
+                    <span className="text-muted-foreground">{plan.setupPrice} {plan.setupNote}</span>
+                  </div>
+                  <NdButton size="lg" href="#" className="mt-8 w-full sm:w-auto">{plan.cta} <ArrowRight className="size-4" /></NdButton>
                 </div>
-                <div className="mt-6 flex items-baseline gap-1">
-                  <span className="text-6xl font-semibold tracking-[-0.04em]">{corePlan.price}</span>
-                  <span className="text-muted-foreground">{corePlan.period}</span>
+                <div className="lg:border-l lg:border-border lg:pl-12">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What's included</span>
+                  <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/50 px-4 py-2.5 text-sm">
-                  <span className="font-medium">{corePlan.setupLabel}</span>
-                  <span className="text-muted-foreground">{corePlan.setupPrice} {corePlan.setupNote}</span>
-                </div>
-                <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {corePlan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>
-                  ))}
-                </ul>
-                <NdButton size="lg" href="#" className="mt-10 w-full sm:w-auto">{corePlan.cta} <ArrowRight className="size-4" /></NdButton>
               </div>
             </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="glass relative h-full overflow-hidden rounded-[28px] p-8">
-              <div className="aurora -top-32 -right-32 size-72 bg-magenta opacity-30" />
-              <div className="relative">
-                <span className="text-gradient text-xs font-semibold tracking-wider uppercase">Premium add-on</span>
-                <h3 className="mt-3 text-2xl font-semibold tracking-tight">{voiceAddon.name}</h3>
-                <p className="mt-3 text-muted-foreground">{voiceAddon.description}</p>
-                <div className="mt-6 text-3xl font-semibold tracking-tight">
-                  {voiceAddon.price ? <>{voiceAddon.price}<span className="text-base font-normal text-muted-foreground">{voiceAddon.period}</span></> : <span className="text-xl">Pricing on request</span>}
-                </div>
-                <ul className="mt-6 space-y-3">
-                  {voiceAddon.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm"><Check className="size-4 shrink-0 text-violet" />{f}</li>
-                  ))}
-                </ul>
-                <NdButton variant="ghost" size="lg" href="#receptionist" className="mt-8 w-full">+ {voiceAddon.cta}</NdButton>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -371,7 +358,7 @@ export function FinalCta() {
         <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">Your next appointment may already be calling.</h2>
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <NdButton size="lg" href="#pricing">Get NailDesk</NdButton>
+          <NdButton size="lg" href="#pricing">{plan.cta}</NdButton>
           <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Pro</NdButton>
         </div>
       </Reveal>

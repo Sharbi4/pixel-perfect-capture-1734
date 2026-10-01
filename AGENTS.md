@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+
+## Product & pricing structure
+- The site sells exactly one plan, NailDesk Pro, whose details live in the `plan` object in `src/lib/pricing.ts`; the marketing sections render from it. Do not reintroduce a base/add-on split or a second pricing card — NailDesk Pro is the product, not an upgrade.
+

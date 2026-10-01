@@ -1,39 +1,27 @@
 // Edit plan details here — the pricing section renders from this config.
-export const corePlan = {
-  name: "NailDesk",
+export const plan = {
+  name: "NailDesk Pro",
+  badge: "AI phone receptionist",
+  description:
+    "The AI phone receptionist for your salon. It answers every call in English and Vietnamese, books the appointment, and follows up by text.",
   price: "$449",
   period: "/month",
   setupLabel: "Custom setup & launch",
   setupPrice: "$1,500",
   setupNote: "one-time",
   features: [
-    "NailDesk dashboard",
-    "AI text booking",
-    "Appointment management",
-    "SMS confirmations",
-    "Custom salon setup",
-    "Services & staff configuration",
-    "Existing phone number connection",
+    "Answers every incoming call, 24/7",
+    "Books, reschedules & cancels appointments",
+    "Service and pricing questions answered",
+    "Smart transfers to your staff",
+    "After-hours and overflow answering",
+    "AI text booking & SMS follow-ups",
     "English + Vietnamese",
+    "NailDesk dashboard & appointment management",
+    "Existing phone number connection",
     "Booking & calendar integration",
+    "Services & staff configuration",
     "Launch support",
   ],
-  cta: "Get NailDesk",
-};
-
-export const voiceAddon = {
-  name: "NailDesk Pro",
-  // Set to e.g. "+$199" when finalized; null shows "Pricing on request".
-  price: null as string | null,
-  period: "/month",
-  description: "The AI phone receptionist. NailDesk Pro answers your salon's calls 24/7 — in English and Vietnamese.",
-  features: [
-    "Answers every incoming call",
-    "Books & reschedules appointments",
-    "Service and pricing questions",
-    "After-hours answering",
-    "Smart transfers to staff",
-    "SMS follow-up after calls",
-  ],
-  cta: "Add NailDesk Pro",
+  cta: "Get NailDesk Pro",
 };

@@ -3,7 +3,7 @@ import {
   ArrowRight, BellRing, CalendarCheck, Check, HelpCircle, Languages, Menu, MessageSquareText,
   Moon, Phone, PhoneForwarded, Repeat, UserRound, X,
 } from "lucide-react";
-import { corePlan, voiceAddon } from "@/lib/pricing";
+import { plan } from "@/lib/pricing";
 import { CallDemo } from "./CallDemo";
 import { TextDemo } from "./TextDemo";
 import { Dashboard } from "./Dashboard";
@@ -167,7 +167,7 @@ export function VoiceUpsell() {
         <div className="aurora -top-40 right-0 size-[500px] bg-cobalt opacity-40 [animation-delay:-8s]" />
         <div className="relative grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>NailDesk Pro · Premium add-on</Eyebrow>
+            <Eyebrow>NailDesk Pro · AI phone receptionist</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
               Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
             </h2>
@@ -182,7 +182,7 @@ export function VoiceUpsell() {
                 </li>
               ))}
             </ul>
-            <NdButton variant="brand" size="lg" href="#pricing" className="mt-10">{voiceAddon.cta} <ArrowRight className="size-4" /></NdButton>
+            <NdButton variant="brand" size="lg" href="#pricing" className="mt-10">{plan.cta} <ArrowRight className="size-4" /></NdButton>
           </Reveal>
           <Reveal delay={150}>
             <div className="glass rounded-[28px] p-5">

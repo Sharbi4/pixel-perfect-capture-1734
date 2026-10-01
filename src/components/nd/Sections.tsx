@@ -38,7 +38,7 @@ export function Nav() {
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
           <NdButton variant="link" size="sm" href="#">Sign In</NdButton>
-          <NdButton size="sm" href="#pricing">Get NailDesk</NdButton>
+          <NdButton size="sm" href="#pricing">{plan.cta}</NdButton>
         </div>
         <button className="grid size-9 place-items-center rounded-full lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -51,7 +51,7 @@ export function Nav() {
           ))}
           <div className="mt-2 flex gap-2 p-1">
             <NdButton variant="ghost" size="sm" href="#" className="flex-1">Sign In</NdButton>
-            <NdButton size="sm" href="#pricing" className="flex-1">Get NailDesk</NdButton>
+            <NdButton size="sm" href="#pricing" className="flex-1">{plan.cta}</NdButton>
           </div>
         </div>
       )}

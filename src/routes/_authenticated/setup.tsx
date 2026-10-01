@@ -151,7 +151,7 @@ function ServicesStep({ services, setServices, website }: { services: Service[];
   const [note, setNote] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  async function run(p: Parameters<typeof extract>[0]["data"], kind: string) {
+  async function run(p: { kind: "website" | "file" | "text"; url?: string; fileBase64?: string; mediaType?: string }, kind: string) {
     setBusy(kind); setNote(null);
     try {
       const r = await extract({ data: p });
@@ -271,7 +271,7 @@ function PolicyStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => 
         <div>
           <label className={label}>How would you like to finish setup?</label>
           <div className="grid gap-2 sm:grid-cols-3">
-            {[["online", "Online, myself"], ["phone", "By phone with NailDesk Pro"], ["concierge", "Have your team do it"]].map(([k, l]) => (
+            {([["online", "Online, myself"], ["phone", "By phone with NailDesk Pro"], ["concierge", "Have your team do it"]] as const).map(([k, l]) => (
               <button key={k} type="button" onClick={() => set({ setup_method: k })} className={cn("rounded-2xl border p-3 text-sm", salon.setup_method === k ? "border-ring bg-accent" : "border-border text-muted-foreground")}>{l}</button>
             ))}
           </div>

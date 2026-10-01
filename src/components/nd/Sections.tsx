@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight, BellRing, CalendarCheck, Check, HelpCircle, Languages, Menu, MessageSquareText,
-  Moon, Phone, PhoneForwarded, Repeat, Sparkles as _s, UserRound, X,
+  Moon, Phone, PhoneForwarded, Repeat, UserRound, X,
 } from "lucide-react";
 import { corePlan, voiceAddon } from "@/lib/pricing";
 import { CallDemo } from "./CallDemo";
@@ -9,7 +9,6 @@ import { TextDemo } from "./TextDemo";
 import { Dashboard } from "./Dashboard";
 import { Eyebrow, Logo, NdButton, Reveal, SectionHead, Waveform } from "./primitives";
 import { useSequence } from "./useSequence";
-void _s;
 
 const nav = [
   ["Product", "#product"],

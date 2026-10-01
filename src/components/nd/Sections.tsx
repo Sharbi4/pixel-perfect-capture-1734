@@ -310,52 +310,39 @@ export function Pricing() {
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
         <SectionHead eyebrow="Pricing" title="One plan. Built around your salon." body="Everything you need to run an AI front desk, set up for you by our team." />
-        <div className="mt-16 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-          <Reveal>
-            <div className="relative h-full overflow-hidden rounded-[28px] p-px">
-              <div className="bg-brand absolute inset-0" />
-              <div className="relative h-full rounded-[27px] bg-surface p-8 md:p-10">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h3 className="text-2xl font-semibold tracking-tight">{corePlan.name}</h3>
-                  <span className="rounded-full bg-accent px-3 py-1 text-xs">Core platform</span>
+        <Reveal>
+          <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
+            <div className="bg-brand absolute inset-0" />
+            <div className="relative rounded-[27px] bg-surface p-8 md:p-12">
+              <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-2xl font-semibold tracking-tight">{plan.name}</h3>
+                    <span className="rounded-full bg-accent px-3 py-1 text-xs">{plan.badge}</span>
+                  </div>
+                  <p className="mt-4 max-w-md text-muted-foreground">{plan.description}</p>
+                  <div className="mt-8 flex items-baseline gap-1">
+                    <span className="text-6xl font-semibold tracking-[-0.04em]">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                  <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/50 px-4 py-2.5 text-sm">
+                    <span className="font-medium">{plan.setupLabel}</span>
+                    <span className="text-muted-foreground">{plan.setupPrice} {plan.setupNote}</span>
+                  </div>
+                  <NdButton size="lg" href="#" className="mt-8 w-full sm:w-auto">{plan.cta} <ArrowRight className="size-4" /></NdButton>
                 </div>
-                <div className="mt-6 flex items-baseline gap-1">
-                  <span className="text-6xl font-semibold tracking-[-0.04em]">{corePlan.price}</span>
-                  <span className="text-muted-foreground">{corePlan.period}</span>
+                <div className="lg:border-l lg:border-border lg:pl-12">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What's included</span>
+                  <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/50 px-4 py-2.5 text-sm">
-                  <span className="font-medium">{corePlan.setupLabel}</span>
-                  <span className="text-muted-foreground">{corePlan.setupPrice} {corePlan.setupNote}</span>
-                </div>
-                <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {corePlan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>
-                  ))}
-                </ul>
-                <NdButton size="lg" href="#" className="mt-10 w-full sm:w-auto">{corePlan.cta} <ArrowRight className="size-4" /></NdButton>
               </div>
             </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="glass relative h-full overflow-hidden rounded-[28px] p-8">
-              <div className="aurora -top-32 -right-32 size-72 bg-magenta opacity-30" />
-              <div className="relative">
-                <span className="text-gradient text-xs font-semibold tracking-wider uppercase">Premium add-on</span>
-                <h3 className="mt-3 text-2xl font-semibold tracking-tight">{voiceAddon.name}</h3>
-                <p className="mt-3 text-muted-foreground">{voiceAddon.description}</p>
-                <div className="mt-6 text-3xl font-semibold tracking-tight">
-                  {voiceAddon.price ? <>{voiceAddon.price}<span className="text-base font-normal text-muted-foreground">{voiceAddon.period}</span></> : <span className="text-xl">Pricing on request</span>}
-                </div>
-                <ul className="mt-6 space-y-3">
-                  {voiceAddon.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm"><Check className="size-4 shrink-0 text-violet" />{f}</li>
-                  ))}
-                </ul>
-                <NdButton variant="ghost" size="lg" href="#receptionist" className="mt-8 w-full">+ {voiceAddon.cta}</NdButton>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

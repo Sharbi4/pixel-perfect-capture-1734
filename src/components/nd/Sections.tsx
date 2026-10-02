@@ -69,7 +69,7 @@ export function Hero() {
       <div className="grid-fade absolute inset-0" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
         <div className="animate-rise">
-          <Eyebrow>The AI front desk for salons</Eyebrow>
+          <Eyebrow>The AI receptionist for salons</Eyebrow>
           <h1 className="mt-6 text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance md:text-7xl">
             Your salon is busy.
             <br />

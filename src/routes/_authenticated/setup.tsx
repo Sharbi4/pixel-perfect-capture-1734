@@ -46,7 +46,7 @@ function SetupPage() {
     setSaving(true); setErr(null);
     try {
       await saveSalon(salon!.id, salon!);
-      if (step === 1) await saveServices(id, services);
+      if (step === 1) await saveServices(salon!.id, services);
     } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't save"); setSaving(false); return false; }
     setSaving(false); return true;
   }

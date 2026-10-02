@@ -17,6 +17,7 @@ function memoryStore() {
     jobs,
     async begin(key: string) {
       let j = jobs.find((x) => x.key === key) ?? jobs.find((x) => ["pending", "in_progress", "uncertain"].includes(x.state));
+      if (!j) j = jobs.find((x) => x.state === "succeeded"); // completed once → never a new job
       if (!j) { j = { id: `job-${++n}`, key, state: "pending", token: null, target: "", ref: "", code: "" }; jobs.push(j); }
       if (j.state === "pending") { j.state = "in_progress"; j.token = `tok-${n}`; return handle(j, true); }
       return handle(j, false);
@@ -147,10 +148,28 @@ describe("reconciliation of unclear results", () => {
     expect(r.status).toBe("done");
     expect(store.jobs[0]!).toMatchObject({ state: "succeeded", ref: "PN9" });
   });
-  it("confirmed absent → failed, so the owner can try again", async () => {
+  it("empty lookup keeps it unclear; a later lookup that finds it resolves it, with no new attempt", async () => {
     const { store, job } = await uncertainJob();
-    expect((await reconcile(store.transition, job, async () => ({ kind: "ok", value: null }), "not_purchased")).status).toBe("failed");
-    expect(store.jobs[0]!.state).toBe("failed");
+    const r1 = await reconcile(store.transition, job, async () => ({ kind: "ok", value: null }), "not_purchased");
+    expect(r1).toMatchObject({ status: "needs_review", code: "not_found_yet" });
+    expect(store.jobs[0]!.state).toBe("uncertain");
+    expect(store.jobs.length).toBe(1);
+    const r2 = await reconcile(store.transition, job, async () => ({ kind: "ok", value: "PN7" }), "not_purchased");
+    expect(r2.status).toBe("done");
+    expect(store.jobs[0]!).toMatchObject({ state: "succeeded", ref: "PN7" });
+    expect(store.jobs.length).toBe(1);
+  });
+  it("malformed lookup result never unlocks", async () => {
+    const { store, job } = await uncertainJob();
+    const r = await reconcile(store.transition, job, async () => ({ kind: "ok", value: 42 as unknown as string }), "not_purchased");
+    expect(r.status).toBe("needs_review");
+    expect(store.jobs[0]!.state).toBe("uncertain");
+  });
+  it("found but saving fails → needs_review, not done", async () => {
+    const { store, job } = await uncertainJob();
+    const r = await reconcile(async () => false, job, async () => ({ kind: "ok", value: "PN9" }), "not_purchased");
+    expect(r.status).toBe("needs_review");
+    expect(store.jobs[0]!.state).toBe("uncertain");
   });
   it("lookup itself failing keeps it unclear", async () => {
     const { store, job } = await uncertainJob();
@@ -169,5 +188,40 @@ describe("receptionist creation job", () => {
     expect([a.status, b.status].sort()).toEqual(["in_progress", "needs_review"].sort());
     expect((await runAgentCreate({ ...store, create }, "c")).status).toBe("needs_review");
     expect(create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("completion is only reported when it was saved", () => {
+  const input = { key: "k1", businessNumber: BUSINESS, addressState: "AZ" };
+  for (const [label, tr] of [["returns false", async () => false], ["throws", async () => { throw new Error("db down"); }]] as const) {
+    it(`purchase succeeds at provider but save ${label} → needs_review, job stays reconcilable`, async () => {
+      const { deps, store } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }));
+      const r = await runPurchase({ ...deps, transition: tr }, input);
+      expect(r.status).toBe("needs_review");
+      expect(store.jobs[0]!).toMatchObject({ state: "in_progress", target: "+14805550999" });
+      expect((await runPurchase(deps, { ...input, key: "k2" })).status).toBe("in_progress"); // no second buy
+      expect(deps.buy).toHaveBeenCalledTimes(1);
+    });
+    it(`agent create succeeds but save ${label} → needs_review`, async () => {
+      const store = memoryStore();
+      const create = vi.fn(async (): Promise<Outcome<{ agentId: string }>> => ({ kind: "ok", value: { agentId: "ag1" } }));
+      expect((await runAgentCreate({ ...store, transition: tr, create }, "a")).status).toBe("needs_review");
+      expect((await runAgentCreate({ ...store, create }, "b")).status).toBe("in_progress");
+      expect(create).toHaveBeenCalledTimes(1);
+    });
+  }
+  it("stale lock: holder finishing after takeover gets needs_review", async () => {
+    const { deps, store } = purchaseDeps(async () => {
+      Object.assign(store.jobs[0]!, { state: "uncertain", token: null }); // lock expired mid-call
+      return { kind: "ok", value: { sid: "PN1" } };
+    });
+    expect((await runPurchase(deps, input))).toMatchObject({ status: "needs_review", code: "not_saved" });
+    expect(store.jobs[0]!.state).toBe("uncertain");
+  });
+  it("after success, a new key never starts another purchase", async () => {
+    const { deps } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }));
+    expect((await runPurchase(deps, input)).status).toBe("done");
+    expect((await runPurchase(deps, { ...input, key: "k-later" })).status).toBe("done");
+    expect(deps.buy).toHaveBeenCalledTimes(1);
   });
 });

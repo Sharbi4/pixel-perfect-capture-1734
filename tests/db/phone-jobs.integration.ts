@@ -74,6 +74,31 @@ async function main() {
     const lateFinish = await rpc("service", "transition_phone_job", { p_job: a.job_id, p_token: a.lock_token, p_to: "succeeded", p_ref: "late", p_error: "" });
     check("original (stale) lock holder can no longer finish it", lateFinish.json === false);
 
+    console.log("No new job after success (stale caller, new key)");
+    for (const kind of ["purchase_number", "create_agent"]) {
+      const s3 = (await rest("service", "POST", "salons", { owner_id: randomUUID(), name: "ZZ Test Salon 2" })).json[0].id;
+      try {
+        const first = await begin(s3, `${kind}-first`, kind);
+        await rpc("service", "set_phone_job_target", { p_job: first.job_id, p_token: first.lock_token, p_target: "+14805550998" });
+        await rpc("service", "transition_phone_job", { p_job: first.job_id, p_token: first.lock_token, p_to: "succeeded", p_ref: "REF1", p_error: "" });
+        const late = await begin(s3, `${kind}-stale-caller`, kind);
+        check(`${kind}: new key after success → not acquired, reports completed job`, !late.acquired && late.job_state === "succeeded" && late.job_id === first.job_id, late);
+        await rest("service", "DELETE", `phone_jobs?salon_id=eq.${s3}`);
+        const viaSalon = await begin(s3, `${kind}-after-history`, kind);
+        check(`${kind}: existing provider id on salon blocks a new job`, !viaSalon.acquired && viaSalon.job_state === "succeeded", viaSalon);
+        const par = await Promise.all(Array.from({ length: 5 }, (_, i) => begin(s3, `${kind}-p${i}`, kind)));
+        check(`${kind}: concurrent new keys after success → none acquire`, par.every((h) => !h.acquired));
+        const jobs = await rest("service", "GET", `phone_jobs?salon_id=eq.${s3}&select=id`);
+        check(`${kind}: no new job rows created`, jobs.json.length === 0, jobs.json);
+      } finally {
+        await rest("service", "DELETE", `phone_jobs?salon_id=eq.${s3}`);
+        await rest("service", "DELETE", `phone_setups?salon_id=eq.${s3}`);
+        await rest("service", "DELETE", `salons?id=eq.${s3}`);
+      }
+    }
+    const att = await rest("service", "GET", `phone_jobs?id=eq.${winner.job_id}&select=attempts`);
+    check("reconciliation never adds attempts", att.json[0]?.attempts === 1, att.json);
+
     console.log("Access rules");
     const anonJobs = await rest("anon", "GET", "phone_jobs?select=id");
     check("anonymous cannot read jobs", anonJobs.status >= 400, anonJobs);

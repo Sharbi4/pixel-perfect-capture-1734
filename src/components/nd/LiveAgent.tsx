@@ -1,9 +1,9 @@
-import { useConversation } from "@elevenlabs/react";
+import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import { useCallback, useState } from "react";
 import { Mic, PhoneOff } from "lucide-react";
 import { Reveal, SectionHead, Waveform, ndButton } from "./primitives";
 
-export function LiveAgent() {
+function LiveAgentInner() {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const conversation = useConversation({
@@ -65,5 +65,13 @@ export function LiveAgent() {
         </Reveal>
       </div>
     </section>
+  );
+}
+
+export function LiveAgent() {
+  return (
+    <ConversationProvider>
+      <LiveAgentInner />
+    </ConversationProvider>
   );
 }

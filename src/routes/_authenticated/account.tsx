@@ -6,6 +6,7 @@ import { voices } from "@/lib/voices";
 import { useServerFn } from "@tanstack/react-start";
 import { launchSalon } from "@/lib/setup.functions";
 import { TestCall } from "@/components/nd/TestCall";
+import { PhoneNumberPicker } from "@/components/nd/PhoneNumberPicker";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -37,7 +38,7 @@ function AccountPage() {
     ["Services", `${count} services`, count ? "done" : "todo"],
     ["Receptionist voice", voice?.name ?? "—", "done"],
     ["Receptionist built", salon.agent_id ? "Ready — try a test call below" : salon.agent_error || (launched ? "Building…" : "Launch from setup to start"), salon.agent_id ? "done" : launched ? "wait" : "todo"],
-    ["Phone number", launched ? "Being set up — we'll email you" : "After launch", launched ? "wait" : "todo"],
+    ["Phone number", salon.phone_number ? `${salon.phone_number} — live, call it to try` : salon.agent_id ? "Choose a number below" : "After your receptionist is built", salon.phone_number ? "done" : "todo"],
     ["Texting", "Pending business texting approval (usually a few days)", launched ? "wait" : "todo"],
   ];
   return (
@@ -57,6 +58,7 @@ function AccountPage() {
           ))}
         </ul>
         {salon.agent_id && <TestCall />}
+        {salon.agent_id && !salon.phone_number && <PhoneNumberPicker onClaimed={(n) => setSalon({ ...salon, phone_number: n, status: "live" })} />}
         {launched && (
           <button onClick={rebuild} disabled={building} className="mt-6 mr-3 inline-flex h-11 items-center rounded-full bg-accent px-6 text-sm font-medium">{building ? "Updating…" : salon.agent_id ? "Update receptionist with latest info" : "Try building again"}</button>
         )}

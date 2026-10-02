@@ -43,8 +43,8 @@ function SetupPage() {
   async function persist() {
     setSaving(true); setErr(null);
     try {
-      const { id, status, launched_at, agent_id, agent_error, ...rest } = salon!;
-      void status; void launched_at; void agent_id; void agent_error;
+      const { id, status, launched_at, agent_id, agent_error, phone_number, phone_number_sid, ...rest } = salon!;
+      void status; void launched_at; void agent_id; void agent_error; void phone_number; void phone_number_sid;
       await saveSalon(id, rest);
       if (step === 1) await saveServices(id, services);
     } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't save"); setSaving(false); return false; }

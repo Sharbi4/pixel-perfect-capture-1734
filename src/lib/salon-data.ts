@@ -5,7 +5,7 @@ export type Salon = {
   id: string; name: string; address: string; phone: string; website: string; hours: string;
   languages: string[]; contact_name: string; voice: string; deposit_policy: string;
   cancellation_policy: string; walk_ins: boolean; booking_app: string; setup_method: string;
-  status: string; launched_at: string | null; agent_id: string; agent_error: string;
+  status: string; launched_at: string | null; agent_id: string; agent_error: string; phone_number: string; phone_number_sid: string;
 };
 export type Service = { id?: string; name: string; price: number; minutes: number; is_addon: boolean };
 

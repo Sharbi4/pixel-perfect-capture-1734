@@ -1,6 +1,7 @@
 import { Check, Phone } from "lucide-react";
 import { Waveform } from "./primitives";
 import { useSequence } from "./useSequence";
+import { BrandMark } from "@/components/brand/Brand";
 
 const DELAYS = [1200, 1800, 2000, 1500, 1600, 1200, 1400];
 
@@ -12,8 +13,9 @@ function Bubble({ who, children }: { who: "ai" | "you"; children: React.ReactNod
           who === "ai" ? "glass rounded-tl-md" : "bg-surface-2 rounded-tr-md"
         }`}
       >
-        <div className="mb-0.5 text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-          {who === "ai" ? "NailDesk" : "Jessica"}
+        <div className="mb-1 flex items-center gap-1.5 text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
+          {who === "ai" && <BrandMark className="size-4" />}
+          {who === "ai" ? "Salon Agent AI" : "Jessica"}
         </div>
         {children}
       </div>

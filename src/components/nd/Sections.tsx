@@ -9,10 +9,11 @@ import { TextDemo } from "./TextDemo";
 import { Dashboard } from "./Dashboard";
 import { Eyebrow, Logo, NdButton, Reveal, SectionHead, Waveform } from "./primitives";
 import { useSequence } from "./useSequence";
+import { BrandMark } from "@/components/brand/Brand";
 
 const nav = [
   ["Product", "#product"],
-  ["NailDesk Pro", "#receptionist"],
+  ["AI Receptionist", "#receptionist"],
   ["Text to Book", "#text-to-book"],
   ["How It Works", "#how"],
   ["Pricing", "#pricing"],
@@ -30,30 +31,30 @@ export function Nav() {
   return (
     <header className="fixed inset-x-0 top-4 z-50 px-4">
       <div className={`mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 transition-all duration-300 ${scrolled || open ? "glass" : ""}`}>
-        <Logo />
-        <nav className="hidden items-center gap-1 lg:flex">
+        <Logo href="#top" />
+        <nav aria-label="Main navigation" className="hidden items-center gap-1 xl:flex">
           {nav.map(([l, h]) => (
             <a key={h} href={h} className="rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">{l}</a>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2 xl:flex">
           <NdButton variant="link" size="sm" href="/auth">Sign In</NdButton>
           <NdButton size="sm" href="/setup">{plan.cta}</NdButton>
         </div>
-        <button className="grid size-9 place-items-center rounded-full lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+        <button className="grid size-11 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring xl:hidden" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-navigation">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
       </div>
       {open && (
-        <div className="glass animate-rise mx-auto mt-2 max-w-6xl rounded-3xl p-3 lg:hidden">
+        <nav id="mobile-navigation" aria-label="Mobile navigation" className="glass animate-rise mx-auto mt-2 max-w-6xl rounded-3xl p-3 xl:hidden">
           {nav.map(([l, h]) => (
             <a key={h} href={h} onClick={() => setOpen(false)} className="block rounded-2xl px-4 py-3 text-sm hover:bg-accent">{l}</a>
           ))}
-          <div className="mt-2 flex gap-2 p-1">
+          <div className="mt-2 flex flex-wrap gap-2 p-1">
             <NdButton variant="ghost" size="sm" href="/auth" className="flex-1">Sign In</NdButton>
             <NdButton size="sm" href="/setup" className="flex-1">{plan.cta}</NdButton>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );
@@ -68,21 +69,21 @@ export function Hero() {
       <div className="grid-fade absolute inset-0" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
         <div className="animate-rise">
-          <Eyebrow>The AI front desk for nail salons</Eyebrow>
+          <Eyebrow>The AI front desk for salons</Eyebrow>
           <h1 className="mt-6 text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance md:text-7xl">
             Your salon is busy.
             <br />
             <span className="text-gradient">Your front desk shouldn't be.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-            NailDesk answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
+            Salon Agent AI answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <NdButton size="lg" href="#talk"><Phone className="size-4" /> See NailDesk in action</NdButton>
+            <NdButton size="lg" href="#talk"><Phone className="size-4" /> See it in action</NdButton>
             <NdButton size="lg" variant="ghost" href="#how">See How It Works</NdButton>
           </div>
           <p className="mt-8 text-sm text-muted-foreground">
-            Built for nail salons <span className="mx-2 opacity-40">•</span> Works with your existing number <span className="mx-2 opacity-40">•</span> English + Vietnamese
+            Built for salons & studios <span className="mx-2 opacity-40">•</span> Works with your existing number <span className="mx-2 opacity-40">•</span> English + Vietnamese
           </p>
         </div>
         <CallDemo />
@@ -99,7 +100,7 @@ export function TextToBook() {
         <SectionHead
           eyebrow="Text to Book"
           title={<>They don't even <span className="text-gradient">have to call.</span></>}
-          body="Customers can text your salon just like they text a friend. NailDesk understands what they need, checks availability and books the appointment automatically."
+          body="Customers can text your salon just like they text a friend. Salon Agent AI understands what they need, checks availability and books the appointment automatically."
         />
         <Reveal className="mt-16"><TextDemo /></Reveal>
       </div>
@@ -110,9 +111,9 @@ export function TextToBook() {
 const channels = [
   { icon: Phone, t: "Calls", d: "AI answers incoming salon calls.", demo: "“Thanks for calling Luna Nails…”" },
   { icon: MessageSquareText, t: "Texts", d: "Customers can text questions or book appointments.", demo: "419 texts handled this month" },
-  { icon: CalendarCheck, t: "Appointments", d: "NailDesk checks availability and manages bookings.", demo: "Books · reschedules · cancels" },
+  { icon: CalendarCheck, t: "Appointments", d: "Salon Agent AI checks availability and manages bookings.", demo: "Books · reschedules · cancels" },
   { icon: BellRing, t: "Confirmations", d: "Automatic confirmations and reminders.", demo: "Reminder sent · 24h before" },
-  { icon: HelpCircle, t: "Questions", d: "NailDesk knows salon hours, pricing, services and policies.", demo: "“Gel removal is $10 with a new set.”" },
+  { icon: HelpCircle, t: "Questions", d: "Salon Agent AI knows salon hours, pricing, services and policies.", demo: "“Gel removal is $10 with a new set.”" },
   { icon: PhoneForwarded, t: "Human handoff", d: "Transfer complicated conversations to staff.", demo: "Transferring to front desk…" },
 ];
 
@@ -153,9 +154,9 @@ function Sparkle(p: { className?: string }) { return <Waveform bars={4} classNam
 
 const transcript = [
   ["Caller", "Hi, I need to move my appointment to Saturday."],
-  ["NailDesk", "Of course. I have 11:00 AM or 1:30 PM with Kim."],
+  ["Salon Agent AI", "Of course. I have 11:00 AM or 1:30 PM with Kim."],
   ["Caller", "11 is perfect."],
-  ["NailDesk", "Done — I'll text you the confirmation now."],
+  ["Salon Agent AI", "Done — I'll text you the confirmation now."],
 ];
 
 export function VoiceUpsell() {
@@ -167,12 +168,12 @@ export function VoiceUpsell() {
         <div className="aurora -top-40 right-0 size-[500px] bg-cobalt opacity-40 [animation-delay:-8s]" />
         <div className="relative grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>NailDesk Pro · AI phone receptionist</Eyebrow>
+            <Eyebrow>Salon Agent AI · AI phone receptionist</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
               Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
             </h2>
             <p className="mt-5 text-lg text-muted-foreground">
-              NailDesk Pro is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
+              Salon Agent AI is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {voiceFeatures.map(([I, t]) => (
@@ -198,9 +199,11 @@ export function VoiceUpsell() {
               <div className="mt-4 text-[11px] tracking-wider text-muted-foreground uppercase">Live transcription</div>
               <div className="mt-2 min-h-[170px] space-y-2 font-mono text-[13px]">
                 {transcript.slice(0, Math.min(s, 4)).map(([w, t]) => (
-                  <div key={t} className="animate-rise flex gap-3">
-                    <span className={`w-16 shrink-0 ${w === "NailDesk" ? "text-violet" : "text-muted-foreground"}`}>{w}</span>
-                    <span>{t}</span>
+                  <div key={t} className="animate-rise flex flex-col gap-1 sm:flex-row sm:gap-3">
+                    <span className={`inline-flex shrink-0 items-center gap-1.5 sm:w-32 ${w === "Salon Agent AI" ? "text-violet" : "text-muted-foreground"}`}>
+                      {w === "Salon Agent AI" && <BrandMark className="size-4" />}{w}
+                    </span>
+                    <span className="min-w-0">{t}</span>
                   </div>
                 ))}
               </div>
@@ -226,11 +229,11 @@ export function Value() {
   return (
     <section className="px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead title={<>Stop putting down the nail brush <span className="text-muted-foreground">to answer the phone.</span></>} />
+        <SectionHead title={<>Stay focused on your client. <span className="text-muted-foreground">We'll answer the phone.</span></>} />
         <div className="mt-16 grid gap-4 md:grid-cols-2">
           <Reveal>
             <div className="h-full rounded-3xl border border-border p-8">
-              <div className="text-sm font-medium text-muted-foreground">Before NailDesk</div>
+              <div className="text-sm font-medium text-muted-foreground">Before Salon Agent AI</div>
               <ul className="mt-6 space-y-4">
                 {before.map((t) => (
                   <li key={t} className="flex items-start gap-3 text-muted-foreground">
@@ -245,7 +248,7 @@ export function Value() {
             <div className="relative h-full overflow-hidden rounded-3xl p-px">
               <div className="bg-brand absolute inset-0 opacity-70" />
               <div className="relative h-full rounded-[23px] bg-surface p-8">
-                <div className="text-gradient text-sm font-medium">With NailDesk</div>
+                <div className="text-gradient text-sm font-medium">With Salon Agent AI</div>
                 <ul className="mt-6 space-y-4">
                   {after.map((t) => (
                     <li key={t} className="flex items-start gap-3">
@@ -278,8 +281,8 @@ export function DashboardSection() {
 export function HowItWorks() {
   const steps = [
     ["Connect your salon", "Add your services, staff, hours, pricing and booking system.", UserRound],
-    ["Connect your number", "Keep your existing number. NailDesk can handle calls and texts.", Phone],
-    ["NailDesk gets to work", "Customers call or text and NailDesk handles the conversation and booking automatically.", CalendarCheck],
+    ["Connect your number", "Keep your existing number. Salon Agent AI can handle calls and texts.", Phone],
+    ["Salon Agent AI gets to work", "Customers call or text and Salon Agent AI handles the conversation and booking automatically.", CalendarCheck],
   ] as const;
   return (
     <section id="how" className="scroll-mt-24 px-4 py-28">
@@ -309,7 +312,7 @@ export function Pricing() {
   return (
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="NailDesk Pro is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
+        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="Salon Agent AI is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
         <Reveal>
           <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
             <div className="bg-brand absolute inset-0" />
@@ -359,7 +362,7 @@ export function FinalCta() {
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <NdButton size="lg" href="/setup">{plan.cta}</NdButton>
-          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Pro</NdButton>
+          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear Salon Agent AI</NdButton>
         </div>
       </Reveal>
     </section>
@@ -370,9 +373,9 @@ export function Footer() {
   return (
     <footer className="border-t border-border px-4 py-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-        <Logo />
-        <span>The AI front desk for nail salons.</span>
-        <span>© {new Date().getFullYear()} NailDesk AI</span>
+        <Logo href="#top" variant="white" />
+        <span>The AI front desk for salons.</span>
+        <span>© {new Date().getFullYear()} Salon Agent AI</span>
       </div>
     </footer>
   );
@@ -382,18 +385,18 @@ export function SetupFlow() {
   const steps = [
     ["Tell us about your salon", "Name, hours, languages, and your services. Upload a menu or paste your website and we fill it in."],
     ["Pick your voice", "Choose from six receptionists, then hear each one answer with your salon's name."],
-    ["We build your receptionist", "NailDesk Pro learns your prices, policies and booking rules for you. No tech skills needed."],
+    ["We build your receptionist", "Salon Agent AI learns your prices, policies and booking rules for you. No tech skills needed."],
     ["Go live", "Forward your calls and you're answering 24/7. Texting starts once business texting is approved."],
   ];
   const ways = [
     ["Online", "Finish setup yourself in about 10 minutes."],
-    ["By phone", "Call NailDesk Pro and it sets things up with you."],
+    ["By phone", "Call Salon Agent AI and it sets things up with you."],
     ["Done for you", "Our team handles every step."],
   ];
   return (
     <section id="setup" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. NailDesk Pro builds itself around your salon." />
+        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. Salon Agent AI builds itself around your salon." />
         <div className="mt-16 grid gap-4 md:grid-cols-4">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 80}>

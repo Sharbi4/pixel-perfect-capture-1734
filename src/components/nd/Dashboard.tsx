@@ -1,4 +1,5 @@
 import { CalendarDays, MessageSquare, Phone, TrendingUp } from "lucide-react";
+import { BrandMark } from "@/components/brand/Brand";
 
 const metrics = [
   { label: "Appointments booked", value: "127", delta: "+18%", icon: CalendarDays },
@@ -6,7 +7,7 @@ const metrics = [
   { label: "Texts handled", value: "419", delta: "+24%", icon: MessageSquare },
   { label: "Est. revenue captured", value: "$8,420", delta: "+31%", icon: TrendingUp },
 ];
-const tabs = ["Inbox", "Calls", "Appointments", "Customers", "NailDesk Pro", "Analytics"];
+const tabs = ["Inbox", "Calls", "Appointments", "Customers", "AI Receptionist", "Analytics"];
 const convos = [
   { n: "Jessica R.", c: "Call", m: "Booked gel manicure · 4:15 PM with Mia", t: "2m" },
   { n: "Hannah P.", c: "Text", m: "Rescheduled to Saturday 11:00 AM", t: "9m" },
@@ -31,7 +32,10 @@ export function Dashboard() {
         <div className="flex gap-1.5">
           {[0, 1, 2].map((i) => <span key={i} className="size-2.5 rounded-full bg-surface-2" />)}
         </div>
-        <div className="mx-auto rounded-full bg-muted px-4 py-1 font-mono text-[11px] text-muted-foreground">app.naildesk.ai/luna-nails</div>
+        <div className="mx-auto flex min-w-0 items-center gap-2 rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">
+          <BrandMark className="size-5" />
+          <span className="truncate">Salon Agent AI <span className="opacity-50">/</span> Luna Nails</span>
+        </div>
       </div>
       <div className="flex gap-1 overflow-x-auto border-b border-border px-4 py-2 text-[13px]">
         {tabs.map((t, i) => (
@@ -53,9 +57,9 @@ export function Dashboard() {
         </div>
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="rounded-2xl border border-border bg-surface p-4">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <span className="text-sm font-medium">Recent conversations</span>
-              <span className="text-xs text-muted-foreground">Handled by NailDesk</span>
+              <span className="text-xs text-muted-foreground">Handled by Salon Agent AI</span>
             </div>
             <div className="divide-y divide-border">
               {convos.map((c) => (

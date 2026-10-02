@@ -1,0 +1,13 @@
+{
+  "name": "Salon Agent AI",
+  "short_name": "Salon Agent AI",
+  "description": "The AI front desk for salons, spas and beauty studios.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090D20",
+  "theme_color": "#090D20",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

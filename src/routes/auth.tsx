@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { BrandLogo } from "@/components/brand/Brand";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -6,9 +7,9 @@ import { lovable } from "@/integrations/lovable/index";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — NailDesk Pro" },
-      { name: "description", content: "Sign in or create your NailDesk Pro account to set up your salon's AI receptionist." },
-      { property: "og:title", content: "Sign in — NailDesk Pro" },
+      { title: "Sign in — Salon Agent AI" },
+      { name: "description", content: "Sign in or create your Salon Agent AI account to set up your salon's AI receptionist." },
+      { property: "og:title", content: "Sign in — Salon Agent AI" },
       { property: "og:description", content: "Create your account and set up your salon's AI receptionist." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -55,8 +56,8 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen place-items-center px-4">
       <div className="glass w-full max-w-md rounded-[28px] p-8">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← NailDesk</Link>
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight">{mode === "up" ? "Set up NailDesk Pro" : "Welcome back"}</h1>
+        <BrandLogo className="w-[220px] max-w-full sm:w-[240px]" />
+        <h1 className="mt-6 text-3xl font-semibold tracking-tight">{mode === "up" ? "Set up your front desk" : "Welcome back"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">Your progress saves as you go, so you can finish anytime.</p>
         <button onClick={google} className="glass mt-8 h-12 w-full rounded-full text-sm font-medium hover:bg-accent">Continue with Google</button>
         <div className="my-6 text-center text-xs text-muted-foreground">or</div>

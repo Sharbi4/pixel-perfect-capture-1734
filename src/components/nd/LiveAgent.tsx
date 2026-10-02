@@ -2,6 +2,7 @@ import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import { useCallback, useState } from "react";
 import { Mic, PhoneOff } from "lucide-react";
 import { Reveal, SectionHead, Waveform, ndButton } from "./primitives";
+import { BrandMark } from "@/components/brand/Brand";
 
 function LiveAgentInner() {
   const [connecting, setConnecting] = useState(false);
@@ -22,7 +23,7 @@ function LiveAgentInner() {
       await conversation.startSession({ conversationToken: data.token, connectionType: "webrtc" });
     } catch (e) {
       setError(
-        e instanceof DOMException ? "Please allow microphone access to talk to NailDesk." : (e as Error).message,
+        e instanceof DOMException ? "Please allow microphone access to talk to Salon Agent AI." : (e as Error).message,
       );
     } finally {
       setConnecting(false);
@@ -34,7 +35,7 @@ function LiveAgentInner() {
       <div className="mx-auto max-w-3xl text-center">
         <SectionHead
           eyebrow="Live demo"
-          title={<>Talk to NailDesk <span className="text-gradient">right now</span></>}
+          title={<>Talk to Salon Agent AI <span className="text-gradient">right now</span></>}
           body="Ask about prices, book a gel manicure, or try to stump it. This is the real AI receptionist — use your microphone."
         />
         <Reveal>
@@ -43,11 +44,11 @@ function LiveAgentInner() {
               {live ? (
                 <Waveform bars={32} className={conversation.isSpeaking ? "" : "opacity-40"} />
               ) : (
-                <Mic className="size-10 text-muted-foreground" />
+                <BrandMark className="size-14" decorative={false} />
               )}
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              {live ? (conversation.isSpeaking ? "NailDesk is speaking…" : "Listening — go ahead and talk") : "Ready when you are"}
+              {live ? (conversation.isSpeaking ? "Salon Agent AI is speaking…" : "Listening — go ahead and talk") : "Ready when you are"}
             </p>
             <div className="mt-6">
               {live ? (

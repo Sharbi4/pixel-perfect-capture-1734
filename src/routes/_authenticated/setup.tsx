@@ -8,13 +8,14 @@ import { extractServices, launchSalon } from "@/lib/setup.functions";
 import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
 import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
+import { BrandLogo } from "@/components/brand/Brand";
 
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
     meta: [
-      { title: "Set up your salon — NailDesk Pro" },
-      { name: "description", content: "Tell NailDesk Pro about your salon, pick a receptionist voice and launch." },
-      { property: "og:title", content: "Set up your salon — NailDesk Pro" },
+      { title: "Set up your salon — Salon Agent AI" },
+      { name: "description", content: "Tell Salon Agent AI about your salon, pick a receptionist voice and launch." },
+      { property: "og:title", content: "Set up your salon — Salon Agent AI" },
       { property: "og:description", content: "Salon details, services, voice and policies in a few minutes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -69,8 +70,8 @@ function SetupPage() {
   return (
     <div className="min-h-screen px-4 py-8">
       <div className="mx-auto max-w-3xl">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="font-semibold tracking-tight">NailDesk Pro</Link>
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <BrandLogo />
           <div className="flex gap-4 text-sm text-muted-foreground">
             <Link to="/account" className="hover:text-foreground">My status</Link>
             <button onClick={() => supabase.auth.signOut().then(() => nav({ to: "/" }))} className="hover:text-foreground">Sign out</button>
@@ -125,13 +126,13 @@ function SalonStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
   );
   return (
     <>
-      <H t="Tell NailDesk about your salon" d="This is what your receptionist will know when customers call or text." />
+      <H t="Tell Salon Agent AI about your salon" d="This is what your receptionist will know when customers call or text." />
       <div className="grid gap-4 md:grid-cols-2">
         {f("name", "Salon name", "Modern Nails")}
         {f("contact_name", "Manager / contact person")}
         <div>
           {f("phone", "Current salon phone number", "(555) 123-4567")}
-          <p className="mt-1.5 text-xs text-muted-foreground">Your customers can keep the number they already know. NailDesk will help connect it.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">Your customers can keep the number they already know. Salon Agent AI will help connect it.</p>
         </div>
         {f("website", "Website", "modernnails.com")}
         <div className="md:col-span-2">{f("address", "Address")}</div>
@@ -271,7 +272,7 @@ function VoiceStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
 function PolicyStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => void }) {
   return (
     <>
-      <H t="Your salon policies" d="So NailDesk Pro answers the same way you would." />
+      <H t="Your salon policies" d="So Salon Agent AI answers the same way you would." />
       <div className="grid gap-4">
         <div><label className={label}>Deposits</label><input className={input} placeholder="e.g. $20 deposit for full sets" value={salon.deposit_policy} onChange={(e) => set({ deposit_policy: e.target.value })} /></div>
         <div><label className={label}>Cancellations</label><input className={input} placeholder="e.g. 24 hours notice please" value={salon.cancellation_policy} onChange={(e) => set({ cancellation_policy: e.target.value })} /></div>
@@ -280,7 +281,7 @@ function PolicyStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => 
         <div>
           <label className={label}>How would you like to finish setup?</label>
           <div className="grid gap-2 sm:grid-cols-3">
-            {([["online", "Online, myself"], ["phone", "By phone with NailDesk Pro"], ["concierge", "Have your team do it"]] as const).map(([k, l]) => (
+            {([["online", "Online, myself"], ["phone", "By phone with Salon Agent AI"], ["concierge", "Have your team do it"]] as const).map(([k, l]) => (
               <button key={k} type="button" onClick={() => set({ setup_method: k })} className={cn("rounded-2xl border p-3 text-sm", salon.setup_method === k ? "border-ring bg-accent" : "border-border text-muted-foreground")}>{l}</button>
             ))}
           </div>

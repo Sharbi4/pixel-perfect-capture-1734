@@ -75,6 +75,7 @@ export async function buyNumber(e164: string, voiceUrl: string, label: string): 
 export async function findOwnedNumber(e164: string): Promise<Outcome<string | null>> {
   const r = await tw(`/IncomingPhoneNumbers.json?${new URLSearchParams({ PhoneNumber: e164 })}`);
   if (r.status !== 200) return { kind: "ambiguous", code: "check_failed" };
-  const list = (r.json as { incoming_phone_numbers?: { sid: string; phone_number: string }[] })?.incoming_phone_numbers ?? [];
+  const list = (r.json as { incoming_phone_numbers?: { sid: string; phone_number: string }[] })?.incoming_phone_numbers;
+  if (!Array.isArray(list)) return { kind: "ambiguous", code: "check_failed" };
   return { kind: "ok", value: list.find((n) => n.phone_number === e164)?.sid ?? null };
 }

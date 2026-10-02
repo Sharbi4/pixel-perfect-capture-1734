@@ -145,6 +145,7 @@ export type Database = {
           launched_at: string | null
           name: string
           owner_id: string
+          paid_access_until: string | null
           phone: string
           phone_number: string
           phone_number_sid: string
@@ -177,6 +178,7 @@ export type Database = {
           launched_at?: string | null
           name?: string
           owner_id: string
+          paid_access_until?: string | null
           phone?: string
           phone_number?: string
           phone_number_sid?: string
@@ -209,6 +211,7 @@ export type Database = {
           launched_at?: string | null
           name?: string
           owner_id?: string
+          paid_access_until?: string | null
           phone?: string
           phone_number?: string
           phone_number_sid?: string
@@ -277,6 +280,18 @@ export type Database = {
       _apply_phone_job: {
         Args: { j: Database["public"]["Tables"]["phone_jobs"]["Row"] }
         Returns: undefined
+      }
+      _begin_phone_job_unpaid_check: {
+        Args: { p_key: string; p_kind: string; p_salon: string }
+        Returns: {
+          acquired: boolean
+          error_code: string
+          job_id: string
+          job_state: string
+          lock_token: string
+          provider_ref: string
+          target: string
+        }[]
       }
       begin_phone_job: {
         Args: { p_key: string; p_kind: string; p_salon: string }

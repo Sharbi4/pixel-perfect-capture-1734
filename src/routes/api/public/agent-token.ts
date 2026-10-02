@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/agent-token")({
   server: {
     handlers: {
       GET: async () => {
-        const key = process.env.ELEVENLABS_API_KEY;
+        const key = process.env['ELEVENLABS_API_KEY'];
         if (!key) return Response.json({ error: "Voice demo not configured" }, { status: 500 });
         const res = await fetch(
           `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${AGENT_ID}`,

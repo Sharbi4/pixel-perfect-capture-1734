@@ -7,10 +7,10 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Salon Pro Agent — The AI front desk for salons" },
-      { name: "description", content: "AI-powered calls, texts and appointment booking built for salons, spas and beauty studios. English + Vietnamese." },
-      { property: "og:title", content: "Salon Pro Agent — The AI front desk for salons" },
-      { property: "og:description", content: "Salon Pro Agent answers customers, books appointments and keeps your calendar moving." },
+      { title: "Salon Pro Agent — AI Receptionist & Answering Service for Salons" },
+      { name: "description", content: "Salon Pro Agent is the AI receptionist for salons: a 24/7 salon answering service that answers every call, texts clients and books appointments. English + Vietnamese." },
+      { property: "og:title", content: "Salon Pro Agent — AI Receptionist & Answering Service for Salons" },
+      { property: "og:description", content: "The AI receptionist for salons: answers every call, texts clients and books appointments 24/7." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -1,10 +1,11 @@
+// engine = ElevenLabs voice ID
 export const voices = [
-  { id: "mia", name: "Mia", vibe: "Warm & professional", engine: "Sulafat" },
-  { id: "sophie", name: "Sophie", vibe: "Friendly & upbeat", engine: "Zephyr" },
-  { id: "emma", name: "Emma", vibe: "Calm & polished", engine: "Despina" },
-  { id: "linh", name: "Linh", vibe: "Bilingual English / Vietnamese", engine: "Kore" },
-  { id: "ava", name: "Ava", vibe: "Modern & energetic", engine: "Leda" },
-  { id: "grace", name: "Grace", vibe: "Gentle & reassuring", engine: "Vindemiatrix" },
+  { id: "mia", name: "Mia", vibe: "Warm & professional", engine: "EXAVITQu4vr4xnSDxMaL" },
+  { id: "sophie", name: "Sophie", vibe: "Friendly & upbeat", engine: "cgSgspJ2msm6clMCkdW9" },
+  { id: "emma", name: "Emma", vibe: "Calm & polished", engine: "FGY2WhTYpPnrIDTdsKH5" },
+  { id: "linh", name: "Linh", vibe: "Bilingual English / Vietnamese", engine: "Xb7hH8MSUJpSbSDYk0k2" },
+  { id: "ava", name: "Ava", vibe: "Modern & energetic", engine: "pFZP5JQG7iQjIQuC4Bku" },
+  { id: "grace", name: "Grace", vibe: "Gentle & reassuring", engine: "XrExE9yKIg1WjnnlVkGX" },
 ] as const;
 
 export type VoiceId = (typeof voices)[number]["id"];

@@ -17,31 +17,27 @@ export const Route = createFileRoute("/api/voice-preview")({
         const body = (await request.json().catch(() => ({}))) as { voice?: string; salon?: string };
         const v = voices.find((x) => x.id === body.voice) ?? voices[0];
         const salon = String(body.salon ?? "").slice(0, 80);
-        const apiKey = process.env["LOVABLE_API_KEY"];
+        const apiKey = process.env["ELEVENLABS_API_KEY"];
         if (!apiKey) return new Response("Voice previews aren't configured", { status: 500 });
 
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${v.engine}/stream?output_format=mp3_44100_128`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+          headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-3.1-flash-tts-preview",
-            contents: [{ role: "user", parts: [{ text: `Say warmly, like a friendly salon receptionist answering the phone: ${greeting(salon)}` }] }],
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: v.engine } } },
-            },
-            stream_format: "audio",
+            text: greeting(salon),
+            model_id: "eleven_turbo_v2_5",
+            voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true },
           }),
           signal: request.signal,
         });
         if (!res.ok || !res.body) {
           const msg = await res.text().catch(() => "");
           console.error("TTS error", res.status, msg.slice(0, 300));
-          const friendly = res.status === 402 ? "AI credits have run out." : res.status === 429 ? "Too many previews right now, try again shortly." : "Preview unavailable right now.";
+          const friendly = res.status === 429 ? "Too many previews right now, try again shortly." : "Preview unavailable right now.";
           return new Response(friendly, { status: res.status });
         }
         return new Response(res.body, {
-          headers: { "Content-Type": res.headers.get("Content-Type") ?? "audio/wav", "Cache-Control": "private, no-store" },
+          headers: { "Content-Type": "audio/mpeg", "Cache-Control": "private, no-store" },
         });
       },
     },

@@ -42,3 +42,18 @@ export async function openJobs(salonId: string) {
 }
 
 export async function adminClient() { return admin(); }
+
+/**
+ * Prove ownership through the caller's RLS-scoped client (id only — customers can't read provider IDs),
+ * then load the full row, including private provider fields, with the service role.
+ */
+export async function ownedSalonPrivate(
+  userClient: { from: (t: "salons") => any },
+  userId: string,
+) {
+  const { data: owned } = await userClient.from("salons").select("id").eq("owner_id", userId).maybeSingle();
+  if (!owned?.id) return null;
+  const sb = await admin();
+  const { data } = await sb.from("salons").select("*").eq("id", owned.id).single();
+  return data;
+}

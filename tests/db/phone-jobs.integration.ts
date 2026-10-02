@@ -92,10 +92,10 @@ async function main() {
     const mine = own.json[0];
     if (mine) {
       for (const [field, value] of [["agent_id", "agent_forged"], ["phone_number", "+15555550100"], ["phone_number_sid", "PNforged"], ["status", "live"], ["owner_id", otherOwner], ["launched_at", new Date().toISOString()]] as const) {
-        const r = await rest("user", "PATCH", `salons?id=eq.${mine.id}`, { [field]: value });
+        const r = await rest("user", "PATCH", `salons?id=eq.${mine.id}&select=id`, { [field]: value });
         check(`owner cannot forge salons.${field}`, r.status >= 400, r);
       }
-      const ok = await rest("user", "PATCH", `salons?id=eq.${mine.id}`, { name: mine.name, updated_at: new Date().toISOString() });
+      const ok = await rest("user", "PATCH", `salons?id=eq.${mine.id}&select=id`, { name: mine.name, updated_at: new Date().toISOString() });
       check("owner can still edit normal salon fields", ok.status < 300, ok);
       const del = await rest("user", "DELETE", `salons?id=eq.${mine.id}`);
       check("owner cannot delete their salon (no delete/recreate)", del.status >= 400, del);
@@ -105,9 +105,9 @@ async function main() {
       check("5 concurrent recreate attempts all refused (one salon per owner)", recreate.every((r) => r.status >= 400), recreate.map((r) => r.status));
       const retSid = await rest("user", "POST", "salons?select=phone_number_sid", { owner_id: USER_ID });
       check("insert cannot return provider ids", retSid.status >= 400);
-      const forgedInsert = await rest("user", "POST", "salons", { owner_id: USER_ID, agent_id: "agent_forged" });
+      const forgedInsert = await rest("user", "POST", "salons?select=id", { owner_id: USER_ID, agent_id: "agent_forged" });
       check("owner cannot insert a salon with a provider id", forgedInsert.status >= 400);
-      const otherOwnerInsert = await rest("user", "POST", "salons", { owner_id: otherOwner, name: "x" });
+      const otherOwnerInsert = await rest("user", "POST", "salons?select=id", { owner_id: otherOwner, name: "x" });
       check("owner cannot insert a salon for someone else", otherOwnerInsert.status >= 400);
     } else {
       console.log("  (skipped owner salon checks: owner has no salon yet)");

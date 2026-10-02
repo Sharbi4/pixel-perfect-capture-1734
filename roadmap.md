@@ -5,3 +5,4 @@
 - [x] Stage 1: secure phone provisioning foundation (jobs, locking, reconciliation, temporary number)
 - [ ] Stage 2: number porting (portability check, port request, status tracking) — Twilio credentials saved and verified
 - [ ] Stage 3+: real call verification, forwarding verification, texting registration
+- [x] Google Workspace email verification for salonagentai.com — domain is Lovable-managed; user adds TXT record via Project Settings → Domains → Manage DNS records

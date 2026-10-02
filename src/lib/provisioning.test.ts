@@ -88,7 +88,7 @@ describe("purchase job", () => {
     const { deps, store } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }));
     const r = await runPurchase(deps, input);
     expect(r).toMatchObject({ status: "done", target: "+14805550999", ref: "PN1" });
-    expect(store.jobs[0]).toMatchObject({ state: "succeeded", target: "+14805550999" });
+    expect(store.jobs[0]!).toMatchObject({ state: "succeeded", target: "+14805550999" });
   });
 
   it("concurrent requests (double click / two tabs) purchase only once", async () => {
@@ -111,7 +111,7 @@ describe("purchase job", () => {
     expect((await runPurchase(deps, input)).status).toBe("needs_review");
     expect((await runPurchase(deps, { ...input, key: "k-new" })).status).toBe("needs_review");
     expect(deps.buy).toHaveBeenCalledTimes(1);
-    expect(store.jobs[0]).toMatchObject({ state: "uncertain", target: "+14805550999" });
+    expect(store.jobs[0]!).toMatchObject({ state: "uncertain", target: "+14805550999" });
   });
 
   it("5xx after purchase is treated as unclear, not failed", async () => {
@@ -139,24 +139,24 @@ describe("reconciliation of unclear results", () => {
   async function uncertainJob() {
     const { deps, store } = purchaseDeps(async () => ({ kind: "ambiguous", code: "unconfirmed" }));
     await runPurchase(deps, { key: "k1", businessNumber: BUSINESS, addressState: "AZ" });
-    return { store, job: { id: store.jobs[0].id, target: store.jobs[0].target } };
+    return { store, job: { id: store.jobs[0]!.id, target: store.jobs[0]!.target } };
   }
   it("found at provider → succeeded with its real id", async () => {
     const { store, job } = await uncertainJob();
     const r = await reconcile(store.transition, job, async () => ({ kind: "ok", value: "PN9" }), "not_purchased");
     expect(r.status).toBe("done");
-    expect(store.jobs[0]).toMatchObject({ state: "succeeded", ref: "PN9" });
+    expect(store.jobs[0]!).toMatchObject({ state: "succeeded", ref: "PN9" });
   });
   it("confirmed absent → failed, so the owner can try again", async () => {
     const { store, job } = await uncertainJob();
     expect((await reconcile(store.transition, job, async () => ({ kind: "ok", value: null }), "not_purchased")).status).toBe("failed");
-    expect(store.jobs[0].state).toBe("failed");
+    expect(store.jobs[0]!.state).toBe("failed");
   });
   it("lookup itself failing keeps it unclear", async () => {
     const { store, job } = await uncertainJob();
     const r = await reconcile(store.transition, job, async () => { throw new Error("down"); }, "not_purchased");
     expect(r.status).toBe("needs_review");
-    expect(store.jobs[0].state).toBe("uncertain");
+    expect(store.jobs[0]!.state).toBe("uncertain");
   });
 });
 

@@ -23,7 +23,7 @@ function LiveAgentInner() {
       await conversation.startSession({ conversationToken: data.token, connectionType: "webrtc" });
     } catch (e) {
       setError(
-        e instanceof DOMException ? "Please allow microphone access to talk to Salon Agent." : (e as Error).message,
+        e instanceof DOMException ? "Please allow microphone access to talk to Salon Pro Agent." : (e as Error).message,
       );
     } finally {
       setConnecting(false);
@@ -35,7 +35,7 @@ function LiveAgentInner() {
       <div className="mx-auto max-w-3xl text-center">
         <SectionHead
           eyebrow="Live demo"
-          title={<>Talk to Salon Agent <span className="text-gradient">right now</span></>}
+          title={<>Talk to Salon Pro Agent <span className="text-gradient">right now</span></>}
           body="Ask about prices, book a gel manicure, or try to stump it. This is the real AI receptionist — use your microphone."
         />
         <Reveal>
@@ -48,7 +48,7 @@ function LiveAgentInner() {
               )}
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              {live ? (conversation.isSpeaking ? "Salon Agent is speaking…" : "Listening — go ahead and talk") : "Ready when you are"}
+              {live ? (conversation.isSpeaking ? "Salon Pro Agent is speaking…" : "Listening — go ahead and talk") : "Ready when you are"}
             </p>
             <div className="mt-6">
               {live ? (

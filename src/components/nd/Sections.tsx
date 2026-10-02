@@ -76,7 +76,7 @@ export function Hero() {
             <span className="text-gradient">Your front desk shouldn't be.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-            Salon Agent answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
+            Salon Pro Agent answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <NdButton size="lg" href="#talk"><Phone className="size-4" /> See it in action</NdButton>
@@ -100,7 +100,7 @@ export function TextToBook() {
         <SectionHead
           eyebrow="Text to Book"
           title={<>They don't even <span className="text-gradient">have to call.</span></>}
-          body="Customers can text your salon just like they text a friend. Salon Agent understands what they need, checks availability and books the appointment automatically."
+          body="Customers can text your salon just like they text a friend. Salon Pro Agent understands what they need, checks availability and books the appointment automatically."
         />
         <Reveal className="mt-16"><TextDemo /></Reveal>
       </div>
@@ -111,9 +111,9 @@ export function TextToBook() {
 const channels = [
   { icon: Phone, t: "Calls", d: "AI answers incoming salon calls.", demo: "“Thanks for calling Luna Nails…”" },
   { icon: MessageSquareText, t: "Texts", d: "Customers can text questions or book appointments.", demo: "419 texts handled this month" },
-  { icon: CalendarCheck, t: "Appointments", d: "Salon Agent checks availability and manages bookings.", demo: "Books · reschedules · cancels" },
+  { icon: CalendarCheck, t: "Appointments", d: "Salon Pro Agent checks availability and manages bookings.", demo: "Books · reschedules · cancels" },
   { icon: BellRing, t: "Confirmations", d: "Automatic confirmations and reminders.", demo: "Reminder sent · 24h before" },
-  { icon: HelpCircle, t: "Questions", d: "Salon Agent knows salon hours, pricing, services and policies.", demo: "“Gel removal is $10 with a new set.”" },
+  { icon: HelpCircle, t: "Questions", d: "Salon Pro Agent knows salon hours, pricing, services and policies.", demo: "“Gel removal is $10 with a new set.”" },
   { icon: PhoneForwarded, t: "Human handoff", d: "Transfer complicated conversations to staff.", demo: "Transferring to front desk…" },
 ];
 
@@ -154,9 +154,9 @@ function Sparkle(p: { className?: string }) { return <Waveform bars={4} classNam
 
 const transcript = [
   ["Caller", "Hi, I need to move my appointment to Saturday."],
-  ["Salon Agent", "Of course. I have 11:00 AM or 1:30 PM with Kim."],
+  ["Salon Pro Agent", "Of course. I have 11:00 AM or 1:30 PM with Kim."],
   ["Caller", "11 is perfect."],
-  ["Salon Agent", "Done — I'll text you the confirmation now."],
+  ["Salon Pro Agent", "Done — I'll text you the confirmation now."],
 ];
 
 export function VoiceUpsell() {
@@ -168,12 +168,12 @@ export function VoiceUpsell() {
         <div className="aurora -top-40 right-0 size-[500px] bg-cobalt opacity-40 [animation-delay:-8s]" />
         <div className="relative grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>Salon Agent · AI phone receptionist</Eyebrow>
+            <Eyebrow>Salon Pro Agent · AI phone receptionist</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
               Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
             </h2>
             <p className="mt-5 text-lg text-muted-foreground">
-              Salon Agent is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
+              Salon Pro Agent is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {voiceFeatures.map(([I, t]) => (
@@ -200,8 +200,8 @@ export function VoiceUpsell() {
               <div className="mt-2 min-h-[170px] space-y-2 font-mono text-[13px]">
                 {transcript.slice(0, Math.min(s, 4)).map(([w, t]) => (
                   <div key={t} className="animate-rise flex flex-col gap-1 sm:flex-row sm:gap-3">
-                    <span className={`inline-flex shrink-0 items-center gap-1.5 sm:w-32 ${w === "Salon Agent" ? "text-violet" : "text-muted-foreground"}`}>
-                      {w === "Salon Agent" && <BrandMark className="size-4" />}{w}
+                    <span className={`inline-flex shrink-0 items-center gap-1.5 sm:w-32 ${w === "Salon Pro Agent" ? "text-violet" : "text-muted-foreground"}`}>
+                      {w === "Salon Pro Agent" && <BrandMark className="size-4" />}{w}
                     </span>
                     <span className="min-w-0">{t}</span>
                   </div>
@@ -233,7 +233,7 @@ export function Value() {
         <div className="mt-16 grid gap-4 md:grid-cols-2">
           <Reveal>
             <div className="h-full rounded-3xl border border-border p-8">
-              <div className="text-sm font-medium text-muted-foreground">Before Salon Agent</div>
+              <div className="text-sm font-medium text-muted-foreground">Before Salon Pro Agent</div>
               <ul className="mt-6 space-y-4">
                 {before.map((t) => (
                   <li key={t} className="flex items-start gap-3 text-muted-foreground">
@@ -248,7 +248,7 @@ export function Value() {
             <div className="relative h-full overflow-hidden rounded-3xl p-px">
               <div className="bg-brand absolute inset-0 opacity-70" />
               <div className="relative h-full rounded-[23px] bg-surface p-8">
-                <div className="text-gradient text-sm font-medium">With Salon Agent</div>
+                <div className="text-gradient text-sm font-medium">With Salon Pro Agent</div>
                 <ul className="mt-6 space-y-4">
                   {after.map((t) => (
                     <li key={t} className="flex items-start gap-3">
@@ -281,8 +281,8 @@ export function DashboardSection() {
 export function HowItWorks() {
   const steps = [
     ["Connect your salon", "Add your services, staff, hours, pricing and booking system.", UserRound],
-    ["Connect your number", "Keep your existing number. Salon Agent can handle calls and texts.", Phone],
-    ["Salon Agent gets to work", "Customers call or text and Salon Agent handles the conversation and booking automatically.", CalendarCheck],
+    ["Connect your number", "Keep your existing number. Salon Pro Agent can handle calls and texts.", Phone],
+    ["Salon Pro Agent gets to work", "Customers call or text and Salon Pro Agent handles the conversation and booking automatically.", CalendarCheck],
   ] as const;
   return (
     <section id="how" className="scroll-mt-24 px-4 py-28">
@@ -312,7 +312,7 @@ export function Pricing() {
   return (
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="Salon Agent is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
+        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="Salon Pro Agent is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
         <Reveal>
           <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
             <div className="bg-brand absolute inset-0" />
@@ -362,7 +362,7 @@ export function FinalCta() {
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <NdButton size="lg" href="/setup">{plan.cta}</NdButton>
-          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear Salon Agent</NdButton>
+          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear Salon Pro Agent</NdButton>
         </div>
       </Reveal>
     </section>
@@ -375,7 +375,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
         <Logo href="#top" variant="white" />
         <span>The AI front desk for salons.</span>
-        <span>© {new Date().getFullYear()} Salon Agent</span>
+        <span>© {new Date().getFullYear()} Salon Pro Agent</span>
       </div>
     </footer>
   );
@@ -385,18 +385,18 @@ export function SetupFlow() {
   const steps = [
     ["Tell us about your salon", "Name, hours, languages, and your services. Upload a menu or paste your website and we fill it in."],
     ["Pick your voice", "Choose from six receptionists, then hear each one answer with your salon's name."],
-    ["We build your receptionist", "Salon Agent learns your prices, policies and booking rules for you. No tech skills needed."],
+    ["We build your receptionist", "Salon Pro Agent learns your prices, policies and booking rules for you. No tech skills needed."],
     ["Go live", "Forward your calls and you're answering 24/7. Texting starts once business texting is approved."],
   ];
   const ways = [
     ["Online", "Finish setup yourself in about 10 minutes."],
-    ["By phone", "Call Salon Agent and it sets things up with you."],
+    ["By phone", "Call Salon Pro Agent and it sets things up with you."],
     ["Done for you", "Our team handles every step."],
   ];
   return (
     <section id="setup" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. Salon Agent builds itself around your salon." />
+        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. Salon Pro Agent builds itself around your salon." />
         <div className="mt-16 grid gap-4 md:grid-cols-4">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 80}>

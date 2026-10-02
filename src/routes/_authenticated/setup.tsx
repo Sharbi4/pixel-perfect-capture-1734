@@ -43,8 +43,8 @@ function SetupPage() {
   async function persist() {
     setSaving(true); setErr(null);
     try {
-      const { id, status, launched_at, ...rest } = salon!;
-      void status; void launched_at;
+      const { id, status, launched_at, agent_id, agent_error, ...rest } = salon!;
+      void status; void launched_at; void agent_id; void agent_error;
       await saveSalon(id, rest);
       if (step === 1) await saveServices(id, services);
     } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't save"); setSaving(false); return false; }
@@ -56,7 +56,7 @@ function SetupPage() {
   }
   async function doLaunch() {
     setSaving(true);
-    try { await saveServices(salon!.id, services); await launch(); nav({ to: "/account" }); }
+    try { await saveServices(salon!.id, services); const r = await launch(); if (r.error) throw new Error(r.error); nav({ to: "/account" }); }
     catch (e) { setErr(e instanceof Error ? e.message : "Launch failed"); setSaving(false); }
   }
 

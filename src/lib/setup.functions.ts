@@ -57,11 +57,31 @@ export const launchSalon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    // Phone agent + number creation plugs in here once a voice-phone provider is connected.
-    const { error } = await supabase
-      .from("salons")
-      .update({ status: "setting_up", launched_at: new Date().toISOString() })
-      .eq("owner_id", userId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    const { data: salon, error } = await supabase.from("salons").select("*").eq("owner_id", userId).single();
+    if (error || !salon) throw new Error("Salon not found.");
+    const { data: services } = await supabase
+      .from("services").select("name,price,minutes,is_addon").eq("salon_id", salon.id).order("position");
+    const { upsertAgent } = await import("./agent.server");
+    try {
+      const agentId = await upsertAgent(salon, services ?? []);
+      await supabase.from("salons").update({
+        agent_id: agentId, agent_error: "", status: "agent_ready",
+        launched_at: salon.launched_at ?? new Date().toISOString(),
+      }).eq("id", salon.id);
+      return { ok: true, error: null as string | null };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Something went wrong.";
+      await supabase.from("salons").update({ agent_error: msg, status: "setting_up" }).eq("id", salon.id);
+      return { ok: false, error: msg };
+    }
+  });
+
+export const getTestCallToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: salon } = await context.supabase
+      .from("salons").select("agent_id").eq("owner_id", context.userId).single();
+    if (!salon?.agent_id) throw new Error("Your receptionist isn't built yet.");
+    const { agentToken } = await import("./agent.server");
+    return { token: await agentToken(salon.agent_id) };
   });

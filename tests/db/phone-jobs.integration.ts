@@ -97,6 +97,14 @@ async function main() {
       }
       const ok = await rest("user", "PATCH", `salons?id=eq.${mine.id}`, { name: mine.name, updated_at: new Date().toISOString() });
       check("owner can still edit normal salon fields", ok.status < 300, ok);
+      const del = await rest("user", "DELETE", `salons?id=eq.${mine.id}`);
+      check("owner cannot delete their salon (no delete/recreate)", del.status >= 400, del);
+      const still = await rest("user", "GET", `salons?id=eq.${mine.id}&select=id`);
+      check("owner salon still exists after delete attempt", still.json.length === 1);
+      const recreate = await Promise.all(Array.from({ length: 5 }, () => rest("user", "POST", "salons?select=id", { owner_id: USER_ID })));
+      check("5 concurrent recreate attempts all refused (one salon per owner)", recreate.every((r) => r.status >= 400), recreate.map((r) => r.status));
+      const retSid = await rest("user", "POST", "salons?select=phone_number_sid", { owner_id: USER_ID });
+      check("insert cannot return provider ids", retSid.status >= 400);
       const forgedInsert = await rest("user", "POST", "salons", { owner_id: USER_ID, agent_id: "agent_forged" });
       check("owner cannot insert a salon with a provider id", forgedInsert.status >= 400);
       const otherOwnerInsert = await rest("user", "POST", "salons", { owner_id: otherOwner, name: "x" });
@@ -104,8 +112,30 @@ async function main() {
     } else {
       console.log("  (skipped owner salon checks: owner has no salon yet)");
     }
+
+    console.log("Delete/recreate and private fields");
+    const sameKey = await Promise.all(Array.from({ length: 6 }, () => begin(salon, "dup-key", "create_agent")));
+    check("6 concurrent requests with the same key → one job", new Set(sameKey.map((h) => h.job_id)).size === 1 && sameKey.filter((h) => h.acquired).length <= 1, sameKey);
+    const backendDel = await rest("service", "DELETE", `salons?id=eq.${salon}`);
+    check("salon with paid-resource jobs cannot be deleted, even by backend, until jobs are handled", backendDel.status >= 400, backendDel);
+    const jobsLeft = await rest("service", "GET", `phone_jobs?salon_id=eq.${salon}&select=id`);
+    check("job history survives the delete attempt", jobsLeft.json.length >= 2);
+    for (const col of ["phone_number_sid", "agent_id", "*"]) {
+      const r = await rest("user", "GET", `salons?select=${col}`);
+      check(`owner cannot read salons.${col}`, r.status >= 400, r);
+    }
+    const safe = await rest("user", "GET", "salons?select=id,phone_number,has_receptionist");
+    check("owner can read safe salon columns", safe.status === 200, safe);
+    for (const [m, path, body] of [["POST", "phone_setups", { salon_id: salon }], ["PATCH", `phone_setups?salon_id=eq.${salon}`, { voice_status: "verified" }], ["DELETE", `phone_setups?salon_id=eq.${salon}`, undefined]] as const) {
+      const r = await rest("user", m, path, body);
+      check(`owner cannot ${m} phone_setups`, r.status >= 400, r);
+    }
+    const anonSvc = await rest("anon", "GET", "services?select=id");
+    check("anonymous cannot read services", anonSvc.status >= 400);
   } finally {
-    await rest("service", "DELETE", `salons?id=eq.${salon}`);
+    await rest("service", "DELETE", `phone_jobs?salon_id=eq.${salon}`);
+    const d = await rest("service", "DELETE", `salons?id=eq.${salon}`);
+    check("backend can remove a salon after handling its jobs", d.status < 300, d);
   }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

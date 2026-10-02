@@ -60,8 +60,8 @@ export const launchSalon = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ idempotencyKey: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<LaunchResult> => {
     const { supabase, userId } = context;
-    // RLS-scoped read proves the caller owns this salon.
-    const { data: salon } = await supabase.from("salons").select("*").eq("owner_id", userId).maybeSingle();
+    const { ownedSalonPrivate } = await import("./jobs.server");
+    const salon = await ownedSalonPrivate(supabase, userId);
     if (!salon) return { status: "failed", error: "Salon not found." };
     const { data: services } = await supabase
       .from("services").select("name,price,minutes,is_addon").eq("salon_id", salon.id).order("position");
@@ -106,8 +106,8 @@ export const launchSalon = createServerFn({ method: "POST" })
 export const getTestCallToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: salon } = await context.supabase
-      .from("salons").select("agent_id").eq("owner_id", context.userId).single();
+    const { ownedSalonPrivate } = await import("./jobs.server");
+    const salon = await ownedSalonPrivate(context.supabase, context.userId);
     if (!salon?.agent_id) throw new Error("Your receptionist isn't built yet.");
     const { agentToken } = await import("./agent.server");
     return { token: await agentToken(salon.agent_id) };

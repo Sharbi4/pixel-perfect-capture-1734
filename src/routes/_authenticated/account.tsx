@@ -71,11 +71,11 @@ function AccountPage() {
   const launched = salon.status !== "draft";
   const voice = voices.find((v) => v.id === salon.voice);
   const business = normalizeUsNumber(salon.phone);
-  const agentState = setup?.agent_status ?? (salon.agent_id ? "ready" : "none");
+  const agentState = setup?.agent_status ?? (salon.has_receptionist ? "ready" : "none");
   const numState = setup?.temp_number_status ?? (salon.phone_number ? "active" : "none");
   const needsReview = agentState === "needs_review" || numState === "needs_review" || agentState === "in_progress" || numState === "in_progress";
 
-  const agentRow: Row = salon.agent_id ? ["Receptionist", "Ready — try a test call below", "done"]
+  const agentRow: Row = salon.has_receptionist ? ["Receptionist", "Ready — try a test call below", "done"]
     : agentState === "in_progress" ? ["Receptionist", "Building…", "wait"]
     : agentState === "needs_review" ? ["Receptionist", setupMessage(setup?.agent_error || "unconfirmed"), "alert"]
     : agentState === "failed" ? ["Receptionist", setupMessage(setup?.agent_error || ""), "alert"]
@@ -85,7 +85,7 @@ function AccountPage() {
     : numState === "in_progress" ? ["Temporary NailDesk number", "Setting up…", "wait"]
     : numState === "needs_review" ? ["Temporary NailDesk number", setupMessage(setup?.temp_number_error || "unconfirmed"), "alert"]
     : numState === "failed" ? ["Temporary NailDesk number", setupMessage(setup?.temp_number_error || ""), "alert"]
-    : ["Temporary NailDesk number", salon.agent_id ? "Not set up yet" : "After your receptionist is ready", "todo"];
+    : ["Temporary NailDesk number", salon.has_receptionist ? "Not set up yet" : "After your receptionist is ready", "todo"];
 
   const items: Row[] = [
     ["Salon details", salon.name || "Not added yet", salon.name ? "done" : "todo"],
@@ -116,9 +116,9 @@ function AccountPage() {
           ))}
         </ul>
         {msg && <p className="mt-4 text-sm text-destructive">{msg}</p>}
-        {salon.agent_id && <TestCall />}
+        {salon.has_receptionist && <TestCall />}
         <div className="mt-6 flex flex-wrap gap-3">
-          {salon.agent_id && !salon.phone_number && (numState === "none" || numState === "failed") && (
+          {salon.has_receptionist && !salon.phone_number && (numState === "none" || numState === "failed") && (
             <button onClick={getNumber} disabled={!!busy} className="bg-brand inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
               {busy === "number" && <Loader2 className="size-4 animate-spin" />} Set up my temporary NailDesk number
             </button>
@@ -130,7 +130,7 @@ function AccountPage() {
           )}
           {launched && agentState !== "in_progress" && agentState !== "needs_review" && (
             <button onClick={rebuild} disabled={!!busy} className="inline-flex h-11 items-center gap-2 rounded-full bg-accent px-6 text-sm font-medium">
-              {busy === "build" && <Loader2 className="size-4 animate-spin" />}{salon.agent_id ? "Update receptionist with latest info" : "Build my receptionist"}
+              {busy === "build" && <Loader2 className="size-4 animate-spin" />}{salon.has_receptionist ? "Update receptionist with latest info" : "Build my receptionist"}
             </button>
           )}
           <Link to="/setup" className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">{launched ? "Edit setup" : "Continue setup"}</Link>

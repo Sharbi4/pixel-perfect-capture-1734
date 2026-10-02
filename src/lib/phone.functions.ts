@@ -10,8 +10,8 @@ export const setupTemporaryNumber = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ idempotencyKey: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<Result> => {
     // Ownership is proven by reading through the caller's RLS-scoped client.
-    const { data: salon } = await context.supabase
-      .from("salons").select("id,name,phone,address,agent_id,phone_number").eq("owner_id", context.userId).maybeSingle();
+    const { ownedSalonPrivate } = await import("./jobs.server");
+    const salon = await ownedSalonPrivate(context.supabase, context.userId);
     if (!salon) return { status: "failed", code: "provider_rejected", number: "" };
     if (salon.phone_number) return { status: "done", code: "", number: salon.phone_number };
     if (!salon.agent_id) return { status: "failed", code: "needs_agent", number: "" };

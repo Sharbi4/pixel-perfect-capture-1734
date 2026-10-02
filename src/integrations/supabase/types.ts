@@ -136,6 +136,7 @@ export type Database = {
           contact_name: string
           created_at: string
           deposit_policy: string
+          has_receptionist: boolean | null
           hours: string
           id: string
           languages: string[]
@@ -161,6 +162,7 @@ export type Database = {
           contact_name?: string
           created_at?: string
           deposit_policy?: string
+          has_receptionist?: boolean | null
           hours?: string
           id?: string
           languages?: string[]
@@ -186,6 +188,7 @@ export type Database = {
           contact_name?: string
           created_at?: string
           deposit_policy?: string
+          has_receptionist?: boolean | null
           hours?: string
           id?: string
           languages?: string[]

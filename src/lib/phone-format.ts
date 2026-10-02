@@ -27,5 +27,6 @@ const STATES = new Set(
 /** Best-effort 2-letter state from a free-text US address ("..., Phoenix, AZ 85004"). */
 export function stateFromAddress(address: string): string | null {
   const m = /\b([A-Z]{2})\s*,?\s*\d{5}(?:-\d{4})?\b/.exec((address ?? "").toUpperCase());
-  return m && STATES.has(m[1]) ? m[1] : null;
+  const st = m?.[1];
+  return st && STATES.has(st) ? st : null;
 }

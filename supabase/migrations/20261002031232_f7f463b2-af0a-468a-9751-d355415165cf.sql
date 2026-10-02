@@ -1,0 +1,1 @@
+ALTER TABLE public.salons ADD COLUMN phone_number text NOT NULL DEFAULT '', ADD COLUMN phone_number_sid text NOT NULL DEFAULT '';

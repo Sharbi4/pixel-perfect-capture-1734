@@ -31,6 +31,8 @@ export type Database = {
           name: string
           owner_id: string
           phone: string
+          phone_number: string
+          phone_number_sid: string
           setup_method: string
           status: string
           updated_at: string
@@ -54,6 +56,8 @@ export type Database = {
           name?: string
           owner_id: string
           phone?: string
+          phone_number?: string
+          phone_number_sid?: string
           setup_method?: string
           status?: string
           updated_at?: string
@@ -77,6 +81,8 @@ export type Database = {
           name?: string
           owner_id?: string
           phone?: string
+          phone_number?: string
+          phone_number_sid?: string
           setup_method?: string
           status?: string
           updated_at?: string

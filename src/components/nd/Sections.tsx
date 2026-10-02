@@ -78,7 +78,7 @@ export function Hero() {
             NailDesk answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <NdButton size="lg" href="#receptionist"><Phone className="size-4" /> Hear NailDesk Answer a Call</NdButton>
+            <NdButton size="lg" href="#talk"><Phone className="size-4" /> Talk to NailDesk Live</NdButton>
             <NdButton size="lg" variant="ghost" href="#how">See How It Works</NdButton>
           </div>
           <p className="mt-8 text-sm text-muted-foreground">

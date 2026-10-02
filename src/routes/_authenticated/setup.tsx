@@ -7,6 +7,7 @@ import { loadOrCreateSalon, saveSalon, saveServices, type Salon, type Service } 
 import { extractServices, launchSalon } from "@/lib/setup.functions";
 import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
+import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
 
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
@@ -34,7 +35,7 @@ function SetupPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const launch = useServerFn(launchSalon);
-  const launchKey = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : "");
+  const launchKey = useRef<string>(crypto.randomUUID());
 
   useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => { setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
 

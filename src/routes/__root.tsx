@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Salon Agent AI" },
+      { title: "Salon Agent" },
       { name: "description", content: "The AI front desk for salons." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "application-name", content: "Salon Agent AI" },
+      { name: "application-name", content: "Salon Agent" },
       { name: "theme-color", content: "#090D20" },
-      { property: "og:site_name", content: "Salon Agent AI" },
+      { property: "og:site_name", content: "Salon Agent" },
     ],
     links: [
       {

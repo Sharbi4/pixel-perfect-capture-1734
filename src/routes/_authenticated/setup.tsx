@@ -13,9 +13,9 @@ import { BrandLogo } from "@/components/brand/Brand";
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
     meta: [
-      { title: "Set up your salon — Salon Agent AI" },
-      { name: "description", content: "Tell Salon Agent AI about your salon, pick a receptionist voice and launch." },
-      { property: "og:title", content: "Set up your salon — Salon Agent AI" },
+      { title: "Set up your salon — Salon Agent" },
+      { name: "description", content: "Tell Salon Agent about your salon, pick a receptionist voice and launch." },
+      { property: "og:title", content: "Set up your salon — Salon Agent" },
       { property: "og:description", content: "Salon details, services, voice and policies in a few minutes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -126,13 +126,13 @@ function SalonStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
   );
   return (
     <>
-      <H t="Tell Salon Agent AI about your salon" d="This is what your receptionist will know when customers call or text." />
+      <H t="Tell Salon Agent about your salon" d="This is what your receptionist will know when customers call or text." />
       <div className="grid gap-4 md:grid-cols-2">
         {f("name", "Salon name", "Modern Nails")}
         {f("contact_name", "Manager / contact person")}
         <div>
           {f("phone", "Current salon phone number", "(555) 123-4567")}
-          <p className="mt-1.5 text-xs text-muted-foreground">Your customers can keep the number they already know. Salon Agent AI will help connect it.</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">Your customers can keep the number they already know. Salon Agent will help connect it.</p>
         </div>
         {f("website", "Website", "modernnails.com")}
         <div className="md:col-span-2">{f("address", "Address")}</div>
@@ -272,7 +272,7 @@ function VoiceStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
 function PolicyStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => void }) {
   return (
     <>
-      <H t="Your salon policies" d="So Salon Agent AI answers the same way you would." />
+      <H t="Your salon policies" d="So Salon Agent answers the same way you would." />
       <div className="grid gap-4">
         <div><label className={label}>Deposits</label><input className={input} placeholder="e.g. $20 deposit for full sets" value={salon.deposit_policy} onChange={(e) => set({ deposit_policy: e.target.value })} /></div>
         <div><label className={label}>Cancellations</label><input className={input} placeholder="e.g. 24 hours notice please" value={salon.cancellation_policy} onChange={(e) => set({ cancellation_policy: e.target.value })} /></div>
@@ -281,7 +281,7 @@ function PolicyStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => 
         <div>
           <label className={label}>How would you like to finish setup?</label>
           <div className="grid gap-2 sm:grid-cols-3">
-            {([["online", "Online, myself"], ["phone", "By phone with Salon Agent AI"], ["concierge", "Have your team do it"]] as const).map(([k, l]) => (
+            {([["online", "Online, myself"], ["phone", "By phone with Salon Agent"], ["concierge", "Have your team do it"]] as const).map(([k, l]) => (
               <button key={k} type="button" onClick={() => set({ setup_method: k })} className={cn("rounded-2xl border p-3 text-sm", salon.setup_method === k ? "border-ring bg-accent" : "border-border text-muted-foreground")}>{l}</button>
             ))}
           </div>

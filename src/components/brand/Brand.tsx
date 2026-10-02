@@ -12,7 +12,7 @@ export function BrandLogo({ variant = "dark", className, href = "/" }: {
     <a href={href} aria-label="Salon Pro Agent home" className={cn(
       "inline-flex w-[200px] shrink-0 items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background sm:w-[210px]", className,
     )}>
-      <img src={`/brand/logo-${variant}.svg`} alt="Salon Pro Agent" width={602} height={120} className="block h-auto w-full" decoding="async" />
+      <img src={`/brand/logo-${variant}.svg`} alt="Salon Pro Agent" width={642} height={120} className="block h-auto w-full" decoding="async" />
     </a>
   );
 }

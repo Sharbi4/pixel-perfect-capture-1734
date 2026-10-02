@@ -309,7 +309,7 @@ export function Pricing() {
   return (
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Pricing" title="One plan. Built around your salon." body="Everything you need to run an AI front desk, set up for you by our team." />
+        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="NailDesk Pro is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
         <Reveal>
           <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
             <div className="bg-brand absolute inset-0" />

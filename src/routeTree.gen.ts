@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
+import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +46,11 @@ const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   path: '/api/voice-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
+  id: '/api/public/agent-token',
+  path: '/api/public/agent-token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,25 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/account' | '/setup' | '/api/voice-preview'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/account'
+    | '/setup'
+    | '/api/voice-preview'
+    | '/api/public/agent-token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/account' | '/setup' | '/api/voice-preview'
+  to:
+    | '/'
+    | '/auth'
+    | '/account'
+    | '/setup'
+    | '/api/voice-preview'
+    | '/api/public/agent-token'
   id:
     | '__root__'
     | '/'
@@ -82,6 +103,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/setup'
     | '/api/voice-preview'
+    | '/api/public/agent-token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -89,6 +111,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
+  ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVoicePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/agent-token': {
+      id: '/api/public/agent-token'
+      path: '/api/public/agent-token'
+      fullPath: '/api/public/agent-token'
+      preLoaderRoute: typeof ApiPublicAgentTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +186,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
+  ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

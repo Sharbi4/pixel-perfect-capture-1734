@@ -1,3 +1,4 @@
+import { LiveAgent } from "@/components/nd/LiveAgent";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Channels, DashboardSection, FinalCta, Footer, Hero, HowItWorks, Nav, Pricing, SetupFlow, TextToBook, Value, VoiceUpsell,
@@ -23,6 +24,7 @@ function Index() {
       <Nav />
       <main>
         <Hero />
+        <LiveAgent />
         <TextToBook />
         <Channels />
         <VoiceUpsell />

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { Check, Clock, Loader2 } from "lucide-react";
 import { loadOrCreateSalon, type Salon } from "@/lib/salon-data";
 import { voices } from "@/lib/voices";
+import { useServerFn } from "@tanstack/react-start";
+import { launchSalon } from "@/lib/setup.functions";
+import { TestCall } from "@/components/nd/TestCall";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -21,6 +24,9 @@ export const Route = createFileRoute("/_authenticated/account")({
 function AccountPage() {
   const [salon, setSalon] = useState<Salon | null>(null);
   const [count, setCount] = useState(0);
+  const launch = useServerFn(launchSalon);
+  const [building, setBuilding] = useState(false);
+  async function rebuild() { setBuilding(true); await launch(); const r = await loadOrCreateSalon(); setSalon(r.salon); setBuilding(false); }
   useEffect(() => { loadOrCreateSalon().then((r) => { setSalon(r.salon); setCount(r.services.length); }); }, []);
   if (!salon) return <div className="grid min-h-screen place-items-center"><Loader2 className="size-5 animate-spin" /></div>;
 
@@ -30,7 +36,7 @@ function AccountPage() {
     ["Salon details", salon.name || "Not added yet", salon.name ? "done" : "todo"],
     ["Services", `${count} services`, count ? "done" : "todo"],
     ["Receptionist voice", voice?.name ?? "—", "done"],
-    ["Receptionist built", launched ? "Our team is building your receptionist" : "Launch from setup to start", launched ? "wait" : "todo"],
+    ["Receptionist built", salon.agent_id ? "Ready — try a test call below" : salon.agent_error || (launched ? "Building…" : "Launch from setup to start"), salon.agent_id ? "done" : launched ? "wait" : "todo"],
     ["Phone number", launched ? "Being set up — we'll email you" : "After launch", launched ? "wait" : "todo"],
     ["Texting", "Pending business texting approval (usually a few days)", launched ? "wait" : "todo"],
   ];
@@ -50,6 +56,10 @@ function AccountPage() {
             </li>
           ))}
         </ul>
+        {salon.agent_id && <TestCall />}
+        {launched && (
+          <button onClick={rebuild} disabled={building} className="mt-6 mr-3 inline-flex h-11 items-center rounded-full bg-accent px-6 text-sm font-medium">{building ? "Updating…" : salon.agent_id ? "Update receptionist with latest info" : "Try building again"}</button>
+        )}
         <Link to="/setup" className="mt-6 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">{launched ? "Edit setup" : "Continue setup"}</Link>
       </div>
     </div>

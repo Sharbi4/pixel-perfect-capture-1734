@@ -16,3 +16,4 @@
 - Salon setup data lives in `salons` (one per owner) and `services` tables with owner-scoped RLS; the wizard writes via the browser client. Why: simple per-owner CRUD with no admin path.
 - AI menu import and launch run in `src/lib/setup.functions.ts` (auth-required); voice previews stream from `/api/voice-preview` with a bearer check. Why: keep the AI key server-side and block anonymous credit spend.
 - Phone agent/number provisioning is a stub inside `launchSalon` until a voice-phone provider is connected. Why: no provider account yet.
+- Each salon gets its own voice agent, created/updated server-side by launchSalon (src/lib/agent.server.ts); its id is stored on salons.agent_id. Why: provisioning must be automatic and the voice key must stay server-side.

@@ -17,6 +17,8 @@ export type Database = {
       salons: {
         Row: {
           address: string
+          agent_error: string
+          agent_id: string
           booking_app: string
           cancellation_policy: string
           contact_name: string
@@ -38,6 +40,8 @@ export type Database = {
         }
         Insert: {
           address?: string
+          agent_error?: string
+          agent_id?: string
           booking_app?: string
           cancellation_policy?: string
           contact_name?: string
@@ -59,6 +63,8 @@ export type Database = {
         }
         Update: {
           address?: string
+          agent_error?: string
+          agent_id?: string
           booking_app?: string
           cancellation_policy?: string
           contact_name?: string

@@ -16,8 +16,10 @@ export type Service = { id?: string; name: string; price: number; minutes: numbe
 
 export async function loadOrCreateSalon(): Promise<{ salon: Salon; services: Service[] }> {
   const { data: u } = await supabase.auth.getUser();
-  const uid = u.user!.id;
-  let { data: salon } = await supabase.from("salons").select(SALON_COLS).eq("owner_id", uid).maybeSingle();
+  if (!u.user) throw new Error("Please sign in to load your salon.");
+  const uid = u.user.id;
+  let { data: salon, error: loadError } = await supabase.from("salons").select(SALON_COLS).eq("owner_id", uid).maybeSingle();
+  if (loadError) throw loadError;
   if (!salon) {
     const ins = await supabase.from("salons").insert({ owner_id: uid }).select(SALON_COLS).single();
     if (ins.error?.code === "23505") {
@@ -25,8 +27,11 @@ export async function loadOrCreateSalon(): Promise<{ salon: Salon; services: Ser
       salon = (await supabase.from("salons").select(SALON_COLS).eq("owner_id", uid).single()).data;
       if (!salon) throw ins.error;
     } else if (ins.error) throw ins.error;
-    else salon = ins.data;
-    await supabase.from("services").insert(starterServices.map((s, i) => ({ ...s, salon_id: salon!.id, position: i })));
+    else {
+      salon = ins.data;
+      const { error } = await supabase.from("services").insert(starterServices.map((s, i) => ({ ...s, salon_id: salon!.id, position: i })));
+      if (error) throw error;
+    }
   }
   const { data: services } = await supabase.from("services").select("id,name,price,minutes,is_addon").eq("salon_id", salon.id).order("position");
   return { salon: salon as unknown as Salon, services: (services ?? []).map((s) => ({ ...s, price: Number(s.price) })) };

@@ -44,28 +44,36 @@ function AccountPage() {
     setSalon(r.salon); setCount(r.services.length);
     setSetup(await loadPhoneSetup(r.salon.id));
   }, []);
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { void refresh().catch(() => setMsg("We couldn't load your salon. Please try again.")); }, [refresh]);
 
-  if (!salon) return <div className="grid min-h-screen place-items-center"><Loader2 className="size-5 animate-spin" /></div>;
+  if (!salon) return <div className="grid min-h-screen place-items-center px-4"><div className="text-center">{msg ? <><p role="alert">{msg}</p><button className="mt-4 rounded-full bg-accent px-6 py-3" onClick={() => { setMsg(null); void refresh().catch(() => setMsg("We couldn't load your salon. Please try again.")); }}>Try again</button></> : <Loader2 className="size-5 animate-spin" />}</div></div>;
 
   async function rebuild() {
     setBusy("build"); setMsg(null);
-    const r = await launch({ data: { idempotencyKey: buildKey.current } });
-    if (r.status === "failed" || r.status === "done") buildKey.current = crypto.randomUUID();
-    if (r.error) setMsg(r.error);
-    await refresh(); setBusy(null);
+    try {
+      const r = await launch({ data: { idempotencyKey: buildKey.current } });
+      if (r.status === "failed" || r.status === "done") buildKey.current = crypto.randomUUID();
+      if (r.error) setMsg(r.error);
+      await refresh();
+    } catch { setMsg("We couldn't confirm the result. Check status before trying again."); }
+    finally { setBusy(null); }
   }
   async function getNumber() {
     if (!confirm("NailDesk will reserve a local phone number for your receptionist so you can start testing. Continue?")) return;
     setBusy("number"); setMsg(null);
-    const r = await reserve({ data: { idempotencyKey: numberKey.current } });
-    if (r.status === "failed") { numberKey.current = crypto.randomUUID(); setMsg(setupMessage(r.code)); }
-    else if (r.status === "needs_review") setMsg(setupMessage(r.code || "unconfirmed"));
-    await refresh(); setBusy(null);
+    try {
+      const r = await reserve({ data: { idempotencyKey: numberKey.current } });
+      if (r.status === "failed") { numberKey.current = crypto.randomUUID(); setMsg(setupMessage(r.code)); }
+      else if (r.status === "needs_review") setMsg(setupMessage(r.code || "unconfirmed"));
+      await refresh();
+    } catch { setMsg("We couldn't confirm the result. Check status before trying again."); }
+    finally { setBusy(null); }
   }
   async function recheck() {
     setBusy("check"); setMsg(null);
-    await check(); await refresh(); setBusy(null);
+    try { await check(); await refresh(); }
+    catch { setMsg("We couldn't check your setup just now. Please try again in a moment."); }
+    finally { setBusy(null); }
   }
 
   const launched = salon.status !== "draft";
@@ -115,7 +123,22 @@ function AccountPage() {
             </li>
           ))}
         </ul>
-        {msg && <p className="mt-4 text-sm text-destructive">{msg}</p>}
+        {msg && <p role="alert" className="mt-4 text-sm text-destructive">{msg}</p>}
+        {salon.has_receptionist && salon.phone_number && (
+          <section className="glass mt-6 rounded-[28px] p-6">
+            <h2 className="font-medium">Test your NailDesk phone number</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Call this number and test your receptionist before connecting your existing salon phone.</p>
+            <p className="mt-4 text-2xl font-semibold">{formatUsNumber(salon.phone_number)}</p>
+            <a href={`tel:${salon.phone_number}`} className="mt-4 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">Call My NailDesk</a>
+            <ul className="mt-4 list-inside list-disc text-sm text-muted-foreground">
+              <li>Ask about a service or its price.</li>
+              <li>Try making an appointment request.</li>
+              <li>Ask for a technician.</li>
+              <li>Try speaking Vietnamese if you selected it during setup.</li>
+            </ul>
+            <p className="mt-3 text-sm text-muted-foreground">Starting a call does not mark your phone setup as verified.</p>
+          </section>
+        )}
         {salon.has_receptionist && <TestCall />}
         <div className="mt-6 flex flex-wrap gap-3">
           {salon.has_receptionist && !salon.phone_number && (numState === "none" || numState === "failed") && (
@@ -123,7 +146,7 @@ function AccountPage() {
               {busy === "number" && <Loader2 className="size-4 animate-spin" />} Set up my temporary NailDesk number
             </button>
           )}
-          {needsReview && (
+          {(needsReview || msg) && (
             <button onClick={recheck} disabled={!!busy} className="inline-flex h-11 items-center gap-2 rounded-full bg-accent px-6 text-sm font-medium">
               {busy === "check" && <Loader2 className="size-4 animate-spin" />} Check status
             </button>

@@ -1,6 +1,6 @@
 // Client-safe, customer-facing copy for sanitized setup codes. No provider names.
 const MESSAGES: Record<string, string> = {
-  not_configured: "Phone setup isn't available yet. Our team has been notified — please check back soon.",
+  not_configured: "Phone setup isn't available yet. Please contact NailDesk support or check back soon.",
   needs_agent: "Your receptionist needs to be built first.",
   needs_business_number: "Add your salon's current phone number in setup first.",
   search_failed: "We couldn't look up local numbers just now. Please try again in a few minutes.",
@@ -11,6 +11,8 @@ const MESSAGES: Record<string, string> = {
   interrupted: "This step was interrupted. Tap “Check status” and we'll confirm what happened.",
   check_failed: "We couldn't confirm yet. Please tap “Check status” again in a minute.",
   lock_lost: "This step is being double-checked. Tap “Check status” in a moment.",
+  not_saved: "We couldn't save confirmation yet. Tap “Check status” before trying again.",
+  not_found_yet: "We're still confirming the result. Tap “Check status” again later, or contact NailDesk support.",
   not_purchased: "No number was set up. You can try again.",
   not_created: "Your receptionist wasn't created. You can try again.",
 };

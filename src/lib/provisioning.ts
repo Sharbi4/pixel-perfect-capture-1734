@@ -37,6 +37,21 @@ function fromExisting(h: JobHandle): StepResult {
   return { status, code: h.error_code, ref: h.provider_ref, target: h.target };
 }
 
+async function safeSetTarget(d: JobStore, id: string, token: string, target: string) {
+  try { return await d.setTarget(id, token, target); } catch { return false; }
+}
+
+/** Persist the outcome; if it isn't confirmed saved (lock lost / write failed), report needs_review, never done. */
+async function finish(
+  d: Pick<JobStore, "transition">, id: string, token: string | null,
+  to: "succeeded" | "failed" | "uncertain", ref: string, code: string, target: string,
+): Promise<StepResult> {
+  let saved = false;
+  try { saved = (await d.transition(id, token, to, ref, code)) === true; } catch { saved = false; }
+  if (!saved) return { status: "needs_review", code: "not_saved", ref: "", target };
+  return { status: to === "succeeded" ? "done" : to === "failed" ? "failed" : "needs_review", code, ref, target };
+}
+
 export type Candidate = { number: string; region: string; locality: string };
 
 /** Same area code first; otherwise a provider-verified nearby number in the salon's state. Never an unrelated area. */
@@ -66,10 +81,8 @@ export async function runPurchase(
   const h = await d.begin(input.key);
   if (!h.acquired || !h.lock_token) return fromExisting(h);
   const token = h.lock_token;
-  const done = async (to: "succeeded" | "failed" | "uncertain", ref: string, code: string, target: string): Promise<StepResult> => {
-    await d.transition(h.job_id, token, to, ref, code);
-    return { status: to === "succeeded" ? "done" : to === "failed" ? "failed" : "needs_review", code, ref, target };
-  };
+  const done = (to: "succeeded" | "failed" | "uncertain", ref: string, code: string, target: string) =>
+    finish(d, h.job_id, token, to, ref, code, target);
 
   // Searching is read-only, so a failure here is safe to report as a clean failure.
   let pick: ReturnType<typeof pickTemporaryNumber> = null;
@@ -84,7 +97,7 @@ export async function runPurchase(
 
   const number = pick.candidate.number;
   // Persist the exact number before buying so an unclear result can be reconciled later.
-  if (!(await d.setTarget(h.job_id, token, number))) return { status: "needs_review", code: "lock_lost", ref: "", target: "" };
+  if (!(await safeSetTarget(d, h.job_id, token, number))) return { status: "needs_review", code: "lock_lost", ref: "", target: "" };
 
   let out: Outcome<{ sid: string }>;
   try { out = await d.buy(number); } catch { out = { kind: "ambiguous", code: "unconfirmed" }; }
@@ -104,20 +117,19 @@ export async function runAgentCreate(d: AgentDeps, key: string): Promise<StepRes
   if (!h.acquired || !h.lock_token) return fromExisting(h);
   const token = h.lock_token;
   const marker = agentMarker(h.job_id);
-  if (!(await d.setTarget(h.job_id, token, marker))) return { status: "needs_review", code: "lock_lost", ref: "", target: "" };
+  if (!(await safeSetTarget(d, h.job_id, token, marker))) return { status: "needs_review", code: "lock_lost", ref: "", target: "" };
   let out: Outcome<{ agentId: string }>;
   try { out = await d.create(marker); } catch { out = { kind: "ambiguous", code: "unconfirmed" }; }
-  if (out.kind === "ok") {
-    await d.transition(h.job_id, token, "succeeded", out.value.agentId, "");
-    return { status: "done", code: "", ref: out.value.agentId, target: marker };
-  }
-  const to = out.kind === "rejected" ? "failed" : "uncertain";
-  const code = out.kind === "rejected" ? out.code : "unconfirmed";
-  await d.transition(h.job_id, token, to, "", code);
-  return { status: to === "failed" ? "failed" : "needs_review", code, ref: "", target: marker };
+  if (out.kind === "ok") return finish(d, h.job_id, token, "succeeded", out.value.agentId, "", marker);
+  if (out.kind === "rejected") return finish(d, h.job_id, token, "failed", "", out.code, marker);
+  return finish(d, h.job_id, token, "uncertain", "", "unconfirmed", marker);
 }
 
-/** Resolve an uncertain job by looking (read-only) at the provider. Never repeats the create/purchase. */
+/**
+ * Resolve an uncertain job by looking (read-only) at the provider. Never repeats the create/purchase.
+ * Absence from a provider listing is NOT proof (eventual consistency), so a target-bearing job stays
+ * uncertain; only a found resource, or explicit admin resolution elsewhere, closes it.
+ */
 export async function reconcile(
   transition: JobStore["transition"],
   job: { id: string; target: string },
@@ -125,17 +137,12 @@ export async function reconcile(
   notFoundCode: string,
 ): Promise<StepResult> {
   if (!job.target) {
-    // The provider call was never made (target is recorded first).
-    await transition(job.id, null, "failed", "", notFoundCode);
-    return { status: "failed", code: notFoundCode, ref: "", target: "" };
+    // The target is recorded before any provider call, so none was made: definitive.
+    return finish({ transition }, job.id, null, "failed", "", notFoundCode, "");
   }
   let r: Outcome<string | null>;
   try { r = await lookup(job.target); } catch { r = { kind: "ambiguous", code: "check_failed" }; }
   if (r.kind !== "ok") return { status: "needs_review", code: "check_failed", ref: "", target: job.target };
-  if (r.value) {
-    await transition(job.id, null, "succeeded", r.value, "");
-    return { status: "done", code: "", ref: r.value, target: job.target };
-  }
-  await transition(job.id, null, "failed", "", notFoundCode);
-  return { status: "failed", code: notFoundCode, ref: "", target: job.target };
+  if (typeof r.value === "string" && r.value) return finish({ transition }, job.id, null, "succeeded", r.value, "", job.target);
+  return { status: "needs_review", code: "not_found_yet", ref: "", target: job.target };
 }

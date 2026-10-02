@@ -79,7 +79,8 @@ export async function updateAgent(agentId: string, s: SalonRow, services: Servic
 export async function findAgentByMarker(marker: string): Promise<Outcome<string | null>> {
   const r = await req(`/agents?${new URLSearchParams({ search: marker, page_size: "10" })}`);
   if (r.status !== 200) return { kind: "ambiguous", code: "check_failed" };
-  const list = (r.json as { agents?: { agent_id: string; name: string }[] })?.agents ?? [];
+  const list = (r.json as { agents?: { agent_id: string; name: string }[] })?.agents;
+  if (!Array.isArray(list)) return { kind: "ambiguous", code: "check_failed" };
   return { kind: "ok", value: list.find((a) => a.name.includes(`[${marker}]`))?.agent_id ?? null };
 }
 

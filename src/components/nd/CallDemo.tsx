@@ -15,7 +15,7 @@ function Bubble({ who, children }: { who: "ai" | "you"; children: React.ReactNod
       >
         <div className="mb-1 flex items-center gap-1.5 text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
           {who === "ai" && <BrandMark className="size-4" />}
-          {who === "ai" ? "Salon Agent" : "Jessica"}
+          {who === "ai" ? "Salon Pro Agent" : "Jessica"}
         </div>
         {children}
       </div>

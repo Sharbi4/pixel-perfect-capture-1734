@@ -39,7 +39,7 @@ ${menu || "- Ask the caller what they need and offer a callback with pricing."}`
 function body(s: SalonRow, services: ServiceRow[], marker?: string) {
   const voiceId = voices.find((v) => v.id === s.voice)?.engine ?? voices[0].engine;
   return {
-    name: `Salon Agent — ${s.name || "Salon"}${marker ? ` [${marker}]` : ""}`,
+    name: `Salon Pro Agent — ${s.name || "Salon"}${marker ? ` [${marker}]` : ""}`,
     conversation_config: {
       agent: { first_message: greeting(s.name), language: "en", prompt: { prompt: buildPrompt(s, services) } },
       tts: { voice_id: voiceId },

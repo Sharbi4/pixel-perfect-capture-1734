@@ -34,7 +34,7 @@ export function Dashboard() {
         </div>
         <div className="mx-auto flex min-w-0 items-center gap-2 rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">
           <BrandMark className="size-5" />
-          <span className="truncate">Salon Agent <span className="opacity-50">/</span> Luna Nails</span>
+          <span className="truncate">Salon Pro Agent <span className="opacity-50">/</span> Luna Nails</span>
         </div>
       </div>
       <div className="flex gap-1 overflow-x-auto border-b border-border px-4 py-2 text-[13px]">
@@ -59,7 +59,7 @@ export function Dashboard() {
           <div className="rounded-2xl border border-border bg-surface p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <span className="text-sm font-medium">Recent conversations</span>
-              <span className="text-xs text-muted-foreground">Handled by Salon Agent</span>
+              <span className="text-xs text-muted-foreground">Handled by Salon Pro Agent</span>
             </div>
             <div className="divide-y divide-border">
               {convos.map((c) => (

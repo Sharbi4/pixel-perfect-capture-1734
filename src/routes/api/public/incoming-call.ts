@@ -26,7 +26,9 @@ export const Route = createFileRoute("/api/public/incoming-call")({
         const to = String(form.get("To") ?? "");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: salon } = await supabaseAdmin.from("salons").select("agent_id").eq("id", salonId).single();
+        const { data: salon } = await supabaseAdmin.from("salons").select("agent_id,phone_number").eq("id", salonId).single();
+        // Only the number provisioned for this salon may route to its receptionist.
+        if (salon?.phone_number && salon.phone_number !== to) return new Response("Forbidden", { status: 403 });
         if (!salon?.agent_id) return sorry("Sorry, this salon's line is not set up yet. Please call back later.");
 
         const res = await fetch("https://api.elevenlabs.io/v1/convai/twilio/register-call", {

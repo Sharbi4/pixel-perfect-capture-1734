@@ -7,6 +7,7 @@ import { loadOrCreateSalon, saveSalon, saveServices, type Salon, type Service } 
 import { extractServices, launchSalon } from "@/lib/setup.functions";
 import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
+import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
 
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
@@ -34,6 +35,7 @@ function SetupPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const launch = useServerFn(launchSalon);
+  const launchKey = useRef<string>(crypto.randomUUID());
 
   useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => { setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
 
@@ -43,20 +45,24 @@ function SetupPage() {
   async function persist() {
     setSaving(true); setErr(null);
     try {
-      const { id, status, launched_at, agent_id, agent_error, phone_number, phone_number_sid, ...rest } = salon!;
-      void status; void launched_at; void agent_id; void agent_error; void phone_number; void phone_number_sid;
-      await saveSalon(id, rest);
-      if (step === 1) await saveServices(id, services);
+      await saveSalon(salon!.id, salon!);
+      if (step === 1) await saveServices(salon!.id, services);
     } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't save"); setSaving(false); return false; }
     setSaving(false); return true;
   }
   async function next() {
     if (step === 0 && !salon!.name.trim()) { setErr("Please add your salon name."); return; }
+    if (step === 0) {
+      const n = normalizeUsNumber(salon!.phone);
+      if (!n) { setErr("Please add your salon's current US phone number."); return; }
+      salon!.phone = formatUsNumber(n);
+      setSalon({ ...salon!, phone: formatUsNumber(n) });
+    }
     if (await persist()) setStep((s) => Math.min(s + 1, 4));
   }
   async function doLaunch() {
     setSaving(true);
-    try { await saveServices(salon!.id, services); const r = await launch(); if (r.error) throw new Error(r.error); nav({ to: "/account" }); }
+    try { await saveServices(salon!.id, services); const r = await launch({ data: { idempotencyKey: launchKey.current } }); if (r.status === "failed") { launchKey.current = crypto.randomUUID(); throw new Error(r.error ?? "Launch failed"); } nav({ to: "/account" }); }
     catch (e) { setErr(e instanceof Error ? e.message : "Launch failed"); setSaving(false); }
   }
 
@@ -123,7 +129,10 @@ function SalonStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
       <div className="grid gap-4 md:grid-cols-2">
         {f("name", "Salon name", "Modern Nails")}
         {f("contact_name", "Manager / contact person")}
-        {f("phone", "Current phone number", "(555) 123-4567")}
+        <div>
+          {f("phone", "Current salon phone number", "(555) 123-4567")}
+          <p className="mt-1.5 text-xs text-muted-foreground">Your customers can keep the number they already know. NailDesk will help connect it.</p>
+        </div>
         {f("website", "Website", "modernnails.com")}
         <div className="md:col-span-2">{f("address", "Address")}</div>
         <div className="md:col-span-2">

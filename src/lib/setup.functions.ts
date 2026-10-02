@@ -53,26 +53,53 @@ export const extractServices = createServerFn({ method: "POST" })
     }
   });
 
+type LaunchResult = { status: "done" | "in_progress" | "needs_review" | "failed"; error: string | null };
+
 export const launchSalon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d) => z.object({ idempotencyKey: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<LaunchResult> => {
     const { supabase, userId } = context;
-    const { data: salon, error } = await supabase.from("salons").select("*").eq("owner_id", userId).single();
-    if (error || !salon) throw new Error("Salon not found.");
+    // RLS-scoped read proves the caller owns this salon.
+    const { data: salon } = await supabase.from("salons").select("*").eq("owner_id", userId).maybeSingle();
+    if (!salon) return { status: "failed", error: "Salon not found." };
     const { data: services } = await supabase
       .from("services").select("name,price,minutes,is_addon").eq("salon_id", salon.id).order("position");
-    const { upsertAgent } = await import("./agent.server");
+    const svc = (services ?? []).map((s) => ({ ...s, price: Number(s.price) }));
+
+    const agent = await import("./agent.server");
+    const { setupMessage } = await import("./phone-status");
+    if (!agent.agentConfigured()) return { status: "failed", error: setupMessage("not_configured") };
+
+    const { jobStore, adminClient } = await import("./jobs.server");
+    const sb = await adminClient();
+    await sb.from("salons").update({
+      status: salon.status === "draft" ? "setting_up" : salon.status,
+      launched_at: salon.launched_at ?? new Date().toISOString(),
+    }).eq("id", salon.id);
+
+    if (salon.agent_id) {
+      const ok = await agent.updateAgent(salon.agent_id, salon, svc);
+      await sb.from("salons").update({ agent_error: ok ? "" : "update_failed", status: "agent_ready" }).eq("id", salon.id);
+      return ok ? { status: "done", error: null } : { status: "failed", error: "We couldn't update your receptionist just now. Please try again." };
+    }
+
+    const { runAgentCreate } = await import("./provisioning");
     try {
-      const agentId = await upsertAgent(salon, services ?? []);
-      await supabase.from("salons").update({
-        agent_id: agentId, agent_error: "", status: "agent_ready",
-        launched_at: salon.launched_at ?? new Date().toISOString(),
-      }).eq("id", salon.id);
-      return { ok: true, error: null as string | null };
+      const r = await runAgentCreate(
+        { ...jobStore(salon.id, "create_agent"), create: (marker) => agent.createAgent(salon, svc, marker) },
+        `agent:${salon.id}:${data.idempotencyKey}`,
+      );
+      if (r.status === "done") await sb.from("salons").update({ status: "agent_ready" }).eq("id", salon.id);
+      return {
+        status: r.status,
+        error: r.status === "done" ? null
+          : r.status === "in_progress" ? "Your receptionist is already being built."
+          : setupMessage(r.code),
+      };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Something went wrong.";
-      await supabase.from("salons").update({ agent_error: msg, status: "setting_up" }).eq("id", salon.id);
-      return { ok: false, error: msg };
+      console.error("launchSalon", e);
+      return { status: "needs_review", error: setupMessage("check_failed") };
     }
   });
 

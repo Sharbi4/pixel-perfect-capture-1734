@@ -1,54 +1,80 @@
+// Server-only phone provider access through the connector gateway. Raw provider errors never leave this file.
+import { classifyHttp, type Candidate, type Outcome } from "./provisioning";
+
 const GATEWAY = "https://connector-gateway.lovable.dev/twilio";
 
-function headers() {
+function keys() {
   const lov = process.env["LOVABLE_API_KEY"];
   const tw = process.env["TWILIO_API_KEY"];
-  if (!lov || !tw) throw new Error("Phone service is not configured.");
-  return { Authorization: `Bearer ${lov}`, "X-Connection-Api-Key": tw };
+  return lov && tw ? { Authorization: `Bearer ${lov}`, "X-Connection-Api-Key": tw } : null;
 }
 
-async function call(path: string, init?: RequestInit) {
-  const res = await fetch(`${GATEWAY}${path}`, { ...init, headers: { ...headers(), ...(init?.headers ?? {}) } });
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`Phone provider failed [${res.status}]: ${body}`);
-    let msg = "The phone service had a problem. Please try again.";
-    try { const j = JSON.parse(body); if (j.message) msg = j.message; } catch { /* keep default */ }
-    throw new Error(msg);
-  }
-  return res.json();
+/** Canonical public origin for provider callbacks — never derived from the request host. */
+function publicOrigin(): string | null {
+  const raw = process.env["PUBLIC_APP_ORIGIN"];
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" ? u.origin : null;
+  } catch { return null; }
 }
 
-export async function searchNumbers(areaCode: string) {
-  const q = new URLSearchParams({ VoiceEnabled: "true", SmsEnabled: "true", PageSize: "8" });
-  if (areaCode) q.set("AreaCode", areaCode);
-  const j = (await call(`/AvailablePhoneNumbers/US/Local.json?${q}`)) as {
-    available_phone_numbers: { phone_number: string; friendly_name: string; locality: string; region: string }[];
-  };
-  return j.available_phone_numbers.map((n) => ({
-    number: n.phone_number, display: n.friendly_name, place: [n.locality, n.region].filter(Boolean).join(", "),
+export function callbackUrl(salonId: string): string | null {
+  const origin = publicOrigin();
+  const k = process.env["TWILIO_WEBHOOK_SECRET"];
+  if (!origin || !k) return null;
+  return `${origin}/api/public/incoming-call?salon=${salonId}&k=${encodeURIComponent(k)}`;
+}
+
+export function phoneConfigured(): boolean {
+  return !!keys() && !!process.env["TWILIO_WEBHOOK_SECRET"] && !!publicOrigin();
+}
+
+async function tw(path: string, init?: RequestInit): Promise<{ status: number; json: unknown }> {
+  const h = keys();
+  if (!h) return { status: 401, json: null };
+  const res = await fetch(`${GATEWAY}${path}`, { ...init, headers: { ...h, ...(init?.headers ?? {}) } });
+  const text = await res.text();
+  if (!res.ok) console.error(`Phone provider ${init?.method ?? "GET"} ${path.split("?")[0]} [${res.status}]: ${text.slice(0, 500)}`);
+  let json: unknown = null;
+  try { json = JSON.parse(text); } catch { /* non-JSON */ }
+  return { status: res.status, json };
+}
+
+type Avail = { available_phone_numbers?: { phone_number: string; locality: string; region: string }[] };
+
+async function search(params: Record<string, string>): Promise<Candidate[]> {
+  const q = new URLSearchParams({ VoiceEnabled: "true", SmsEnabled: "true", PageSize: "10", ...params });
+  const r = await tw(`/AvailablePhoneNumbers/US/Local.json?${q}`);
+  if (r.status !== 200) throw new Error("search_failed");
+  return ((r.json as Avail)?.available_phone_numbers ?? []).map((n) => ({
+    number: n.phone_number, region: n.region ?? "", locality: n.locality ?? "",
   }));
 }
 
-export async function buyNumber(number: string, voiceUrl: string, label: string) {
-  const j = (await call(`/IncomingPhoneNumbers.json`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ PhoneNumber: number, VoiceUrl: voiceUrl, VoiceMethod: "POST", FriendlyName: label }),
-  })) as { sid: string; phone_number: string };
-  return { sid: j.sid, number: j.phone_number };
-}
+export const searchByArea = (area: string) => search({ AreaCode: area });
+// Provider-documented proximity search (US/Canada): numbers geographically near the given number.
+export const searchNearby = (e164: string) => search({ NearNumber: e164, Distance: "25" });
 
-export async function pointNumber(sid: string, voiceUrl: string) {
-  await call(`/IncomingPhoneNumbers/${sid}.json`, {
+export async function buyNumber(e164: string, voiceUrl: string, label: string): Promise<Outcome<{ sid: string }>> {
+  const r = await tw(`/IncomingPhoneNumbers.json`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ VoiceUrl: voiceUrl, VoiceMethod: "POST" }),
+    body: new URLSearchParams({ PhoneNumber: e164, VoiceUrl: voiceUrl, VoiceMethod: "POST", FriendlyName: label }),
   });
+  const kind = classifyHttp(r.status);
+  const j = r.json as { sid?: string; phone_number?: string; code?: number } | null;
+  if (kind === "ok") {
+    return j?.sid && j.phone_number === e164 ? { kind: "ok", value: { sid: j.sid } } : { kind: "ambiguous", code: "unconfirmed" };
+  }
+  if (kind === "rejected") return { kind: "rejected", code: j?.code === 21422 ? "number_unavailable" : "provider_rejected" };
+  return { kind: "ambiguous", code: "unconfirmed" };
 }
 
-export function voiceUrl(origin: string, salonId: string) {
-  const k = process.env["TWILIO_WEBHOOK_SECRET"];
-  if (!k) throw new Error("Phone service is not configured.");
-  return `${origin}/api/public/incoming-call?salon=${salonId}&k=${encodeURIComponent(k)}`;
+/** Read-only: does our account own this number? */
+export async function findOwnedNumber(e164: string): Promise<Outcome<string | null>> {
+  const r = await tw(`/IncomingPhoneNumbers.json?${new URLSearchParams({ PhoneNumber: e164 })}`);
+  if (r.status !== 200) return { kind: "ambiguous", code: "check_failed" };
+  const list = (r.json as { incoming_phone_numbers?: { sid: string; phone_number: string }[] })?.incoming_phone_numbers ?? [];
+  return { kind: "ok", value: list.find((n) => n.phone_number === e164)?.sid ?? null };
 }

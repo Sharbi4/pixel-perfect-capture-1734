@@ -1,0 +1,1 @@
+ALTER TABLE public.salons ADD COLUMN agent_id text NOT NULL DEFAULT '', ADD COLUMN agent_error text NOT NULL DEFAULT '';

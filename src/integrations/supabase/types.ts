@@ -131,8 +131,10 @@ export type Database = {
           address: string
           agent_error: string
           agent_id: string
+          agent_synced_version: number
           booking_app: string
           cancellation_policy: string
+          config_version: number
           contact_name: string
           created_at: string
           deposit_policy: string
@@ -146,7 +148,11 @@ export type Database = {
           phone: string
           phone_number: string
           phone_number_sid: string
+          setup_completed: number[]
+          setup_config: Json
+          setup_draft: Json | null
           setup_method: string
+          setup_revision: number
           status: string
           updated_at: string
           voice: string
@@ -157,8 +163,10 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_synced_version?: number
           booking_app?: string
           cancellation_policy?: string
+          config_version?: number
           contact_name?: string
           created_at?: string
           deposit_policy?: string
@@ -172,7 +180,11 @@ export type Database = {
           phone?: string
           phone_number?: string
           phone_number_sid?: string
+          setup_completed?: number[]
+          setup_config?: Json
+          setup_draft?: Json | null
           setup_method?: string
+          setup_revision?: number
           status?: string
           updated_at?: string
           voice?: string
@@ -183,8 +195,10 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_synced_version?: number
           booking_app?: string
           cancellation_policy?: string
+          config_version?: number
           contact_name?: string
           created_at?: string
           deposit_policy?: string
@@ -198,7 +212,11 @@ export type Database = {
           phone?: string
           phone_number?: string
           phone_number_sid?: string
+          setup_completed?: number[]
+          setup_config?: Json
+          setup_draft?: Json | null
           setup_method?: string
+          setup_revision?: number
           status?: string
           updated_at?: string
           voice?: string
@@ -210,6 +228,7 @@ export type Database = {
       services: {
         Row: {
           created_at: string
+          details: Json
           id: string
           is_addon: boolean
           minutes: number
@@ -220,6 +239,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          details?: Json
           id?: string
           is_addon?: boolean
           minutes?: number
@@ -230,6 +250,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          details?: Json
           id?: string
           is_addon?: boolean
           minutes?: number
@@ -268,6 +289,17 @@ export type Database = {
           provider_ref: string
           target: string
         }[]
+      }
+      save_setup_draft: {
+        Args: {
+          p_draft: Json
+          p_owner: string
+          p_profile?: Json
+          p_revision: number
+          p_salon: string
+          p_step?: number
+        }
+        Returns: number
       }
       set_phone_job_target: {
         Args: { p_job: string; p_target: string; p_token: string }

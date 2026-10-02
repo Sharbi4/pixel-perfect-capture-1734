@@ -76,7 +76,7 @@ export function Hero() {
             <span className="text-gradient">Your front desk shouldn't be.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-            Salon Pro Agent answers customers, books appointments and keeps your calendar moving through calls and text — even when everyone in the salon is busy with a client.
+            Salon Pro Agent is your salon's AI answering service — it picks up every call, texts clients back and books appointments around the clock, even when everyone in the salon is busy with a client.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <NdButton size="lg" href="#talk"><Phone className="size-4" /> See it in action</NdButton>
@@ -374,7 +374,7 @@ export function Footer() {
     <footer className="border-t border-border px-4 py-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
         <Logo href="#top" variant="white" />
-        <span>The AI front desk for salons.</span>
+        <span>The AI receptionist for salons.</span>
         <span>© {new Date().getFullYear()} Salon Pro Agent</span>
       </div>
     </footer>

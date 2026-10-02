@@ -14,6 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
+      phone_jobs: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          error_code: string
+          id: string
+          idempotency_key: string
+          kind: string
+          lock_token: string | null
+          locked_at: string | null
+          provider_ref: string
+          salon_id: string
+          state: string
+          target: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          error_code?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          lock_token?: string | null
+          locked_at?: string | null
+          provider_ref?: string
+          salon_id: string
+          state?: string
+          target?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          error_code?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          lock_token?: string | null
+          locked_at?: string | null
+          provider_ref?: string
+          salon_id?: string
+          state?: string
+          target?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_jobs_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_setups: {
+        Row: {
+          agent_error: string
+          agent_status: string
+          business_number: string
+          created_at: string
+          forwarding_status: string
+          portability_status: string
+          salon_id: string
+          temp_number_error: string
+          temp_number_status: string
+          texting_status: string
+          updated_at: string
+          voice_status: string
+        }
+        Insert: {
+          agent_error?: string
+          agent_status?: string
+          business_number?: string
+          created_at?: string
+          forwarding_status?: string
+          portability_status?: string
+          salon_id: string
+          temp_number_error?: string
+          temp_number_status?: string
+          texting_status?: string
+          updated_at?: string
+          voice_status?: string
+        }
+        Update: {
+          agent_error?: string
+          agent_status?: string
+          business_number?: string
+          created_at?: string
+          forwarding_status?: string
+          portability_status?: string
+          salon_id?: string
+          temp_number_error?: string
+          temp_number_status?: string
+          texting_status?: string
+          updated_at?: string
+          voice_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_setups_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: true
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salons: {
         Row: {
           address: string
@@ -138,7 +250,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      _apply_phone_job: {
+        Args: { j: Database["public"]["Tables"]["phone_jobs"]["Row"] }
+        Returns: undefined
+      }
+      begin_phone_job: {
+        Args: { p_key: string; p_kind: string; p_salon: string }
+        Returns: {
+          acquired: boolean
+          error_code: string
+          job_id: string
+          job_state: string
+          lock_token: string
+          provider_ref: string
+          target: string
+        }[]
+      }
+      set_phone_job_target: {
+        Args: { p_job: string; p_target: string; p_token: string }
+        Returns: boolean
+      }
+      transition_phone_job: {
+        Args: {
+          p_error: string
+          p_job: string
+          p_ref: string
+          p_to: string
+          p_token: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

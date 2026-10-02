@@ -14,9 +14,9 @@ import { BrandLogo } from "@/components/brand/Brand";
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
     meta: [
-      { title: "My salon status — Salon Agent AI" },
-      { name: "description", content: "Track your Salon Agent AI receptionist, phone number and texting setup." },
-      { property: "og:title", content: "My salon status — Salon Agent AI" },
+      { title: "My salon status — Salon Agent" },
+      { name: "description", content: "Track your Salon Agent receptionist, phone number and texting setup." },
+      { property: "og:title", content: "My salon status — Salon Agent" },
       { property: "og:description", content: "See where your AI receptionist setup stands." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -60,7 +60,7 @@ function AccountPage() {
     finally { setBusy(null); }
   }
   async function getNumber() {
-    if (!confirm("Salon Agent AI will reserve a local phone number for your receptionist so you can start testing. Continue?")) return;
+    if (!confirm("Salon Agent will reserve a local phone number for your receptionist so you can start testing. Continue?")) return;
     setBusy("number"); setMsg(null);
     try {
       const r = await reserve({ data: { idempotencyKey: numberKey.current } });
@@ -90,18 +90,18 @@ function AccountPage() {
     : agentState === "failed" ? ["Receptionist", setupMessage(setup?.agent_error || ""), "alert"]
     : ["Receptionist", launched ? "Not built yet" : "Launch from setup to start", "todo"];
 
-  const numberRow: Row = salon.phone_number ? ["Temporary Salon Agent AI number", `${formatUsNumber(salon.phone_number)} — set up`, "done"]
-    : numState === "in_progress" ? ["Temporary Salon Agent AI number", "Setting up…", "wait"]
-    : numState === "needs_review" ? ["Temporary Salon Agent AI number", setupMessage(setup?.temp_number_error || "unconfirmed"), "alert"]
-    : numState === "failed" ? ["Temporary Salon Agent AI number", setupMessage(setup?.temp_number_error || ""), "alert"]
-    : ["Temporary Salon Agent AI number", salon.has_receptionist ? "Not set up yet" : "After your receptionist is ready", "todo"];
+  const numberRow: Row = salon.phone_number ? ["Temporary Salon Agent number", `${formatUsNumber(salon.phone_number)} — set up`, "done"]
+    : numState === "in_progress" ? ["Temporary Salon Agent number", "Setting up…", "wait"]
+    : numState === "needs_review" ? ["Temporary Salon Agent number", setupMessage(setup?.temp_number_error || "unconfirmed"), "alert"]
+    : numState === "failed" ? ["Temporary Salon Agent number", setupMessage(setup?.temp_number_error || ""), "alert"]
+    : ["Temporary Salon Agent number", salon.has_receptionist ? "Not set up yet" : "After your receptionist is ready", "todo"];
 
   const items: Row[] = [
     ["Salon details", salon.name || "Not added yet", salon.name ? "done" : "todo"],
     ["Services", `${count} services`, count ? "done" : "todo"],
     ["Receptionist voice", voice?.name ?? "—", "done"],
     agentRow,
-    ["Your salon number", business ? `${formatUsNumber(business)} — moving it to Salon Agent AI hasn't been checked yet` : "Add your current number in setup", business ? "wait" : "todo"],
+    ["Your salon number", business ? `${formatUsNumber(business)} — moving it to Salon Agent hasn't been checked yet` : "Add your current number in setup", business ? "wait" : "todo"],
     numberRow,
     ["Call test", setup?.voice_status === "verified" ? "Confirmed" : "Not confirmed yet", setup?.voice_status === "verified" ? "done" : "todo"],
     ["Call forwarding", setup?.forwarding_status === "verified" ? "Confirmed" : "Not set up yet", setup?.forwarding_status === "verified" ? "done" : "todo"],
@@ -113,7 +113,7 @@ function AccountPage() {
       <div className="mx-auto max-w-2xl">
         <BrandLogo />
         <h1 className="mt-10 text-3xl font-semibold tracking-tight">{salon.name || "Your salon"}</h1>
-        <p className="mt-2 text-muted-foreground">{launched ? "Here's where your Salon Agent AI setup stands." : "Finish setup to launch your receptionist."}</p>
+        <p className="mt-2 text-muted-foreground">{launched ? "Here's where your Salon Agent setup stands." : "Finish setup to launch your receptionist."}</p>
         <ul className="glass mt-8 divide-y divide-border rounded-[28px]">
           {items.map(([t, d, s]) => (
             <li key={t} className="flex items-center gap-4 p-5">
@@ -127,10 +127,10 @@ function AccountPage() {
         {msg && <p role="alert" className="mt-4 text-sm text-destructive">{msg}</p>}
         {salon.has_receptionist && salon.phone_number && (
           <section className="glass mt-6 rounded-[28px] p-6">
-            <h2 className="font-medium">Test your Salon Agent AI phone number</h2>
+            <h2 className="font-medium">Test your Salon Agent phone number</h2>
             <p className="mt-2 text-sm text-muted-foreground">Call this number and test your receptionist before connecting your existing salon phone.</p>
             <p className="mt-4 text-2xl font-semibold">{formatUsNumber(salon.phone_number)}</p>
-            <a href={`tel:${salon.phone_number}`} className="mt-4 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">Call My Salon Agent AI</a>
+            <a href={`tel:${salon.phone_number}`} className="mt-4 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">Call My Salon Agent</a>
             <ul className="mt-4 list-inside list-disc text-sm text-muted-foreground">
               <li>Ask about a service or its price.</li>
               <li>Try making an appointment request.</li>

@@ -1,6 +1,6 @@
 // Edit plan details here — the pricing section renders from this config.
 export const plan = {
-  name: "Salon Agent AI",
+  name: "Salon Agent",
   badge: "AI phone receptionist",
   description:
     "The AI phone receptionist for your salon. It answers every call in English and Vietnamese, books the appointment, and follows up by text.",
@@ -17,11 +17,11 @@ export const plan = {
     "After-hours and overflow answering",
     "AI text booking & SMS follow-ups",
     "English + Vietnamese",
-    "Salon Agent AI dashboard & appointment management",
+    "Salon Agent dashboard & appointment management",
     "Existing phone number connection",
     "Booking & calendar integration",
     "Services & staff configuration",
     "Launch support",
   ],
-  cta: "Get Salon Agent AI",
+  cta: "Get Salon Agent",
 };

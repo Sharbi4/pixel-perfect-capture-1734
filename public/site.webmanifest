@@ -1,6 +1,6 @@
 {
-  "name": "Salon Agent AI",
-  "short_name": "Salon Agent AI",
+  "name": "Salon Agent",
+  "short_name": "Salon Agent",
   "description": "The AI front desk for salons, spas and beauty studios.",
   "start_url": "/",
   "display": "standalone",

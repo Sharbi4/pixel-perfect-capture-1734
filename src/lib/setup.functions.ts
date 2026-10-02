@@ -21,7 +21,7 @@ export const extractServices = createServerFn({ method: "POST" })
         if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
         const u = new URL(url);
         if (!/^https?:$/.test(u.protocol)) throw new Error("Please enter a website address.");
-        const res = await fetch(u.toString(), { headers: { "User-Agent": "Mozilla/5.0 NailDeskBot" } });
+        const res = await fetch(u.toString(), { headers: { "User-Agent": "Mozilla/5.0 SalonAgentBot" } });
         if (!res.ok) throw new Error("We couldn't open that website.");
         const html = await res.text();
         const text = html

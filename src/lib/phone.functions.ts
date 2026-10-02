@@ -35,7 +35,7 @@ export const setupTemporaryNumber = createServerFn({ method: "POST" })
           ...jobStore(salon.id, "purchase_number"),
           searchByArea: phone.searchByArea,
           searchNearby: phone.searchNearby,
-          buy: (n) => phone.buyNumber(n, voiceUrl, `NailDesk — ${salon.name || "Salon"}`.slice(0, 64)),
+          buy: (n) => phone.buyNumber(n, voiceUrl, `Salon Agent — ${salon.name || "Salon"}`.slice(0, 64)),
         },
         { key: `purchase:${salon.id}:${data.idempotencyKey}`, businessNumber: business, addressState: stateFromAddress(salon.address) },
       );

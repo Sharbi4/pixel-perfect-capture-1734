@@ -9,10 +9,10 @@ export function BrandLogo({ variant = "dark", className, href = "/" }: {
   href?: string;
 }) {
   return (
-    <a href={href} aria-label="Salon Agent AI home" className={cn(
+    <a href={href} aria-label="Salon Agent home" className={cn(
       "inline-flex w-[200px] shrink-0 items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background sm:w-[210px]", className,
     )}>
-      <img src={`/brand/logo-${variant}.svg`} alt="Salon Agent AI" width={602} height={120} className="block h-auto w-full" decoding="async" />
+      <img src={`/brand/logo-${variant}.svg`} alt="Salon Agent" width={602} height={120} className="block h-auto w-full" decoding="async" />
     </a>
   );
 }
@@ -23,5 +23,5 @@ export function BrandMark({ variant = "gradient", className, decorative = true }
   className?: string;
   decorative?: boolean;
 }) {
-  return <img src={`/brand/mark-${variant}.svg`} width={100} height={100} alt={decorative ? "" : "Salon Agent AI"} aria-hidden={decorative || undefined} className={cn("block size-8 shrink-0", className)} decoding="async" />;
+  return <img src={`/brand/mark-${variant}.svg`} width={100} height={100} alt={decorative ? "" : "Salon Agent"} aria-hidden={decorative || undefined} className={cn("block size-8 shrink-0", className)} decoding="async" />;
 }

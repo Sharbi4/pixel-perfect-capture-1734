@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Salon Pro Agent" },
-      { name: "description", content: "The AI front desk for salons." },
+      { name: "description", content: "The AI receptionist and answering service for salons." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "application-name", content: "Salon Pro Agent" },

@@ -79,7 +79,8 @@ export const launchSalon = createServerFn({ method: "POST" })
     }).eq("id", salon.id);
 
     if (salon.agent_id) {
-      const ok = await agent.updateAgent(salon.agent_id, salon, svc);
+      const { syncSalonAgent } = await import("./agent-sync.server");
+      const ok = (await syncSalonAgent(sb, salon.id)) === "synced";
       await sb.from("salons").update({ agent_error: ok ? "" : "update_failed", status: "agent_ready" }).eq("id", salon.id);
       return ok ? { status: "done", error: null } : { status: "failed", error: "We couldn't update your receptionist just now. Please try again." };
     }
@@ -90,7 +91,7 @@ export const launchSalon = createServerFn({ method: "POST" })
         { ...jobStore(salon.id, "create_agent"), create: (marker) => agent.createAgent(salon, svc, marker) },
         `agent:${salon.id}:${data.idempotencyKey}`,
       );
-      if (r.status === "done") await sb.from("salons").update({ status: "agent_ready" }).eq("id", salon.id);
+      if (r.status === "done") await sb.from("salons").update({ status: "agent_ready", agent_sync_status: "synced", last_synced_at: new Date().toISOString(), agent_synced_version: salon.config_version }).eq("id", salon.id);
       return {
         status: r.status,
         error: r.status === "done" ? null

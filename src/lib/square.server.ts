@@ -52,7 +52,7 @@ export async function createSetupPaymentLink(args: {
     body: JSON.stringify({
       idempotency_key: args.idempotencyKey,
       quick_pay: {
-        name: `Salon Pro Agent setup — ${args.salonName}`.slice(0, 255),
+        name: (args.salonName.trim() ? `Salon Pro Agent setup — ${args.salonName}` : "Salon Pro Agent setup").slice(0, 255),
         price_money: { amount: SETUP_FEE_CENTS, currency: "USD" },
         location_id: locationId,
       },

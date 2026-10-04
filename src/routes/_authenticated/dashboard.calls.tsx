@@ -15,16 +15,23 @@ export const Route = createFileRoute("/_authenticated/dashboard/calls")({
   component: CallsPage,
 });
 
-type Call = { id: string; salon_id: string; started_at: string; duration_secs: number; direction: string; customer_phone: string; outcome: string; summary: string; title: string; transcript: Line[]; resolved_at: string | null; follow_up_at: string | null; has_recording: boolean };
+type Call = { id: string; salon_id: string; started_at: string; duration_secs: number; direction: string; customer_phone: string; status: string; outcome: string; summary: string; title: string; transcript: Line[]; resolved_at: string | null; follow_up_at: string | null; has_recording: boolean };
 type Note = { id: string; body: string; user_id: string; created_at: string };
 
-const needsFollow = (c: Call) => !c.resolved_at && (c.outcome === "failure" || !!c.follow_up_at);
+const kinds = (c: Call) => new Set(highlights(c.transcript).map((h) => h.kind));
+const isMissed = (c: Call) => c.status === "failed" || c.duration_secs < 15 || !c.transcript.length;
+const needsFollow = (c: Call) => !c.resolved_at && (c.outcome === "failure" || !!c.follow_up_at || kinds(c).has("human") || kinds(c).has("complaint"));
 const FILTERS = [
   { k: "all", label: "All", f: (_: Call) => true },
-  { k: "handled", label: "Handled", f: (c: Call) => c.outcome === "success" },
+  { k: "booked", label: "Booked", f: (c: Call) => kinds(c).has("booking") },
+  { k: "questions", label: "Questions", f: (c: Call) => !isMissed(c) && !["booking", "transfer", "cancel", "reschedule", "complaint"].some((k) => kinds(c).has(k as never)) },
+  { k: "transfer", label: "Transferred", f: (c: Call) => kinds(c).has("transfer") },
+  { k: "missed", label: "Missed", f: isMissed },
   { k: "follow", label: "Needs follow-up", f: needsFollow },
+  { k: "complaint", label: "Complaints", f: (c: Call) => kinds(c).has("complaint") },
+  { k: "cancel", label: "Cancellations", f: (c: Call) => kinds(c).has("cancel") },
+  { k: "reschedule", label: "Reschedules", f: (c: Call) => kinds(c).has("reschedule") },
   { k: "resolved", label: "Resolved", f: (c: Call) => !!c.resolved_at },
-  { k: "short", label: "Short / hung up", f: (c: Call) => c.duration_secs < 15 },
 ] as const;
 
 function CallsPage() {
@@ -35,10 +42,13 @@ function CallsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("calls").select("id,salon_id,started_at,duration_secs,direction,customer_phone,outcome,summary,title,transcript,resolved_at,follow_up_at,has_recording").eq("salon_id", location.id).order("started_at", { ascending: false }).limit(200);
+    const { data } = await supabase.from("calls").select("id,salon_id,started_at,duration_secs,direction,customer_phone,status,outcome,summary,title,transcript,resolved_at,follow_up_at,has_recording").eq("salon_id", location.id).order("started_at", { ascending: false }).limit(200);
     setCalls((data ?? []) as unknown as Call[]);
+    const { data: t } = await supabase.from("sms_threads").select("customer_phone,customer_name").eq("salon_id", location.id).neq("customer_name", "");
+    setNames(Object.fromEntries((t ?? []).map((x) => [x.customer_phone, x.customer_name])));
   }, [location.id]);
 
   const refresh = useCallback(async () => {
@@ -70,13 +80,14 @@ function CallsPage() {
           : <ul className="divide-y divide-border">{list.map((c) => (
             <li key={c.id}><button onClick={() => setOpenId(c.id)} className="flex w-full items-center gap-4 px-5 py-4 text-left hover:bg-accent">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface-2">{c.direction === "outbound" ? <ArrowUpRight className="size-4" /> : <ArrowDownLeft className="size-4 text-success" />}</span>
-              <span className="min-w-0 flex-1"><span className="block truncate font-medium">{c.title || (c.customer_phone ? formatUsNumber(c.customer_phone) : "Web or test call")}</span>
+              <span className="min-w-0 flex-1"><span className="block truncate font-medium">{names[c.customer_phone] || (c.customer_phone ? formatUsNumber(c.customer_phone) : "Web or test call")}</span>
+                <span className="block truncate text-xs text-muted-foreground">{c.title}</span>
                 <span className="block truncate text-sm text-muted-foreground">{c.summary || "No summary"}</span></span>
               <Status c={c} />
               <span className="hidden w-28 text-right text-xs text-muted-foreground sm:block">{when(c.started_at)}<br /><span className="font-mono">{dur(c.duration_secs)}</span></span>
             </button></li>))}</ul>}
       </div>
-      {open && <CallDrawer c={open} onChange={(p) => patch(open.id, p)} onClose={() => setOpenId(null)} />}
+      {open && <CallDrawer c={open} name={names[open.customer_phone] ?? ""} onChange={(p) => patch(open.id, p)} onClose={() => setOpenId(null)} />}
     </div>
   );
 }
@@ -108,17 +119,22 @@ function Recording({ id }: { id: string }) {
   );
 }
 
-function CallDrawer({ c, onChange, onClose }: { c: Call; onChange: (p: Partial<Call>) => void; onClose: () => void }) {
+function CallDrawer({ c, name, onChange, onClose }: { c: Call; name: string; onChange: (p: Partial<Call>) => void; onClose: () => void }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [draft, setDraft] = useState("");
   const [me, setMe] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const hl = highlights(c.transcript);
+  const [texts, setTexts] = useState<{ id: string; body: string; sent_at: string; sent_by: string }[]>([]);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
     void supabase.from("call_notes").select("id,body,user_id,created_at").eq("call_id", c.id).order("created_at").then(({ data }) => setNotes(data ?? []));
-  }, [c.id]);
+    if (c.customer_phone) {
+      const end = new Date(new Date(c.started_at).getTime() + (c.duration_secs + 3600) * 1000).toISOString();
+      void supabase.from("messages").select("id,body,sent_at,sent_by").eq("salon_id", c.salon_id).eq("customer_phone", c.customer_phone).eq("direction", "outbound").gte("sent_at", c.started_at).lte("sent_at", end).order("sent_at").then(({ data }) => setTexts(data ?? []));
+    }
+  }, [c.id, c.salon_id, c.customer_phone, c.started_at, c.duration_secs]);
 
   const save = async (p: { resolved_at?: string | null; follow_up_at?: string | null }) => {
     setErr(null);
@@ -143,7 +159,7 @@ function CallDrawer({ c, onChange, onClose }: { c: Call; onChange: (p: Partial<C
       <div className="animate-rise absolute inset-y-0 right-0 flex w-full max-w-xl flex-col border-l border-border bg-surface">
         <div className="flex items-start justify-between gap-4 border-b border-border p-6">
           <div><h2 className="text-lg font-semibold">{c.title || "Call"}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{c.customer_phone ? formatUsNumber(c.customer_phone) : "Web or test call"} · {when(c.started_at)} · {dur(c.duration_secs)}</p></div>
+            <p className="mt-1 text-sm text-muted-foreground">{name && <>{name} · </>}{c.direction === "outbound" ? "Outgoing" : "Incoming"} · {c.customer_phone ? formatUsNumber(c.customer_phone) : "Web or test call"} · {when(c.started_at)} · {dur(c.duration_secs)}</p></div>
           <button onClick={onClose} aria-label="Close" className="grid size-9 place-items-center rounded-full bg-accent"><X className="size-4" /></button>
         </div>
         <div className="flex-1 space-y-6 overflow-y-auto p-6">
@@ -163,6 +179,17 @@ function CallDrawer({ c, onChange, onClose }: { c: Call; onChange: (p: Partial<C
           {c.customer_phone && <div className="flex gap-2">
             <a href={`tel:${c.customer_phone}`} className="inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground">Call customer</a>
             <a href={`sms:${c.customer_phone}`} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm">Text customer</a></div>}
+
+          <section className="grid grid-cols-2 gap-2 text-sm">
+            {([["Agent", "Salon Agent"], ["Outcome", c.resolved_at ? "Resolved" : needsFollow(c) ? "Needs follow-up" : c.outcome === "success" ? "Handled" : isMissed(c) ? "Missed / short" : "—"],
+              ["Transferred", kinds(c).has("transfer") ? "Yes" : "No"], ["Callback needed", needsFollow(c) ? "Yes" : "No"],
+              ["Recording", c.has_recording ? "Available" : "Not available"], ["Appointment", "Booking system not connected"]] as const).map(([k, v]) => (
+              <div key={k} className="rounded-2xl bg-accent px-3 py-2"><span className="block text-[11px] text-muted-foreground">{k}</span>{v}</div>))}
+          </section>
+
+          {texts.length > 0 && <section><h3 className="text-xs uppercase tracking-wider text-muted-foreground">Texts sent after this call</h3>
+            <ul className="mt-2 space-y-2">{texts.map((t) => <li key={t.id} className="rounded-2xl bg-violet/15 px-4 py-2 text-sm">{t.body}<span className="mt-1 block text-[11px] text-muted-foreground">{t.sent_by === "agent" ? "Salon Agent" : "Team"} · {when(t.sent_at)}</span></li>)}</ul>
+          </section>}
 
           {hl.length > 0 && <section><h3 className="text-xs uppercase tracking-wider text-muted-foreground">Key moments</h3>
             <ul className="mt-2 space-y-2">{hl.map((h) => (

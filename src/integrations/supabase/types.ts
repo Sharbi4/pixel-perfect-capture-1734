@@ -258,7 +258,9 @@ export type Database = {
           id: string
           provider_ref: string
           salon_id: string
+          sender_user: string | null
           sent_at: string
+          sent_by: string
           status: string
         }
         Insert: {
@@ -269,7 +271,9 @@ export type Database = {
           id?: string
           provider_ref: string
           salon_id: string
+          sender_user?: string | null
           sent_at: string
+          sent_by?: string
           status?: string
         }
         Update: {
@@ -280,7 +284,9 @@ export type Database = {
           id?: string
           provider_ref?: string
           salon_id?: string
+          sender_user?: string | null
           sent_at?: string
+          sent_by?: string
           status?: string
         }
         Relationships: [
@@ -629,6 +635,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "services_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_threads: {
+        Row: {
+          ai_enabled: boolean
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          notes: string
+          salon_id: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          ai_enabled?: boolean
+          created_at?: string
+          customer_name?: string
+          customer_phone: string
+          id?: string
+          notes?: string
+          salon_id: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          ai_enabled?: boolean
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notes?: string
+          salon_id?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_threads_salon_id_fkey"
             columns: ["salon_id"]
             isOneToOne: false
             referencedRelation: "salons"

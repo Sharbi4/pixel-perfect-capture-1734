@@ -10,11 +10,11 @@ const INSTRUCTIONS = `You turn nail salon menus into structured data.
 Return ONLY a JSON array, no prose, no code fences. Each item: {"name": string, "price": number (USD, 0 if unknown), "minutes": integer (estimate a typical nail-salon duration if missing), "is_addon": boolean}.
 Include every service and add-on you can find. Max 60 items.`;
 
-export async function extractServicesWithAI(parts: ModelMessage["content"]): Promise<ExtractedService[]> {
+function gateway() {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("AI is not configured.");
   let runId: string | undefined;
-  const provider = createOpenAI({
+  return createOpenAI({
     baseURL: BASE,
     apiKey,
     headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
@@ -32,6 +32,18 @@ export async function extractServicesWithAI(parts: ModelMessage["content"]): Pro
       return res;
     },
   });
+}
+
+const OPTS = { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } } as const;
+
+/** One short text reply; streamed internally, final text returned. */
+export async function writeReply(system: string, messages: ModelMessage[]): Promise<string> {
+  const result = streamText({ model: gateway().responses(MODEL), system, messages, providerOptions: OPTS as never });
+  return (await result.text).trim();
+}
+
+export async function extractServicesWithAI(parts: ModelMessage["content"]): Promise<ExtractedService[]> {
+  const provider = gateway();
   const result = streamText({
     model: provider.responses(MODEL),
     system: INSTRUCTIONS,

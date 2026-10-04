@@ -9,4 +9,6 @@
 - [x] Dashboard stage 1: shell, sidebar/mobile nav, location switcher, Overview
 - [x] Dashboard: Calls and Messages pages with real saved history
 - [x] Calls: notes, resolve, follow-ups, recordings, key moments; Overview date ranges
+- [x] Calls filters/details; Messages shared inbox with agent texting, takeover, templates, client panel
+- [ ] Existing numbers need their texting address set (new numbers get it automatically)
 - [ ] Dashboard next: Salon Agent page; automatic background sync / webhooks; adding new locations (needs per-location billing + setup)

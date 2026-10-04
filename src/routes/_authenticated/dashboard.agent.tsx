@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, Pause, Phone, Play, RefreshCw, TriangleAlert } f
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { TestCall } from "@/components/nd/TestCall";
+import { KnowledgeEditor } from "@/components/dashboard/KnowledgeEditor";
 import { BrandMark } from "@/components/brand/Brand";
 import { voices } from "@/lib/voices";
 import { formatUsNumber } from "@/lib/phone-format";
@@ -45,7 +46,7 @@ function AgentPage() {
   const load = useCallback(async () => {
     const [a, sv, st, ps] = await Promise.all([
       supabase.from("salons").select("name,hours,walk_ins,voice,booking_provider,agent_sync_status,last_synced_at,has_receptionist,phone_number,agent_settings").eq("id", location.id).single(),
-      supabase.from("services").select("id", { count: "exact", head: true }).eq("salon_id", location.id),
+      supabase.from("services").select("id", { count: "exact", head: true }).eq("salon_id", location.id).eq("archived", false),
       supabase.from("staff").select("id", { count: "exact", head: true }).eq("salon_id", location.id).eq("active", true),
       supabase.from("phone_setups").select("forwarding_status").eq("salon_id", location.id).maybeSingle(),
     ]);
@@ -111,6 +112,8 @@ function AgentPage() {
         <div className="rounded-2xl border border-border bg-card p-5"><h3 className="font-medium">Preview Voice</h3><p className="mt-1 text-sm text-muted-foreground">Hear your greeting in the selected voice.</p>
           <div className="mt-4"><PreviewBtn voice={s.voice} salon={info.name} text={s.greeting || defaultGreeting(info.name, s.agent_name)} /></div></div>
       </div>
+
+      <div className="mt-8"><KnowledgeEditor salonId={location.id} canEdit={canEdit} onSaved={load} /></div>
 
       <fieldset disabled={!canEdit || busy} className="mt-8 space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-semibold">Settings</h2><p className="text-sm text-muted-foreground">{canEdit ? "Every saved change is sent to your Salon Agent right away." : "Only owners and managers can change these settings."}</p></div></div>

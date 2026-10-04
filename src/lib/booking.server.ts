@@ -46,7 +46,7 @@ async function busy(sb: Admin, salonId: string, from: string, to: string, ignore
   return [...((a ?? []) as any[]).filter((x) => x.id !== ignore), ...((off ?? []) as any[])];
 }
 
-export async function findSlots(sb: Admin, salonId: string, q: { date?: string; service?: string; staff?: string; ignore?: string }) {
+export async function findSlots(sb: Admin, salonId: string, q: { date?: string | undefined; service?: string | undefined; staff?: string | undefined; ignore?: string | undefined }) {
   const { salon, staff, services } = await context(sb, salonId);
   if (!salon) return { error: "salon_not_found" };
   if (!staff.length) return { error: "The salon hasn't set up its team calendar yet. Offer to have someone call back to book." };
@@ -69,7 +69,7 @@ export async function findSlots(sb: Admin, salonId: string, q: { date?: string; 
   };
 }
 
-export async function book(sb: Admin, salonId: string, i: { service: string; start: string; technician?: string; client_name: string; client_phone: string; source: "ai_call" | "ai_text"; call_ref?: string; notes?: string; reschedule_id?: string }) {
+export async function book(sb: Admin, salonId: string, i: { service: string; start: string; technician?: string | undefined; client_name: string; client_phone: string; source: "ai_call" | "ai_text"; call_ref?: string | undefined; notes?: string | undefined; reschedule_id?: string | undefined }) {
   const { salon, staff, services } = await context(sb, salonId);
   if (!salon) return { error: "salon_not_found" };
   const svc = pick(services, i.service);
@@ -89,7 +89,7 @@ export async function book(sb: Admin, salonId: string, i: { service: string; sta
   } as Record<string, unknown>;
   if (i.call_ref) {
     const { data: c } = await sb.from("calls").select("id").eq("provider_ref", i.call_ref).maybeSingle();
-    if (c) row.call_id = c.id;
+    if (c) row["call_id"] = c.id;
   }
   let id: string;
   if (i.reschedule_id) {
@@ -125,7 +125,7 @@ export async function cancel(sb: Admin, salonId: string, phone: string, id: stri
   return data ? { ok: true } : { error: "Couldn't find that appointment for this phone number." };
 }
 
-export async function addWaitlist(sb: Admin, salonId: string, i: { client_name: string; client_phone: string; service?: string; technician?: string; preferred?: string; source: string }) {
+export async function addWaitlist(sb: Admin, salonId: string, i: { client_name: string; client_phone: string; service?: string | undefined; technician?: string | undefined; preferred?: string | undefined; source: string }) {
   const { staff } = await context(sb, salonId);
   const { error } = await sb.from("waitlist").insert({ salon_id: salonId, client_name: (i.client_name ?? "").slice(0, 120), client_phone: e164(i.client_phone), service_name: i.service ?? "", staff_id: pick(staff, i.technician)?.id ?? null, preferred: (i.preferred ?? "").slice(0, 300), source: i.source });
   return error ? { error: "Couldn't add to the waitlist." } : { ok: true };

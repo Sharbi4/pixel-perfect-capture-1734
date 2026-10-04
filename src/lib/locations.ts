@@ -30,6 +30,6 @@ export function setActiveLocationId(id: string) {
 /** "123 Main St, Tucson, AZ 85701" -> "Tucson, AZ" */
 export function cityLine(address: string): string {
   const parts = address.split(",").map((p) => p.trim()).filter(Boolean);
-  if (parts.length >= 3) return `${parts[parts.length - 2]}, ${parts[parts.length - 1].split(" ")[0]}`;
+  if (parts.length >= 3) return `${parts[parts.length - 2]}, ${(parts[parts.length - 1] ?? "").split(" ")[0]}`;
   return parts.slice(-1)[0] ?? "Address not added";
 }

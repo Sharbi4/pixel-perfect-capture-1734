@@ -44,7 +44,7 @@ function DashboardLayout() {
       </div>
     );
   }
-  const location = locations.find((l) => l.id === activeId) ?? locations[0];
+  const location = (locations.find((l) => l.id === activeId) ?? locations[0])!;
   const pick = (id: string) => { setActiveLocationId(id); setActiveId(id); };
 
   const sidebar = (
@@ -56,7 +56,7 @@ function DashboardLayout() {
           <Link
             key={label}
             to={slug ? "/dashboard/$section" : "/dashboard"}
-            params={slug ? { section: slug } : undefined}
+            params={{ section: slug }}
             activeOptions={{ exact: true }}
             onClick={() => setMobileOpen(false)}
             className="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-foreground"

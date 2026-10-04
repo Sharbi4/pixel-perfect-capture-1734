@@ -1,5 +1,6 @@
 // Server-only voice agent provider access. Raw provider errors are logged, never returned.
 import { voices } from "./voices";
+import { readKnowledge, knowledgeBlock } from "./knowledge";
 import { readSettings, agentBehavior, allowedTools, defaultGreeting } from "./agent-settings";
 import { classifyHttp, type Outcome } from "./provisioning";
 
@@ -8,16 +9,17 @@ const API = "https://api.elevenlabs.io/v1/convai";
 export type SalonRow = {
   name: string; address: string; phone: string; website: string; hours: string;
   languages: string[]; voice: string; deposit_policy: string; cancellation_policy: string;
-  walk_ins: boolean; id?: string; agent_settings?: unknown;
+  walk_ins: boolean; id?: string; agent_settings?: unknown; knowledge?: unknown;
 };
-export type ServiceRow = { id?: string; name: string; price: number; minutes: number; is_addon: boolean };
+export type ServiceRow = { id?: string; name: string; price: number; minutes: number; is_addon: boolean; description?: string; deposit_cents?: number; days?: number[] };
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export type StaffRow = { name: string; service_ids: string[]; hours: unknown };
 
 function key() { return process.env["ELEVENLABS_API_KEY"] ?? ""; }
 
 function buildPrompt(s: SalonRow, services: ServiceRow[], staff: StaffRow[] = []) {
   const menu = services
-    .map((x) => `- ${x.name}${x.is_addon ? " (add-on)" : ""}: $${x.price}, about ${x.minutes} min`)
+    .map((x) => `- ${x.name}${x.is_addon ? " (add-on)" : ""}: $${x.price}, about ${x.minutes} min${x.deposit_cents ? `, $${x.deposit_cents / 100} deposit` : ""}${x.days?.length ? `, only on ${x.days.map((d) => DAYS[d]).join("/")}` : ""}${x.description ? ` — ${x.description.replace(/[<>{}`]/g, " ")}` : ""}`)
     .join("\n");
   return `You are the friendly front-desk receptionist for ${s.name || "the salon"}, a nail salon. You answer phone calls.
 Keep replies short and natural, like a real receptionist. Ask one question at a time.
@@ -46,7 +48,7 @@ Rules you must always follow:
 - You only work for this salon. Never discuss other salons' clients or calendars.
 
 How this salon wants you to behave:
-${agentBehavior(readSettings(s.agent_settings, { voice: s.voice }), s.walk_ins)}`;
+${agentBehavior(readSettings(s.agent_settings, { voice: s.voice }), s.walk_ins)}${knowledgeBlock(readKnowledge(s.knowledge))}`;
 }
 
 const str = (description: string) => ({ type: "string", description });

@@ -15,13 +15,22 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({ next: typeof s.next === "string" ? s.next : undefined }),
   component: AuthPage,
 });
+
+// Only same-origin relative paths (e.g. the MCP consent screen) are allowed as return targets.
+function safeNext(n?: string) {
+  return n && n.startsWith("/") && !n.startsWith("//") ? n : null;
+}
 
 const field = "h-12 w-full rounded-2xl border border-border bg-background/60 px-4 text-sm outline-none focus:border-ring";
 
 function AuthPage() {
   const nav = useNavigate();
+  const { next } = Route.useSearch();
+  const dest = safeNext(next);
+  const go = () => (dest ? (window.location.href = dest) : nav({ to: "/setup" }));
   const [mode, setMode] = useState<"in" | "up">("up");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,16 +38,16 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { if (data.session) nav({ to: "/setup" }); });
-    const { data } = supabase.auth.onAuthStateChange((e, s) => { if (e === "SIGNED_IN" && s) nav({ to: "/setup" }); });
+    supabase.auth.getSession().then(({ data }) => { if (data.session) go(); });
+    const { data } = supabase.auth.onAuthStateChange((e, s) => { if (e === "SIGNED_IN" && s) go(); });
     return () => data.subscription.unsubscribe();
-  }, [nav]);
+  }, [nav, dest]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setMsg(null);
     if (mode === "up") {
-      const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/setup` } });
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}${dest ?? "/setup"}` } });
       if (error) setMsg(error.message);
       else if (!data.session) setMsg("Check your email to confirm your account, then come back to sign in.");
     } else {
@@ -49,7 +58,7 @@ function AuthPage() {
   }
 
   async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth` });
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth${dest ? `?next=${encodeURIComponent(dest)}` : ""}` });
     if (r.error) setMsg(r.error.message);
   }
 

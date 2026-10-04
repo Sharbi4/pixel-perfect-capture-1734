@@ -77,9 +77,6 @@ export async function book(sb: Admin, salonId: string, i: { service: string; sta
   const phone = e164(i.client_phone);
   if (!phone) return { error: "Need the client's phone number." };
   const day = localDate(new Date(i.start), salon.timezone);
-  const open = await findSlots(sb, salonId, { date: day, service: svc.name, staff: i.technician, ignore: i.reschedule_id });
-  const match = "slots" in open ? undefined : null;
-  void match;
   const ctx = await busy(sb, salonId, new Date(Date.parse(i.start) - 86_400_000).toISOString(), new Date(Date.parse(i.start) + 86_400_000).toISOString(), i.reschedule_id);
   const wanted = pick(staff, i.technician);
   const slot = openSlots({ date: day, staff, busy: ctx, minutes: svc.minutes, rules: salon, now: new Date(), serviceId: svc.id, staffId: wanted?.id, step: 5 })

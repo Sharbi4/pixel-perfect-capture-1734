@@ -40,7 +40,7 @@ export async function loadBasics(salonId: string) {
 }
 
 export async function loadAppts(salonId: string, from: string, to: string) {
-  const { data } = await supabase.from("appointments").select("id,staff_id,service_id,service_name,price,client_name,client_phone,starts_at,ends_at,status,source,call_id,notes,text_confirmed")
+  const { data } = await supabase.from("appointments").select("id,staff_id,service_id,service_name,price,client_name,client_phone,starts_at,ends_at,status,source,call_id,notes,text_confirmed,provider,deposit_status,deposit_cents,confirmation_sent_at")
     .eq("salon_id", salonId).lt("starts_at", to).gt("ends_at", from).order("starts_at").limit(1000);
   return (data ?? []) as Appt[];
 }

@@ -10,6 +10,7 @@ import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
 import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
 import { BrandLogo } from "@/components/brand/Brand";
+import { plans, setup, schedulingAddon, type Tier } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({

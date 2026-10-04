@@ -1,3 +1,4 @@
+import { checkoutTotals, taxRate } from "./sales-tax";
 import {
   createCipheriv,
   createDecipheriv,
@@ -205,6 +206,7 @@ export const squareProvider: CheckoutProvider = {
         start_date: p.next_billing_date,
         monthly_billing_anchor_date: Number(p.next_billing_date.slice(-2)),
         timezone: p.timezone,
+        ...(taxRate(p.buyer?.state) ? { tax_percentage: String(taxRate(p.buyer?.state)) } : {}),
       })
     ).subscription;
   },
@@ -224,7 +226,7 @@ export function assertPurchaseEnvironment(p: Purchase) {
     p.environment !== c.environment ||
     p.location_id !== c.locationId ||
     p.plan_id !== c.planId ||
-    p.total_cents !== plan.monthlyCents + setup.cents ||
+    p.total_cents !== checkoutTotals(setup.cents, plan.monthlyCents, p.buyer?.state).todayCents ||
     p.monthly_cents !== plan.monthlyCents
   )
     throw Error("checkout_configuration_changed");

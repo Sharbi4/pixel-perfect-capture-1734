@@ -1,3 +1,4 @@
+import { isTaxState } from "./sales-tax";
 import { z } from "zod";
 export const previewKey = "salon-agent-ai:preview:v1";
 export const previewSchema = z.object({
@@ -22,7 +23,7 @@ export const buyerSchema = z.object({
   lastName: z.string().trim().min(1).max(100),
   address: z.string().trim().min(1).max(200),
   city: z.string().trim().min(1).max(100),
-  state: z.string().trim().length(2),
+  state: z.string().trim().toUpperCase().length(2).refine(isTaxState, "Enter a valid US state code"),
   zip: z.string().regex(/^\d{5}(-\d{4})?$/),
 });
 export type Buyer = z.infer<typeof buyerSchema>;

@@ -1,3 +1,4 @@
+import { taxCents } from "./sales-tax";
 import { nextDay, zonedMidnight } from "./checkout-model";
 import type { Purchase, Subscription } from "./checkout-workflow";
 export type Invoice = {
@@ -44,6 +45,7 @@ export function renewalAccess(p: Purchase, s: Subscription, i: Invoice): string 
       return null;
     total += due.amount;
   }
-  if (total !== p.monthly_cents) return null;
+  const expected = p.monthly_cents + taxCents(p.monthly_cents, p.buyer?.state);
+  if (Math.abs(total - expected) > 1) return null;
   return zonedMidnight(nextDay(s.charged_through_date), p.timezone);
 }

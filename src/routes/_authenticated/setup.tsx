@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check, Globe, Loader2, Pause, Play, Plus, Trash2
 import { supabase } from "@/integrations/supabase/client";
 import { loadOrCreateSalon, saveSalon, saveServices, type Salon, type Service } from "@/lib/salon-data";
 import { extractServices, launchSalon } from "@/lib/setup.functions";
+import { createSalonCheckout, getPaymentStatus } from "@/lib/square.functions";
 import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
 import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
@@ -37,10 +38,22 @@ function SetupPage() {
   const [err, setErr] = useState<string | null>(null);
   const launch = useServerFn(launchSalon);
   const launchKey = useRef<string>(crypto.randomUUID());
+  const paymentStatus = useServerFn(getPaymentStatus);
+  const [paid, setPaid] = useState<boolean | null>(null);
 
   useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => { setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
 
-  if (!salon) return <div className="grid min-h-screen place-items-center text-muted-foreground">{err ?? <Loader2 className="size-5 animate-spin" />}</div>;
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => paymentStatus().then((r) => { if (!cancelled) setPaid(r.paid); }).catch(() => { if (!cancelled) setPaid(false); });
+    check();
+    // Poll while a checkout is in flight (e.g. just returned from Square).
+    const t = setInterval(() => { if (!cancelled) check(); }, 5000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [paymentStatus]);
+
+  if (!salon || paid === null) return <div className="grid min-h-screen place-items-center text-muted-foreground">{err ?? <Loader2 className="size-5 animate-spin" />}</div>;
+  if (!paid) return <PayGate salonReady={!!salon.name.trim()} />;
   const set = (p: Partial<Salon>) => setSalon({ ...salon, ...p });
 
   async function persist() {

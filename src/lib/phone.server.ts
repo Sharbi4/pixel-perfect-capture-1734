@@ -60,7 +60,7 @@ export async function buyNumber(e164: string, voiceUrl: string, label: string): 
   const r = await tw(`/IncomingPhoneNumbers.json`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ PhoneNumber: e164, VoiceUrl: voiceUrl, VoiceMethod: "POST", FriendlyName: label }),
+    body: new URLSearchParams({ PhoneNumber: e164, VoiceUrl: voiceUrl, VoiceMethod: "POST", SmsUrl: voiceUrl.replace("/api/public/incoming-call", "/api/public/incoming-sms"), SmsMethod: "POST", FriendlyName: label }),
   });
   const kind = classifyHttp(r.status);
   const j = r.json as { sid?: string; phone_number?: string; code?: number } | null;

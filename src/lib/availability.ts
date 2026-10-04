@@ -8,9 +8,9 @@ export type Slot = { staff_id: string; staff_name: string; start: string; end: s
 
 /** Offset (ms) of the time zone at a given UTC instant. */
 function tzOffset(tz: string, at: Date): number {
-  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+  const p: Record<string, number> = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
     .formatToParts(at).filter((x) => x.type !== "literal").map((x) => [x.type, Number(x.value)]));
-  return Date.UTC(p.year!, p.month! - 1, p.day!, p.hour!, p.minute!, p.second!) - at.getTime();
+  return Date.UTC(p["year"]!, p["month"]! - 1, p["day"]!, p["hour"]!, p["minute"]!, p["second"]!) - at.getTime();
 }
 
 /** Wall-clock date + minutes in the salon's zone -> UTC instant. */
@@ -40,7 +40,7 @@ export function addDays(date: string, n: number): string {
  */
 export function openSlots(o: {
   date: string; staff: StaffLite[]; busy: Busy[]; minutes: number; rules: Rules; now: Date;
-  serviceId?: string | null; staffId?: string | null; step?: number;
+  serviceId?: string | null | undefined; staffId?: string | null | undefined; step?: number;
 }): Slot[] {
   const step = o.step ?? 15;
   const { timezone: tz, buffer_min: buf } = o.rules;

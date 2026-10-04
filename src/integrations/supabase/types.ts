@@ -142,6 +142,59 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount_cents: number
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          id: string
+          kind: string
+          salon_id: string
+          square_order_id: string | null
+          square_payment_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          kind: string
+          salon_id: string
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          salon_id?: string
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phone_jobs: {
         Row: {
           attempts: number

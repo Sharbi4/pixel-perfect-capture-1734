@@ -88,7 +88,7 @@ function AppointmentsPage() {
           <span className="min-w-48 text-center font-medium">{title}</span>
           <button onClick={() => step(1)} aria-label="Next" className="grid size-9 place-items-center rounded-full bg-accent"><ChevronRight className="size-4" /></button>
           <span className="mx-1 h-6 w-px bg-border" />
-          <Pill on={false} onClick={() => { setDate(localDate(new Date(), tz)); setView("staff"); }}>Today</Pill>
+          <Pill on={false} onClick={() => { setDate(localDate(new Date(), tz)); setView("day"); }}>Today</Pill>
           {([["day", "Day"], ["week", "Week"], ["month", "Calendar"], ["staff", "By technician"]] as const).map(([v, l]) => <Pill key={v} on={view === v} onClick={() => setView(v)}>{l}</Pill>)}
         </div>
         <Filters f={f} setF={setF} staff={basics.staff} services={basics.services} />

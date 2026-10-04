@@ -12,11 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
-import { Route as RobotsTxtRouteImport } from './routes/robots.txt'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
@@ -35,6 +34,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -48,16 +52,6 @@ const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
 const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   id: '/api/voice-preview',
   path: '/api/voice-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsTxtRoute = RobotsTxtRouteImport.update({
-  id: '/robots/txt',
-  path: '/robots/txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
@@ -79,11 +73,10 @@ const ApiPublicSquareWebhookRoute = ApiPublicSquareWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
-  '/robots/txt': typeof RobotsTxtRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -91,11 +84,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
-  '/robots/txt': typeof RobotsTxtRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -105,11 +97,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
-  '/robots/txt': typeof RobotsTxtRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -119,11 +110,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/sitemap.xml'
     | '/account'
     | '/setup'
     | '/api/voice-preview'
-    | '/robots/txt'
-    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -131,11 +121,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/sitemap.xml'
     | '/account'
     | '/setup'
     | '/api/voice-preview'
-    | '/robots/txt'
-    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -144,11 +133,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/sitemap.xml'
     | '/_authenticated/account'
     | '/_authenticated/setup'
     | '/api/voice-preview'
-    | '/robots/txt'
-    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -158,9 +146,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
-  RobotsTxtRoute: typeof RobotsTxtRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
   ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
@@ -189,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/account': {
       id: '/_authenticated/account'
       path: '/account'
@@ -208,20 +202,6 @@ declare module '@tanstack/react-router' {
       path: '/api/voice-preview'
       fullPath: '/api/voice-preview'
       preLoaderRoute: typeof ApiVoicePreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots/txt': {
-      id: '/robots/txt'
-      path: '/robots/txt'
-      fullPath: '/robots/txt'
-      preLoaderRoute: typeof RobotsTxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/agent-token': {
@@ -265,9 +245,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
-  RobotsTxtRoute: RobotsTxtRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
   ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,

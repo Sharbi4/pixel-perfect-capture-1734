@@ -102,10 +102,10 @@ export async function book(sb: Admin, salonId: string, i: { service: string; sta
     id = data.id;
   }
   const when = `${fmtDay(slot.start, salon.timezone)} at ${fmtTime(slot.start, salon.timezone)}`;
-  if (i.source !== "ai_text" && salon.confirm_texts && salon.phone_number) {
-    const { sendSms } = await import("./texting.server");
-    const ok = await sendSms(sb, { salonId, from: salon.phone_number, to: phone, sentBy: "agent",
-      body: `${salon.name || "Your salon"}: you're ${i.reschedule_id ? "rescheduled" : "booked"} for ${svc.name} with ${slot.staff_name} on ${when}.${salon.address ? ` ${salon.address}.` : ""} Reply to this text to make changes.` }).catch(() => false);
+  if (i.source !== "ai_text") {
+    const { sendAutomation } = await import("./texting.server");
+    const ok = await sendAutomation(sb, salonId, i.reschedule_id ? "reschedule_confirmation" : "appointment_confirmation", phone,
+      { service: svc.name, tech: slot.staff_name, when, address: salon.address ? `${salon.address}.` : "" });
     if (ok) await sb.from("appointments").update({ text_confirmed: true }).eq("id", id);
   }
   return { ok: true, appointment_id: id, summary: `${svc.name} with ${slot.staff_name} on ${when}` };
@@ -119,9 +119,15 @@ export async function lookup(sb: Admin, salonId: string, phone: string) {
   return { appointments: (data ?? []).map((a: any) => ({ id: a.id, label: `${a.service_name} with ${a.staff?.name ?? "any technician"} on ${fmtDay(a.starts_at, s?.timezone ?? "UTC")} at ${fmtTime(a.starts_at, s?.timezone ?? "UTC")}` })) };
 }
 
-export async function cancel(sb: Admin, salonId: string, phone: string, id: string) {
+export async function cancel(sb: Admin, salonId: string, phone: string, id: string, opts?: { notify?: boolean }) {
   const p = e164(phone);
-  const { data } = await sb.from("appointments").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", id).eq("salon_id", salonId).eq("client_phone", p).in("status", ["booked", "confirmed"]).select("id").maybeSingle();
+  const { data } = await sb.from("appointments").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", id).eq("salon_id", salonId).eq("client_phone", p).in("status", ["booked", "confirmed"]).select("id,service_name,starts_at,source").maybeSingle();
+  if (data && data.source !== "ai_text" && opts?.notify !== false) {
+    const { data: s } = await sb.from("salons").select("timezone").eq("id", salonId).single();
+    const tz = s?.timezone ?? "UTC";
+    const { sendAutomation } = await import("./texting.server");
+    await sendAutomation(sb, salonId, "cancellation_confirmation", p, { service: data.service_name, when: `${fmtDay(data.starts_at, tz)} at ${fmtTime(data.starts_at, tz)}` });
+  }
   return data ? { ok: true } : { error: "Couldn't find that appointment for this phone number." };
 }
 

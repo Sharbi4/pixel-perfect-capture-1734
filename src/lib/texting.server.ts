@@ -54,7 +54,7 @@ export async function agentReply(sb: Admin, salonId: string, from: string, custo
   if (t && !t.ai_enabled) return;
   const [{ data: s }, { data: svc }, { data: hist }] = await Promise.all([
     sb.from("salons").select("name,address,phone,website,hours,cancellation_policy,deposit_policy,walk_ins,agent_id,timezone").eq("id", salonId).single(),
-    sb.from("services").select("name,price,minutes,is_addon").eq("salon_id", salonId).order("position").limit(60),
+    sb.from("services").select("name,price,minutes,is_addon").eq("salon_id", salonId).eq("archived", false).order("position").limit(60),
     sb.from("messages").select("direction,body").eq("salon_id", salonId).eq("customer_phone", customer).order("sent_at", { ascending: false }).limit(20),
   ]);
   if (!s?.agent_id) return; // receptionist not built

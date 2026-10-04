@@ -656,6 +656,7 @@ export type Database = {
           horizon_days: number
           hours: string
           id: string
+          knowledge: Json
           languages: string[]
           last_synced_at: string | null
           launched_at: string | null
@@ -700,6 +701,7 @@ export type Database = {
           horizon_days?: number
           hours?: string
           id?: string
+          knowledge?: Json
           languages?: string[]
           last_synced_at?: string | null
           launched_at?: string | null
@@ -744,6 +746,7 @@ export type Database = {
           horizon_days?: number
           hours?: string
           id?: string
+          knowledge?: Json
           languages?: string[]
           last_synced_at?: string | null
           launched_at?: string | null
@@ -772,7 +775,11 @@ export type Database = {
       }
       services: {
         Row: {
+          archived: boolean
           created_at: string
+          days: number[]
+          deposit_cents: number
+          description: string
           details: Json
           id: string
           is_addon: boolean
@@ -783,7 +790,11 @@ export type Database = {
           salon_id: string
         }
         Insert: {
+          archived?: boolean
           created_at?: string
+          days?: number[]
+          deposit_cents?: number
+          description?: string
           details?: Json
           id?: string
           is_addon?: boolean
@@ -794,7 +805,11 @@ export type Database = {
           salon_id: string
         }
         Update: {
+          archived?: boolean
           created_at?: string
+          days?: number[]
+          deposit_cents?: number
+          description?: string
           details?: Json
           id?: string
           is_addon?: boolean

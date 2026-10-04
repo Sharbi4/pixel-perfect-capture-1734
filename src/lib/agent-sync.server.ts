@@ -10,7 +10,7 @@ export async function syncSalonAgent(sb: Admin, salonId: string): Promise<"synce
   const version = s.config_version;
   await sb.from("salons").update({ agent_sync_status: "syncing" }).eq("id", salonId);
   const [{ data: services }, { data: staff }] = await Promise.all([
-    sb.from("services").select("id,name,price,minutes,is_addon").eq("salon_id", salonId).order("position"),
+    sb.from("services").select("id,name,price,minutes,is_addon,description,deposit_cents,days").eq("salon_id", salonId).eq("archived", false).order("position"),
     sb.from("staff").select("name,service_ids,hours").eq("salon_id", salonId).eq("active", true).order("position"),
   ]);
   const { updateAgent } = await import("./agent.server");

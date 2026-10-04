@@ -30,7 +30,7 @@ export async function loadBasics(salonId: string) {
   const [r, s, v] = await Promise.all([
     supabase.from("salons").select("name,timezone,buffer_min,lead_min,horizon_days,confirm_texts").eq("id", salonId).single(),
     supabase.from("staff").select("id,name,service_ids,hours,active,position").eq("salon_id", salonId).order("position").order("created_at"),
-    supabase.from("services").select("id,name,price,minutes,is_addon").eq("salon_id", salonId).order("position"),
+    supabase.from("services").select("id,name,price,minutes,is_addon").eq("salon_id", salonId).eq("archived", false).order("position"),
   ]);
   return {
     rules: (r.data ?? { name: "", timezone: "America/Phoenix", buffer_min: 10, lead_min: 60, horizon_days: 60, confirm_texts: true }) as SalonRules,

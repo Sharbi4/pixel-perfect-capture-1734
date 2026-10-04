@@ -1,6 +1,6 @@
 // Server-only booking logic used by the voice agent tools and the text agent.
 import { createHmac, timingSafeEqual } from "crypto";
-import { openSlots, addDays, localDate, fmtDay, fmtTime, type StaffLite, type Rules } from "./availability";
+import { openSlots, addDays, localDate, fmtDay, fmtTime, weekday, type StaffLite, type Rules } from "./availability";
 
 type Admin = any;
 

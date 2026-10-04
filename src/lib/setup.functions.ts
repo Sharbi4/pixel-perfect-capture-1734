@@ -64,7 +64,7 @@ export const launchSalon = createServerFn({ method: "POST" })
     const salon = await ownedSalonPrivate(supabase, userId);
     if (!salon) return { status: "failed", error: "Salon not found." };
     const { data: services } = await supabase
-      .from("services").select("name,price,minutes,is_addon").eq("salon_id", salon.id).order("position");
+      .from("services").select("name,price,minutes,is_addon").eq("salon_id", salon.id).eq("archived", false).order("position");
     const svc = (services ?? []).map((s) => ({ ...s, price: Number(s.price) }));
 
     const agent = await import("./agent.server");

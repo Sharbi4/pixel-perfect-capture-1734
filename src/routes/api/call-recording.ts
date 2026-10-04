@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/call-recording")({
       GET: async ({ request }) => {
         const url = new URL(request.url);
         const id = url.searchParams.get("id") ?? "";
-        const token = request.headers.get("authorization")?.replace("Bearer ", "") || url.searchParams.get("t") || "";
+        const token = request.headers.get("authorization")?.replace("Bearer ", "") ?? "";
         if (!token || !/^[0-9a-f-]{36}$/i.test(id)) return new Response("Not found", { status: 404 });
         const sb = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
           auth: { persistSession: false, autoRefreshToken: false },

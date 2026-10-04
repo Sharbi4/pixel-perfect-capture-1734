@@ -18,6 +18,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
+import { Route as ApiCallRecordingRouteImport } from './routes/api/call-recording'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -72,6 +73,11 @@ const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
   id: '/setup',
   path: '/setup',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiCallRecordingRoute = ApiCallRecordingRouteImport.update({
+  id: '/api/call-recording',
+  path: '/api/call-recording',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   id: '/api/voice-preview',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/setup': typeof AuthenticatedSetupRoute
+  '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
+  '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
+  '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/dashboard'
     | '/setup'
+    | '/api/call-recording'
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/setup'
+    | '/api/call-recording'
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/_authenticated/setup'
+    | '/api/call-recording'
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/_authenticated/dashboard/$section'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiCallRecordingRoute: typeof ApiCallRecordingRoute
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/setup'
       preLoaderRoute: typeof AuthenticatedSetupRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/call-recording': {
+      id: '/api/call-recording'
+      path: '/api/call-recording'
+      fullPath: '/api/call-recording'
+      preLoaderRoute: typeof ApiCallRecordingRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/voice-preview': {
       id: '/api/voice-preview'
@@ -429,6 +449,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiCallRecordingRoute: ApiCallRecordingRoute,
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,

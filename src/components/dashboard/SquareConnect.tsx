@@ -75,7 +75,7 @@ export function SquareConnect({ salonId, canEdit, onChanged }: { salonId: string
           )}
           {canEdit && (
             <div className="flex flex-wrap gap-2">
-              <Link to="/dashboard/services" search={{ import: "square" } as never} className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4">Import services from Square</Link>
+              <Link to="/dashboard/services" className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4">Import services from Square</Link>
               <button disabled={busy} onClick={() => run(async () => { const r = await importTeam({ data: { salonId } }); return `Team: ${r.added} added, ${r.linked} matched (of ${r.total} bookable in Square).`; })} className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4 disabled:opacity-60"><Users className="size-4" />Import team</button>
               <button disabled={busy} onClick={() => run(async () => { await setBooking({ data: { salonId, on: !s.bookingViaSquare } }); return s.bookingViaSquare ? "The agent now books with Salon Pro Scheduling." : "The agent now books straight into Square."; })} className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4 disabled:opacity-60">
                 {s.bookingViaSquare ? "Stop booking in Square" : "Book appointments in Square"}

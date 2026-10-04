@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { Empty } from "@/components/dashboard/activity-ui";
 import { applyMenuChanges, deleteService, parseMenu, saveService, setServiceArchived } from "@/lib/catalog.functions";
+import { importSquareCatalog, linkSquareServices } from "@/lib/square-oauth.functions";
 import { diffMenu, summarize, type Change, type NewSvc } from "@/lib/menu-diff";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,16 @@ function ServicesPage() {
   const [edit, setEdit] = useState<Partial<Svc> | null>(null);
   const [note, setNote] = useState<{ ok: boolean; t: string } | null>(null);
   const [review, setReview] = useState<NewSvc[] | null>(null);
+  const [fromSquare, setFromSquare] = useState(false);
+  const sqImport = useServerFn(importSquareCatalog);
+  const sqLink = useServerFn(linkSquareServices);
+  const [sqBusy, setSqBusy] = useState(false);
+  const pullSquare = async () => {
+    setNote(null); setSqBusy(true);
+    try { const r = await sqImport({ data: { salonId: location.id } }); if (r.error) setNote({ ok: false, t: r.error }); else { setFromSquare(true); setReview(r.services); } }
+    catch (e) { setNote({ ok: false, t: (e as Error).message }); }
+    setSqBusy(false);
+  };
   const archive = useServerFn(setServiceArchived);
   const del = useServerFn(deleteService);
 
@@ -51,7 +62,8 @@ function ServicesPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><h1 className="text-3xl font-semibold tracking-tight">Services & Menu</h1><p className="mt-1 text-muted-foreground">What your Salon Agent quotes and books. Changes go live after you save.</p></div>
         {canEdit && <div className="flex gap-2">
-          <UploadMenu salonId={location.id} onParsed={setReview} onError={(t) => setNote({ ok: false, t })} />
+          <button onClick={pullSquare} disabled={sqBusy} className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm disabled:opacity-60">{sqBusy && <Loader2 className="size-4 animate-spin" />}Import from Square</button>
+          <UploadMenu salonId={location.id} onParsed={(x) => { setFromSquare(false); setReview(x); }} onError={(t) => setNote({ ok: false, t })} />
           <button onClick={() => setEdit({ name: "", price: 0, minutes: 30, is_addon: tab === "addons", description: "", deposit_cents: 0, days: [] })} className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Add service</button>
         </div>}
       </div>
@@ -77,7 +89,7 @@ function ServicesPage() {
       </div>
 
       {edit && <EditService salonId={location.id} svc={edit} staff={staff} onClose={() => setEdit(null)} onSaved={async (s) => { setEdit(null); setNote({ ok: s !== "failed", t: syncNote(s) }); await load(); }} />}
-      {review && svcs && <Review salonId={location.id} live={svcs} incoming={review} onClose={() => setReview(null)} onDone={async (t) => { setReview(null); setNote(t); await load(); }} />}
+      {review && svcs && <Review salonId={location.id} live={svcs} incoming={review} onClose={() => setReview(null)} onDone={async (t) => { setReview(null); setNote(t); if (fromSquare) { try { const r = await sqLink({ data: { salonId: location.id } }); setNote({ ...t, t: `${t.t} ${r.linked} service${r.linked === 1 ? "" : "s"} linked to Square.` }); } catch (e) { setNote({ ok: false, t: `${t.t} Linking to Square failed: ${(e as Error).message}` }); } } await load(); }} />}
     </div>
   );
 }

@@ -53,7 +53,7 @@ function SetupPage() {
   }, [paymentStatus]);
 
   if (!salon || paid === null) return <div className="grid min-h-screen place-items-center text-muted-foreground">{err ?? <Loader2 className="size-5 animate-spin" />}</div>;
-  if (!paid) return <PayGate salonReady={!!salon.name.trim()} />;
+  if (!paid) return <PayGate />;
   const set = (p: Partial<Salon>) => setSalon({ ...salon, ...p });
 
   async function persist() {
@@ -128,7 +128,7 @@ function SetupPage() {
   );
 }
 
-function PayGate({ salonReady }: { salonReady: boolean }) {
+function PayGate() {
   const nav = useNavigate();
   const checkout = useServerFn(createSalonCheckout);
   const [busy, setBusy] = useState(false);

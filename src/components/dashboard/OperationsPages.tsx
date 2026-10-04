@@ -1,3 +1,4 @@
+import { GoogleCalendarConnect } from "./GoogleCalendarConnect";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -30,6 +31,7 @@ function Heading({ title, body }: { title: string; body: string }) {
   );
 }
 export function DashboardIntegrations() {
+  const [revision, setRevision] = useState(0);
   const { location } = useActiveLocation();
   const [connection, setConnection] = useState<{ provider: string; eligible: boolean } | null>(
       null,
@@ -58,7 +60,7 @@ export function DashboardIntegrations() {
     return () => {
       live = false;
     };
-  }, [location.id]);
+  }, [location.id, revision]);
   return (
     <div className="mx-auto max-w-6xl">
       <Heading
@@ -70,39 +72,48 @@ export function DashboardIntegrations() {
           {err}
         </p>
       )}
+      <div className="mt-8">
+        <GoogleCalendarConnect
+          salonId={location.id}
+          canEdit={location.role === "owner" || location.role === "manager"}
+          onChanged={() => setRevision((n) => n + 1)}
+        />
+      </div>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
-        {integrations.map((x, i) => (
-          <section key={x.name} className={card}>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Plug className="size-5 text-violet" />
-              <span className="rounded-full bg-accent px-3 py-1 text-xs">
-                {i === 0
-                  ? connection
-                    ? connection.provider === "salon_pro" && connection.eligible
-                      ? "Native calendar selected"
-                      : "Not active for this location"
-                    : "Checking…"
-                  : x.status}
-              </span>
-            </div>
-            <h2 className="mt-5 text-xl font-medium">{x.name}</h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{x.description}</p>
-            {i === 0 ? (
-              <a href="/dashboard/appointments" className={action + " mt-5"}>
-                Open calendar
-                <ArrowUpRight className="size-4" />
-              </a>
-            ) : (
-              <p className="mt-5 text-xs text-muted-foreground">
-                No connection is active. Availability will be announced before setup opens.
-              </p>
-            )}
-          </section>
-        ))}
+        {integrations
+          .filter((x) => x.name !== "Google Calendar")
+          .map((x, i) => (
+            <section key={x.name} className={card}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Plug className="size-5 text-violet" />
+                <span className="rounded-full bg-accent px-3 py-1 text-xs">
+                  {i === 0
+                    ? connection
+                      ? connection.provider === "salon_pro" && connection.eligible
+                        ? "Native calendar selected"
+                        : "Not active for this location"
+                      : "Checking…"
+                    : x.status}
+                </span>
+              </div>
+              <h2 className="mt-5 text-xl font-medium">{x.name}</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{x.description}</p>
+              {i === 0 ? (
+                <a href="/dashboard/appointments" className={action + " mt-5"}>
+                  Open calendar
+                  <ArrowUpRight className="size-4" />
+                </a>
+              ) : (
+                <p className="mt-5 text-xs text-muted-foreground">
+                  No connection is active. Availability will be announced before setup opens.
+                </p>
+              )}
+            </section>
+          ))}
       </div>
       <p className="mt-6 text-sm text-muted-foreground">
-        Selecting a provider does not authorize it. External calendar OAuth and synchronization are
-        still in development.
+        Google Calendar requires authorization for this location. The other external providers shown
+        above are still in development.
       </p>
     </div>
   );

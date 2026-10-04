@@ -56,7 +56,7 @@ const features = [
   {
     icon: CalendarDays,
     title: "Make space for the next booking.",
-    body: "Native scheduling connects services, staff availability and appointments. External calendar connections are on the roadmap, starting with Square.",
+    body: "Native scheduling connects services, staff availability and appointments. Google Calendar authorization is available; Square Appointments is next on the roadmap.",
     tag: "Scheduling",
   },
   {
@@ -267,7 +267,7 @@ const guides = [
     steps: [
       "Salon Pro Scheduling is the currently implemented native booking option.",
       "Review services, durations, staff availability and business time zone before enabling bookings.",
-      "Square Appointments and other external calendars remain planned; see the integrations directory for status.",
+      "Connect Google Calendar from your Salon Agent or Integrations page and test a booking before launch. Square Appointments and the other listed providers remain planned.",
       "If a calendar cannot confirm availability, the agent should take a message instead of promising a booking.",
     ],
   },
@@ -471,7 +471,7 @@ export function IntegrationsPage({ calendars = false }: { calendars?: boolean })
         accent={calendars ? "Part of the conversation." : "One connected experience."}
         body={
           calendars
-            ? "Booking should follow real availability. Explore native scheduling and the external calendar connections on our roadmap."
+            ? "Booking should follow real availability. Explore native scheduling, Google Calendar authorization and the connections on our roadmap."
             : "A clear view of what's available today and what we're planning next. Choose connections that make sense for your business."
         }
       >

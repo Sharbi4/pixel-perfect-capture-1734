@@ -22,7 +22,7 @@ export function analyticsAllowed() {
 export function initAnalytics() {
   if (
     typeof window === "undefined" ||
-    /^\/(auth|checkout|complete-account|setup|account|dashboard|api|mcp)(\/|$)/.test(
+    /^\/(auth|checkout|complete-account|setup|account|dashboard|api|mcp|oauth)(\/|$)/.test(
       window.location.pathname,
     ) ||
     !analyticsAllowed() ||
@@ -46,7 +46,7 @@ export function trackPageView(path: string) {
   if (
     !analyticsAllowed() ||
     !measurementId ||
-    /^\/(auth|checkout|complete-account|setup|account|dashboard|api|mcp)(\/|$)/.test(path)
+    /^\/(auth|checkout|complete-account|setup|account|dashboard|api|mcp|oauth)(\/|$)/.test(path)
   )
     return;
   initAnalytics();

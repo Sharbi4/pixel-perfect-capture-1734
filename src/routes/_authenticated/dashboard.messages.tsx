@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/messages")({
 });
 
 type Msg = { id: string; sent_at: string; direction: string; customer_phone: string; body: string; sent_by: string };
-type Thread = { customer_phone: string; customer_name: string; tags: string[]; notes: string; ai_enabled: boolean };
+type Thread = { customer_phone: string; customer_name: string; tags: string[]; notes: string; ai_enabled: boolean; marketing_opt_in?: boolean; marketing_opt_in_at?: string | null; opted_out?: boolean };
 
 const TEMPLATES = (name: string, address: string) => [
   { k: "Appointment confirmation", t: `Hi! This is ${name || "the salon"} confirming your appointment on [day] at [time]. Reply C to confirm or call us to change it.` },
@@ -46,7 +46,7 @@ function MessagesPage() {
   const load = useCallback(async () => {
     const [m, t] = await Promise.all([
       supabase.from("messages").select("id,sent_at,direction,customer_phone,body,sent_by").eq("salon_id", location.id).order("sent_at", { ascending: false }).limit(500),
-      supabase.from("sms_threads").select("customer_phone,customer_name,tags,notes,ai_enabled").eq("salon_id", location.id),
+      supabase.from("sms_threads").select("customer_phone,customer_name,tags,notes,ai_enabled,marketing_opt_in,marketing_opt_in_at,opted_out").eq("salon_id", location.id),
     ]);
     setMsgs((m.data ?? []) as Msg[]);
     setMeta(Object.fromEntries((t.data ?? []).map((x) => [x.customer_phone, x as Thread])));
@@ -72,7 +72,7 @@ function MessagesPage() {
     if (!sel || !info) return;
     const next = { ...info, ...p };
     setMeta((m) => ({ ...m, [sel]: next }));
-    const { error } = await supabase.from("sms_threads").upsert({ salon_id: location.id, customer_phone: sel, customer_name: next.customer_name, tags: next.tags, notes: next.notes, ai_enabled: next.ai_enabled, updated_at: new Date().toISOString() }, { onConflict: "salon_id,customer_phone" });
+    const { error } = await supabase.from("sms_threads").upsert({ salon_id: location.id, customer_phone: sel, customer_name: next.customer_name, tags: next.tags, notes: next.notes, ai_enabled: next.ai_enabled, marketing_opt_in: !!next.marketing_opt_in && !next.opted_out, marketing_opt_in_at: next.marketing_opt_in ? (next.marketing_opt_in_at ?? new Date().toISOString()) : null, marketing_opt_in_source: next.marketing_opt_in ? "staff_recorded" : "", updated_at: new Date().toISOString() }, { onConflict: "salon_id,customer_phone" });
     if (error) { setNote("Couldn't save that change."); setMeta((m) => ({ ...m, [sel]: info })); }
   };
   const submit = async () => {
@@ -167,6 +167,11 @@ function ClientPanel({ salonId, info, onSave }: { salonId: string; info: Thread;
         <input value={name} maxLength={120} onChange={(e) => setName(e.target.value)} onBlur={() => name !== info.customer_name && onSave({ customer_name: name.trim() })} placeholder="Add a name" className="mt-1 h-10 w-full rounded-xl bg-accent px-3 outline-none" /></label>
       <div><span className="text-xs text-muted-foreground">Phone</span><p className="mt-1">{formatUsNumber(info.customer_phone) || info.customer_phone}</p></div>
       <Visits salonId={salonId} phone={info.customer_phone} />
+      <div className="rounded-2xl bg-accent p-3 text-xs">
+        {info.opted_out ? <p className="text-coral">This client replied STOP. No automatic texts will be sent until they reply START.</p> : (
+          <label className="flex items-start gap-2"><input type="checkbox" checked={!!info.marketing_opt_in} onChange={(e) => onSave({ marketing_opt_in: e.target.checked, marketing_opt_in_at: e.target.checked ? new Date().toISOString() : null })} className="mt-0.5" />
+            <span>Client agreed to receive marketing texts{info.marketing_opt_in && info.marketing_opt_in_at ? ` (recorded ${new Date(info.marketing_opt_in_at).toLocaleDateString()})` : ""}. Only tick this if they gave permission.</span></label>)}
+      </div>
       <div><span className="text-xs text-muted-foreground">Tags</span>
         <div className="mt-1 flex flex-wrap gap-1.5">{info.tags.map((t) => (
           <button key={t} onClick={() => onSave({ tags: info.tags.filter((x) => x !== t) })} className="rounded-full bg-violet/20 px-2.5 py-0.5 text-xs" title="Remove tag">{t} ×</button>))}

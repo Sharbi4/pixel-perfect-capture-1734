@@ -27,6 +27,7 @@ import { Route as AuthenticatedDashboardCallsRouteImport } from './routes/_authe
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
+import { Route as ApiPublicIncomingSmsRouteImport } from './routes/api/public/incoming-sms'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -123,6 +124,11 @@ const ApiPublicIncomingCallRoute = ApiPublicIncomingCallRouteImport.update({
   path: '/api/public/incoming-call',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIncomingSmsRoute = ApiPublicIncomingSmsRouteImport.update({
+  id: '/api/public/incoming-sms',
+  path: '/api/public/incoming-sms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSquareWebhookRoute = ApiPublicSquareWebhookRouteImport.update({
   id: '/api/public/square-webhook',
   path: '/api/public/square-webhook',
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/incoming-sms'
     | '/api/public/square-webhook'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/incoming-sms'
     | '/api/public/square-webhook'
     | '/dashboard'
   id:
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/messages'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/incoming-sms'
     | '/api/public/square-webhook'
     | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
@@ -265,6 +277,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
+  ApiPublicIncomingSmsRoute: typeof ApiPublicIncomingSmsRoute
   ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
 }
 
@@ -396,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIncomingCallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/incoming-sms': {
+      id: '/api/public/incoming-sms'
+      path: '/api/public/incoming-sms'
+      fullPath: '/api/public/incoming-sms'
+      preLoaderRoute: typeof ApiPublicIncomingSmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/square-webhook': {
       id: '/api/public/square-webhook'
       path: '/api/public/square-webhook'
@@ -454,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
+  ApiPublicIncomingSmsRoute: ApiPublicIncomingSmsRoute,
   ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,
 }
 export const routeTree = rootRouteImport

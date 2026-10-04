@@ -192,8 +192,8 @@ describe("billing dates and renewals", () => {
       primary_recipient: { customer_id: "cust" },
       payment_requests: [
         {
-          computed_amount_money: { amount: 44900, currency: "USD" },
-          total_completed_amount_money: { amount: 44900, currency: "USD" },
+          computed_amount_money: { amount: 48725, currency: "USD" },
+          total_completed_amount_money: { amount: 48725, currency: "USD" },
         },
       ],
     };

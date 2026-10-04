@@ -1,3 +1,4 @@
+import { checkoutTotals } from "./sales-tax";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Json } from "@/integrations/supabase/types";
 import { adminClient } from "./jobs.server";
@@ -103,7 +104,7 @@ export async function checkoutConfigResponse(request: Request) {
     const base = {
       tier: plan.id,
       monthlyCents: purchase?.monthly_cents ?? plan.monthlyCents,
-      setupCents: purchase ? purchase.total_cents - purchase.monthly_cents : setup.cents,
+      setupCents: setup.cents,
       totalCents: purchase?.total_cents ?? plan.monthlyCents + setup.cents,
       purchase: purchase ? publicStatus(purchase) : null,
     };
@@ -163,7 +164,7 @@ export async function startCheckout(request: Request, raw: unknown) {
       plan_name: `Salon Pro Agent ${plan.name}`,
       timezone: c.timezone,
       next_billing_date: next,
-      total_cents: plan.monthlyCents + setup.cents,
+      total_cents: checkoutTotals(setup.cents, plan.monthlyCents, data.buyer.state).todayCents,
       monthly_cents: plan.monthlyCents,
       consent_at: new Date().toISOString(),
     })

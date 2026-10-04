@@ -87,7 +87,7 @@ export function agentBehavior(s: AgentSettings, walkInsWelcome: boolean): string
   const langs = [s.default_language, ...s.extra_languages.filter((l) => l !== s.default_language)].map(langLabel);
   const L: string[] = [
     s.agent_name ? `Your name is ${s.agent_name}.` : "",
-    STYLE[s.style],
+    STYLE[s.style] ?? "",
     `Speak ${langLabel(s.default_language)} by default.` + (langs.length > 1 ? ` You can also speak ${langs.slice(1).join(", ")}.` : ""),
     langs.length > 1 ? (s.auto_switch ? "If the caller speaks one of these languages, switch to it naturally." : `Stay in ${langLabel(s.default_language)} unless the caller asks to switch.`) : "",
     s.interruptions ? "If the caller interrupts, stop and listen." : "Finish your sentence before responding to the caller.",

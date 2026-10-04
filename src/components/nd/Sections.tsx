@@ -3,7 +3,7 @@ import {
   ArrowRight, BellRing, CalendarCheck, Check, HelpCircle, Languages, Menu, MessageSquareText,
   Moon, Phone, PhoneForwarded, Repeat, UserRound, X,
 } from "lucide-react";
-import { plan } from "@/lib/pricing";
+import { plans, comparison, setup, schedulingAddon, defaultCta } from "@/lib/pricing";
 import { CallDemo } from "./CallDemo";
 import { TextDemo } from "./TextDemo";
 import { Dashboard } from "./Dashboard";
@@ -39,7 +39,7 @@ export function Nav() {
         </nav>
         <div className="hidden items-center gap-2 xl:flex">
           <NdButton variant="link" size="sm" href="/auth">Sign In</NdButton>
-          <NdButton size="sm" href="/setup">{plan.cta}</NdButton>
+          <NdButton size="sm" href="/setup">{defaultCta}</NdButton>
         </div>
         <button className="grid size-11 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring xl:hidden" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-navigation">
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -52,7 +52,7 @@ export function Nav() {
           ))}
           <div className="mt-2 flex flex-wrap gap-2 p-1">
             <NdButton variant="ghost" size="sm" href="/auth" className="flex-1">Sign In</NdButton>
-            <NdButton size="sm" href="/setup" className="flex-1">{plan.cta}</NdButton>
+            <NdButton size="sm" href="/setup" className="flex-1">{defaultCta}</NdButton>
           </div>
         </nav>
       )}
@@ -183,7 +183,7 @@ export function VoiceUpsell() {
                 </li>
               ))}
             </ul>
-            <NdButton variant="brand" size="lg" href="/setup" className="mt-10">{plan.cta} <ArrowRight className="size-4" /></NdButton>
+            <NdButton variant="brand" size="lg" href="/setup" className="mt-10">{defaultCta} <ArrowRight className="size-4" /></NdButton>
           </Reveal>
           <Reveal delay={150}>
             <div className="glass rounded-[28px] p-5">
@@ -309,41 +309,34 @@ export function HowItWorks() {
 }
 
 export function Pricing() {
+  const cell = (v: boolean | string) => v === true ? <Check className="mx-auto size-4 text-success" /> : v === false ? <span className="text-muted-foreground">—</span> : <span className="text-xs">{v}</span>;
   return (
     <section id="pricing" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Pricing" title={<>One plan: <span className="text-gradient">your AI phone receptionist.</span></>} body="Salon Pro Agent is the product — everything your salon needs to answer calls and texts, book appointments, and stay available 24/7. Set up for you by our team." />
+        <SectionHead eyebrow="Pricing" title={<>Pick your plan. <span className="text-gradient">Every one answers every call.</span></>} body="Every plan includes the Salon Pro Agent AI receptionist, text booking and calendar connection. Set up for you by our team." />
         <Reveal>
-          <div className="relative mt-16 overflow-hidden rounded-[28px] p-px">
-            <div className="bg-brand absolute inset-0" />
-            <div className="relative rounded-[27px] bg-surface p-8 md:p-12">
-              <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-2xl font-semibold tracking-tight">{plan.name}</h3>
-                    <span className="rounded-full bg-accent px-3 py-1 text-xs">{plan.badge}</span>
-                  </div>
-                  <p className="mt-4 max-w-md text-muted-foreground">{plan.description}</p>
-                  <div className="mt-8 flex items-baseline gap-1">
-                    <span className="text-6xl font-semibold tracking-[-0.04em]">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  </div>
-                  <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/50 px-4 py-2.5 text-sm">
-                    <span className="font-medium">{plan.setupLabel}</span>
-                    <span className="text-muted-foreground">{plan.setupPrice} {plan.setupNote}</span>
-                  </div>
-                  <NdButton size="lg" href="/setup" className="mt-8 w-full sm:w-auto">{plan.cta} <ArrowRight className="size-4" /></NdButton>
-                </div>
-                <div className="lg:border-l lg:border-border lg:pl-12">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What's included</span>
-                  <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>
-                    ))}
-                  </ul>
+          <div className="mt-16 grid gap-4 lg:grid-cols-3">
+            {plans.map((p) => (
+              <div key={p.id} className={p.highlight ? "relative overflow-hidden rounded-[28px] p-px" : "rounded-[28px] border border-border"}>
+                {p.highlight && <div className="bg-brand absolute inset-0" />}
+                <div className="relative flex h-full flex-col rounded-[27px] bg-surface p-8">
+                  <div className="flex items-center gap-2"><h3 className="text-xl font-semibold tracking-tight">{p.name}</h3>{p.highlight && <span className="rounded-full bg-accent px-3 py-1 text-xs">Most popular</span>}</div>
+                  <p className="mt-3 text-sm text-muted-foreground">{p.blurb}</p>
+                  <div className="mt-6 flex items-baseline gap-1"><span className="text-5xl font-semibold tracking-[-0.04em]">{p.price}</span><span className="text-muted-foreground">{p.period}</span></div>
+                  <p className="mt-3 text-xs text-muted-foreground">{p.id === "essential" ? `${schedulingAddon.name} ${schedulingAddon.price}${schedulingAddon.period} add-on` : `${schedulingAddon.name} included`}</p>
+                  <div className="flex-1" />
+                  <NdButton size="lg" variant={p.highlight ? "brand" : undefined} href="/setup" className="mt-8 w-full">{p.cta} <ArrowRight className="size-4" /></NdButton>
                 </div>
               </div>
-            </div>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-sm text-muted-foreground">Plus {setup.price} {setup.note} {setup.label.toLowerCase()} on every plan.</p>
+          <div className="mt-10 overflow-x-auto rounded-[28px] border border-border">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead><tr className="border-b border-border"><th className="px-5 py-4 text-left font-medium">Compare plans</th>{plans.map((p) => <th key={p.id} className="px-5 py-4 text-center font-medium">{p.name}<span className="block text-xs font-normal text-muted-foreground">{p.price}{p.period}</span></th>)}</tr></thead>
+              <tbody className="divide-y divide-border">{comparison.map(([f, ...v]) => (
+                <tr key={f}><td className="px-5 py-3">{f}</td>{v.map((x, i) => <td key={i} className="px-5 py-3 text-center">{cell(x)}</td>)}</tr>))}</tbody>
+            </table>
           </div>
         </Reveal>
       </div>
@@ -361,7 +354,7 @@ export function FinalCta() {
         <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">Your next appointment may already be calling.</h2>
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <NdButton size="lg" href="/setup">{plan.cta}</NdButton>
+          <NdButton size="lg" href="/setup">{defaultCta}</NdButton>
           <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear Salon Pro Agent</NdButton>
         </div>
       </Reveal>

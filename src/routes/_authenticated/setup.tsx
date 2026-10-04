@@ -134,6 +134,11 @@ function PayGate() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const key = useRef<string>(crypto.randomUUID());
+  const [tier, setTier] = useState<Tier>("pro");
+  const [addon, setAddon] = useState(false);
+  useEffect(() => { const t = localStorage.getItem("spa.plan") as Tier | null; if (t && plans.some((p) => p.id === t)) setTier(t); setAddon(localStorage.getItem("spa.addon") === "1"); }, []);
+  const pickTier = (t: Tier) => { setTier(t); localStorage.setItem("spa.plan", t); };
+  const pickAddon = (v: boolean) => { setAddon(v); localStorage.setItem("spa.addon", v ? "1" : "0"); };
 
   async function pay() {
     setBusy(true); setErr(null);
@@ -154,13 +159,21 @@ function PayGate() {
         <BrandLogo />
         <h1 className="mt-8 text-2xl font-semibold tracking-tight">One step before setup</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Salon Pro Agent is $449/month with a one-time $1,500 custom setup &amp; launch.
+          Pick your plan. Every plan has a one-time {setup.price} custom setup &amp; launch.
           Start with the setup payment — your monthly plan begins when your receptionist goes live.
         </p>
+        <div className="mt-6 grid gap-2 text-left">
+          {plans.map((p) => (
+            <button key={p.id} onClick={() => pickTier(p.id)} className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${tier === p.id ? "border-violet bg-accent" : "border-border"}`}>
+              <span><span className="font-medium">{p.name}</span><span className="block text-xs text-muted-foreground">{p.blurb}</span></span>
+              <span className="text-sm font-medium">{p.price}<span className="text-muted-foreground">{p.period}</span></span>
+            </button>))}
+          {tier === "essential" && <label className="flex items-center gap-2 px-1 text-sm"><input type="checkbox" checked={addon} onChange={(e) => pickAddon(e.target.checked)} /> Add {schedulingAddon.name} ({schedulingAddon.price}{schedulingAddon.period})</label>}
+        </div>
         {err && <p className="mt-4 text-sm text-destructive">{err}</p>}
         <button onClick={pay} disabled={busy} className="bg-brand mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-7 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
           {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-          Pay $1,500 setup &amp; continue
+          Pay {setup.price} setup &amp; continue
         </button>
         <p className="mt-4 text-xs text-muted-foreground">Secure checkout by Square. Already paid? This page updates automatically.</p>
         <button onClick={() => supabase.auth.signOut().then(() => nav({ to: "/" }))} className="mt-6 text-sm text-muted-foreground hover:text-foreground">Sign out</button>

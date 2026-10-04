@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { NAV, SECTION_COPY } from "@/components/dashboard/nav";
-import { useLocation } from "./dashboard";
+import { useActiveLocation as useLocation } from "@/components/dashboard/location-context";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$section")({
   beforeLoad: ({ params }) => { if (!SECTION_COPY[params.section]) throw notFound(); },

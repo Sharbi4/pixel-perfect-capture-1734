@@ -5,7 +5,7 @@ import { BrandMark } from "@/components/brand/Brand";
 import { loadPhoneSetup } from "@/lib/salon-data";
 import { formatUsNumber } from "@/lib/phone-format";
 import type { PhoneSetup } from "@/lib/phone-status";
-import { useLocation } from "./dashboard";
+import { useActiveLocation as useLocation } from "@/components/dashboard/location-context";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({ meta: [{ title: "Overview — Salon Pro Agent" }, { name: "description", content: "What your AI receptionist is doing for your salon." }, { property: "og:title", content: "Overview — Salon Pro Agent" }, { property: "og:description", content: "What your AI receptionist is doing for your salon." }, { name: "robots", content: "noindex" }] }),

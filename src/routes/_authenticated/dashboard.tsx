@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { LocationCtx } from "@/components/dashboard/location-context";
 import { Check, ChevronsUpDown, Loader2, LogOut, Menu, Plus, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand/Brand";
 import { NAV } from "@/components/dashboard/nav";
@@ -22,13 +23,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardLayout,
 });
 
-type Ctx = { location: Location; locations: Location[] };
-const LocationCtx = createContext<Ctx | null>(null);
-export function useLocation() {
-  const c = useContext(LocationCtx);
-  if (!c) throw new Error("useLocation outside dashboard");
-  return c;
-}
 
 function DashboardLayout() {
   const [locations, setLocations] = useState<Location[] | null>(null);

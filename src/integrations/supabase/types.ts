@@ -640,6 +640,7 @@ export type Database = {
           address: string
           agent_error: string
           agent_id: string
+          agent_settings: Json
           agent_sync_status: string
           agent_synced_version: number
           booking_app: string
@@ -683,6 +684,7 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_settings?: Json
           agent_sync_status?: string
           agent_synced_version?: number
           booking_app?: string
@@ -726,6 +728,7 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_settings?: Json
           agent_sync_status?: string
           agent_synced_version?: number
           booking_app?: string

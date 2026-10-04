@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/voice-preview")({
         const { data: u } = await sb.auth.getUser(token);
         if (!u.user) return new Response("Please sign in", { status: 401 });
 
-        const body = (await request.json().catch(() => ({}))) as { voice?: string; salon?: string };
+        const body = (await request.json().catch(() => ({}))) as { voice?: string; salon?: string; text?: string };
         const v = voices.find((x) => x.id === body.voice) ?? voices[0];
         const salon = String(body.salon ?? "").slice(0, 80);
         const apiKey = process.env["ELEVENLABS_API_KEY"];
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/voice-preview")({
           method: "POST",
           headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
           body: JSON.stringify({
-            text: greeting(salon),
+            text: String(body.text ?? "").replace(/[<>{}`]/g, " ").trim().slice(0, 240) || greeting(salon),
             model_id: "eleven_turbo_v2_5",
             voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true },
           }),

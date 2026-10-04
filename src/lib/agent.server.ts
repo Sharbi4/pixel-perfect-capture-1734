@@ -1,5 +1,6 @@
 // Server-only voice agent provider access. Raw provider errors are logged, never returned.
-import { voices, greeting } from "./voices";
+import { voices } from "./voices";
+import { readSettings, agentBehavior, allowedTools, defaultGreeting } from "./agent-settings";
 import { classifyHttp, type Outcome } from "./provisioning";
 
 const API = "https://api.elevenlabs.io/v1/convai";
@@ -7,7 +8,7 @@ const API = "https://api.elevenlabs.io/v1/convai";
 export type SalonRow = {
   name: string; address: string; phone: string; website: string; hours: string;
   languages: string[]; voice: string; deposit_policy: string; cancellation_policy: string;
-  walk_ins: boolean; id?: string;
+  walk_ins: boolean; id?: string; agent_settings?: unknown;
 };
 export type ServiceRow = { id?: string; name: string; price: number; minutes: number; is_addon: boolean };
 export type StaffRow = { name: string; service_ids: string[]; hours: unknown };
@@ -42,7 +43,10 @@ Rules you must always follow:
 - Never say a time is available unless check_availability returned it in this call.
 - Never say an appointment is booked, moved or cancelled unless the tool returned success.
 - Never invent prices, services, technicians, policies or hours. If unsure, offer a callback.
-- You only work for this salon. Never discuss other salons' clients or calendars.`;
+- You only work for this salon. Never discuss other salons' clients or calendars.
+
+How this salon wants you to behave:
+${agentBehavior(readSettings(s.agent_settings, { voice: s.voice }), s.walk_ins)}`;
 }
 
 const str = (description: string) => ({ type: "string", description });
@@ -58,9 +62,9 @@ const TOOLS: [string, string, Record<string, unknown>, string[]][] = [
   ["cancel_appointment", "Cancel one of the caller's appointments after they confirm.", { appointment_id: str("id from find_my_appointments"), client_phone: caller }, ["appointment_id"]],
   ["add_to_waitlist", "Add the caller to the waitlist when nothing suitable is open.", { client_name: str("Caller's name"), service: str("Service"), technician: str("Preferred technician"), preferred: str("Preferred days/times"), client_phone: caller }, ["client_name"]],
 ];
-function tools(url: string | null) {
+function tools(url: string | null, allow: Set<string>) {
   if (!url) return undefined;
-  return TOOLS.map(([name, description, properties, required]) => ({
+  return TOOLS.filter(([n]) => allow.has(n)).map(([name, description, properties, required]) => ({
     type: "webhook", name, description,
     api_schema: { url: `${url}&tool=${name}`, method: "POST", request_body_schema: { type: "object", properties, required } },
   }));
@@ -71,12 +75,14 @@ const BOOKING = `
 Booking: always call check_availability before offering times, offer two or three options, then book_appointment with the exact start value once the caller agrees. Today's date comes from the tool results; never guess availability. To change or cancel, use find_my_appointments first. If nothing fits, offer add_to_waitlist. If a tool returns an error, apologise and offer a callback.`;
 
 function body(s: SalonRow, services: ServiceRow[], marker?: string, toolUrl?: string | null, staff: StaffRow[] = []) {
-  const voiceId = voices.find((v) => v.id === s.voice)?.engine ?? voices[0].engine;
+  const set = readSettings(s.agent_settings, { voice: s.voice });
+  const voiceId = voices.find((v) => v.id === set.voice)?.engine ?? voices[0].engine;
+  const multi = set.default_language !== "en" || set.extra_languages.length > 0;
   return {
     name: `Salon Pro Agent — ${s.name || "Salon"}${marker ? ` [${marker}]` : ""}`,
     conversation_config: {
-      agent: { first_message: greeting(s.name), language: "en", prompt: { prompt: buildPrompt(s, services, staff) + (toolUrl ? BOOKING : ""), ...(toolUrl ? { tools: tools(toolUrl) } : {}) } },
-      tts: { voice_id: voiceId },
+      agent: { first_message: set.greeting || defaultGreeting(s.name, set.agent_name), language: set.default_language, prompt: { prompt: buildPrompt(s, services, staff) + (toolUrl ? BOOKING : ""), ...(toolUrl ? { tools: tools(toolUrl, allowedTools(set)) } : {}) } },
+      tts: { voice_id: voiceId, ...(multi ? { model_id: "eleven_flash_v2_5" } : {}) },
     },
   };
 }

@@ -42,7 +42,10 @@ function SetupPage() {
   const paymentStatus = useServerFn(getPaymentStatus);
   const [paid, setPaid] = useState<boolean | null>(null);
 
-  useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => { setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
+  useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => {
+    const t = localStorage.getItem("spa.plan");
+    if (t && plans.some((p) => p.id === t)) void supabase.from("salons").update({ plan_tier: t, scheduling_addon: t !== "essential" || localStorage.getItem("spa.addon") === "1" }).eq("id", salon.id);
+    setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
 
   useEffect(() => {
     let cancelled = false;

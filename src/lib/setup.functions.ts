@@ -13,7 +13,10 @@ const extractInput = z.object({
 export const extractServices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => extractInput.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { ownedSalonPrivate } = await import("./jobs.server");
+    const { requirePaidAccess } = await import("./billing.server");
+    requirePaidAccess(await ownedSalonPrivate(context.supabase, context.userId));
     const { extractServicesWithAI } = await import("./ai.server");
     try {
       if (data.kind === "website") {

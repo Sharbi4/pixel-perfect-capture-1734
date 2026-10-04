@@ -8,10 +8,11 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: salon } = await context.supabase
       .from("salons")
-      .select("id")
+      .select("id,paid_access_until")
       .eq("owner_id", context.userId)
       .maybeSingle();
     if (!salon) return { paid: false as const, status: "none" as const };
+    if (salon.paid_access_until && Date.parse(salon.paid_access_until) > Date.now()) return { paid: true, status: "paid" as const };
     const { data: payment } = await context.supabase
       .from("payments")
       .select("status")

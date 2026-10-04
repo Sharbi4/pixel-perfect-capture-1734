@@ -14,6 +14,11 @@ export const Route = createFileRoute("/api/voice-preview")({
         const { data: u } = await sb.auth.getUser(token);
         if (!u.user) return new Response("Please sign in", { status: 401 });
 
+        const { adminClient } = await import("@/lib/jobs.server");
+        const admin = await adminClient();
+        const {data:paidSalon}=await admin.from("salons").select("paid_access_until").eq("owner_id",u.user.id).maybeSingle();
+        const {requirePaidAccess}=await import("@/lib/billing.server");
+        try{requirePaidAccess(paidSalon);}catch{return new Response("Complete checkout to preview your agent voice",{status:402});}
         const body = (await request.json().catch(() => ({}))) as { voice?: string; salon?: string; text?: string };
         const v = voices.find((x) => x.id === body.voice) ?? voices[0];
         const salon = String(body.salon ?? "").slice(0, 80);

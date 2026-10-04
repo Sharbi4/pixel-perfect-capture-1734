@@ -109,7 +109,11 @@ export const parseMenu = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ salonId: z.string().uuid(), kind: z.enum(["pdf", "image", "text"]), data: z.string().max(14_000_000), mediaType: z.string().max(100) }).parse(d))
   .handler(async ({ data, context }) => {
-    await manager(context, data.salonId);
+    const admin = await manager(context, data.salonId);
+    const {data:paidSalon,error:paidError}=await admin.from("salons").select("paid_access_until").eq("id",data.salonId).single();
+    const {requirePaidAccess}=await import("./billing.server");
+    if(paidError)throw Error("Could not verify your plan.");
+    requirePaidAccess(paidSalon);
     const { extractServicesWithAI } = await import("./ai.server");
     try {
       const parts = data.kind === "image" ? [{ type: "text" as const, text: "Service menu photo:" }, { type: "image" as const, image: data.data, mediaType: data.mediaType }]

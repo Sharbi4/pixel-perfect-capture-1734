@@ -11,15 +11,34 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
+import { Route as AiCallPolicyRouteImport } from './routes/ai-call-policy'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CancellationRefundsRouteImport } from './routes/cancellation-refunds'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as CompleteAccountRouteImport } from './routes/complete-account'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as DataProcessingRouteImport } from './routes/data-processing'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GetStartedRouteImport } from './routes/get-started'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as LegalRouteImport } from './routes/legal'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MessagingPolicyRouteImport } from './routes/messaging-policy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as ApiCallRecordingRouteImport } from './routes/api/call-recording'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
+import { Route as IntegrationsCalendarsRouteImport } from './routes/integrations_.calendars'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardSectionRouteImport } from './routes/_authenticated/dashboard.$section'
@@ -33,8 +52,10 @@ import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardTeamRouteImport } from './routes/_authenticated/dashboard.team'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicAgentToolsRouteImport } from './routes/api/public/agent-tools'
+import { Route as ApiPublicCheckoutRouteImport } from './routes/api/public/checkout'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
 import { Route as ApiPublicIncomingSmsRouteImport } from './routes/api/public/incoming-sms'
+import { Route as ApiPublicSquareBillingWebhookRouteImport } from './routes/api/public/square-billing-webhook'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -46,9 +67,79 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcceptableUseRoute = AcceptableUseRouteImport.update({
+  id: '/acceptable-use',
+  path: '/acceptable-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiCallPolicyRoute = AiCallPolicyRouteImport.update({
+  id: '/ai-call-policy',
+  path: '/ai-call-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CancellationRefundsRoute = CancellationRefundsRouteImport.update({
+  id: '/cancellation-refunds',
+  path: '/cancellation-refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompleteAccountRoute = CompleteAccountRouteImport.update({
+  id: '/complete-account',
+  path: '/complete-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataProcessingRoute = DataProcessingRouteImport.update({
+  id: '/data-processing',
+  path: '/data-processing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetStartedRoute = GetStartedRouteImport.update({
+  id: '/get-started',
+  path: '/get-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalRoute = LegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -56,9 +147,29 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagingPolicyRoute = MessagingPolicyRouteImport.update({
+  id: '/messaging-policy',
+  path: '/messaging-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -90,6 +201,11 @@ const ApiCallRecordingRoute = ApiCallRecordingRouteImport.update({
 const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   id: '/api/voice-preview',
   path: '/api/voice-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsCalendarsRoute = IntegrationsCalendarsRouteImport.update({
+  id: '/integrations_/calendars',
+  path: '/integrations/calendars',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -167,6 +283,11 @@ const ApiPublicAgentToolsRoute = ApiPublicAgentToolsRouteImport.update({
   path: '/api/public/agent-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCheckoutRoute = ApiPublicCheckoutRouteImport.update({
+  id: '/api/public/checkout',
+  path: '/api/public/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIncomingCallRoute = ApiPublicIncomingCallRouteImport.update({
   id: '/api/public/incoming-call',
   path: '/api/public/incoming-call',
@@ -177,6 +298,12 @@ const ApiPublicIncomingSmsRoute = ApiPublicIncomingSmsRouteImport.update({
   path: '/api/public/incoming-sms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSquareBillingWebhookRoute =
+  ApiPublicSquareBillingWebhookRouteImport.update({
+    id: '/api/public/square-billing-webhook',
+    path: '/api/public/square-billing-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSquareWebhookRoute = ApiPublicSquareWebhookRouteImport.update({
   id: '/api/public/square-webhook',
   path: '/api/public/square-webhook',
@@ -185,15 +312,34 @@ const ApiPublicSquareWebhookRoute = ApiPublicSquareWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-call-policy': typeof AiCallPolicyRoute
   '/auth': typeof AuthRoute
+  '/cancellation-refunds': typeof CancellationRefundsRoute
+  '/checkout': typeof CheckoutRoute
+  '/complete-account': typeof CompleteAccountRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/data-processing': typeof DataProcessingRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/get-started': typeof GetStartedRoute
+  '/help': typeof HelpRoute
+  '/integrations': typeof IntegrationsRoute
+  '/legal': typeof LegalRoute
   '/mcp': typeof McpRoute
+  '/messaging-policy': typeof MessagingPolicyRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/setup': typeof AuthenticatedSetupRoute
   '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/integrations/calendars': typeof IntegrationsCalendarsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/dashboard/agent': typeof AuthenticatedDashboardAgentRoute
@@ -206,21 +352,42 @@ export interface FileRoutesByFullPath {
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
+  '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-call-policy': typeof AiCallPolicyRoute
   '/auth': typeof AuthRoute
+  '/cancellation-refunds': typeof CancellationRefundsRoute
+  '/checkout': typeof CheckoutRoute
+  '/complete-account': typeof CompleteAccountRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/data-processing': typeof DataProcessingRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/get-started': typeof GetStartedRoute
+  '/help': typeof HelpRoute
+  '/integrations': typeof IntegrationsRoute
+  '/legal': typeof LegalRoute
   '/mcp': typeof McpRoute
+  '/messaging-policy': typeof MessagingPolicyRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/integrations/calendars': typeof IntegrationsCalendarsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/dashboard/agent': typeof AuthenticatedDashboardAgentRoute
@@ -233,8 +400,10 @@ export interface FileRoutesByTo {
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
+  '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
@@ -242,15 +411,34 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-call-policy': typeof AiCallPolicyRoute
   '/auth': typeof AuthRoute
+  '/cancellation-refunds': typeof CancellationRefundsRoute
+  '/checkout': typeof CheckoutRoute
+  '/complete-account': typeof CompleteAccountRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/data-processing': typeof DataProcessingRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/get-started': typeof GetStartedRoute
+  '/help': typeof HelpRoute
+  '/integrations': typeof IntegrationsRoute
+  '/legal': typeof LegalRoute
   '/mcp': typeof McpRoute
+  '/messaging-policy': typeof MessagingPolicyRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/api/call-recording': typeof ApiCallRecordingRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/integrations_/calendars': typeof IntegrationsCalendarsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/_authenticated/dashboard/agent': typeof AuthenticatedDashboardAgentRoute
@@ -263,8 +451,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
+  '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
@@ -272,15 +462,34 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acceptable-use'
+    | '/ai-call-policy'
     | '/auth'
+    | '/cancellation-refunds'
+    | '/checkout'
+    | '/complete-account'
+    | '/contact'
+    | '/cookies'
+    | '/data-processing'
+    | '/faq'
+    | '/features'
+    | '/get-started'
+    | '/help'
+    | '/integrations'
+    | '/legal'
     | '/mcp'
+    | '/messaging-policy'
+    | '/pricing'
+    | '/privacy'
     | '/sitemap.xml'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/dashboard'
     | '/setup'
     | '/api/call-recording'
     | '/api/voice-preview'
+    | '/integrations/calendars'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
     | '/dashboard/agent'
@@ -293,21 +502,42 @@ export interface FileRouteTypes {
     | '/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
+    | '/api/public/checkout'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
+    | '/api/public/square-billing-webhook'
     | '/api/public/square-webhook'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acceptable-use'
+    | '/ai-call-policy'
     | '/auth'
+    | '/cancellation-refunds'
+    | '/checkout'
+    | '/complete-account'
+    | '/contact'
+    | '/cookies'
+    | '/data-processing'
+    | '/faq'
+    | '/features'
+    | '/get-started'
+    | '/help'
+    | '/integrations'
+    | '/legal'
     | '/mcp'
+    | '/messaging-policy'
+    | '/pricing'
+    | '/privacy'
     | '/sitemap.xml'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/setup'
     | '/api/call-recording'
     | '/api/voice-preview'
+    | '/integrations/calendars'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
     | '/dashboard/agent'
@@ -320,23 +550,44 @@ export interface FileRouteTypes {
     | '/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
+    | '/api/public/checkout'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
+    | '/api/public/square-billing-webhook'
     | '/api/public/square-webhook'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/acceptable-use'
+    | '/ai-call-policy'
     | '/auth'
+    | '/cancellation-refunds'
+    | '/checkout'
+    | '/complete-account'
+    | '/contact'
+    | '/cookies'
+    | '/data-processing'
+    | '/faq'
+    | '/features'
+    | '/get-started'
+    | '/help'
+    | '/integrations'
+    | '/legal'
     | '/mcp'
+    | '/messaging-policy'
+    | '/pricing'
+    | '/privacy'
     | '/sitemap.xml'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/_authenticated/setup'
     | '/api/call-recording'
     | '/api/voice-preview'
+    | '/integrations_/calendars'
     | '/.lovable/oauth/consent'
     | '/_authenticated/dashboard/$section'
     | '/_authenticated/dashboard/agent'
@@ -349,8 +600,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
+    | '/api/public/checkout'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
+    | '/api/public/square-billing-webhook'
     | '/api/public/square-webhook'
     | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
@@ -358,17 +611,38 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AcceptableUseRoute: typeof AcceptableUseRoute
+  AiCallPolicyRoute: typeof AiCallPolicyRoute
   AuthRoute: typeof AuthRoute
+  CancellationRefundsRoute: typeof CancellationRefundsRoute
+  CheckoutRoute: typeof CheckoutRoute
+  CompleteAccountRoute: typeof CompleteAccountRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  DataProcessingRoute: typeof DataProcessingRoute
+  FaqRoute: typeof FaqRoute
+  FeaturesRoute: typeof FeaturesRoute
+  GetStartedRoute: typeof GetStartedRoute
+  HelpRoute: typeof HelpRoute
+  IntegrationsRoute: typeof IntegrationsRoute
+  LegalRoute: typeof LegalRoute
   McpRoute: typeof McpRoute
+  MessagingPolicyRoute: typeof MessagingPolicyRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiCallRecordingRoute: typeof ApiCallRecordingRoute
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
+  IntegrationsCalendarsRoute: typeof IntegrationsCalendarsRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicAgentToolsRoute: typeof ApiPublicAgentToolsRoute
+  ApiPublicCheckoutRoute: typeof ApiPublicCheckoutRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
   ApiPublicIncomingSmsRoute: typeof ApiPublicIncomingSmsRoute
+  ApiPublicSquareBillingWebhookRoute: typeof ApiPublicSquareBillingWebhookRoute
   ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
 }
 
@@ -388,11 +662,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/acceptable-use': {
+      id: '/acceptable-use'
+      path: '/acceptable-use'
+      fullPath: '/acceptable-use'
+      preLoaderRoute: typeof AcceptableUseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-call-policy': {
+      id: '/ai-call-policy'
+      path: '/ai-call-policy'
+      fullPath: '/ai-call-policy'
+      preLoaderRoute: typeof AiCallPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cancellation-refunds': {
+      id: '/cancellation-refunds'
+      path: '/cancellation-refunds'
+      fullPath: '/cancellation-refunds'
+      preLoaderRoute: typeof CancellationRefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/complete-account': {
+      id: '/complete-account'
+      path: '/complete-account'
+      fullPath: '/complete-account'
+      preLoaderRoute: typeof CompleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-processing': {
+      id: '/data-processing'
+      path: '/data-processing'
+      fullPath: '/data-processing'
+      preLoaderRoute: typeof DataProcessingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get-started': {
+      id: '/get-started'
+      path: '/get-started'
+      fullPath: '/get-started'
+      preLoaderRoute: typeof GetStartedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal': {
+      id: '/legal'
+      path: '/legal'
+      fullPath: '/legal'
+      preLoaderRoute: typeof LegalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -402,11 +774,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messaging-policy': {
+      id: '/messaging-policy'
+      path: '/messaging-policy'
+      fullPath: '/messaging-policy'
+      preLoaderRoute: typeof MessagingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -449,6 +849,13 @@ declare module '@tanstack/react-router' {
       path: '/api/voice-preview'
       fullPath: '/api/voice-preview'
       preLoaderRoute: typeof ApiVoicePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations_/calendars': {
+      id: '/integrations_/calendars'
+      path: '/integrations/calendars'
+      fullPath: '/integrations/calendars'
+      preLoaderRoute: typeof IntegrationsCalendarsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -542,6 +949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAgentToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/checkout': {
+      id: '/api/public/checkout'
+      path: '/api/public/checkout'
+      fullPath: '/api/public/checkout'
+      preLoaderRoute: typeof ApiPublicCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/incoming-call': {
       id: '/api/public/incoming-call'
       path: '/api/public/incoming-call'
@@ -554,6 +968,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/incoming-sms'
       fullPath: '/api/public/incoming-sms'
       preLoaderRoute: typeof ApiPublicIncomingSmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/square-billing-webhook': {
+      id: '/api/public/square-billing-webhook'
+      path: '/api/public/square-billing-webhook'
+      fullPath: '/api/public/square-billing-webhook'
+      preLoaderRoute: typeof ApiPublicSquareBillingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/square-webhook': {
@@ -617,18 +1038,39 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AcceptableUseRoute: AcceptableUseRoute,
+  AiCallPolicyRoute: AiCallPolicyRoute,
   AuthRoute: AuthRoute,
+  CancellationRefundsRoute: CancellationRefundsRoute,
+  CheckoutRoute: CheckoutRoute,
+  CompleteAccountRoute: CompleteAccountRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  DataProcessingRoute: DataProcessingRoute,
+  FaqRoute: FaqRoute,
+  FeaturesRoute: FeaturesRoute,
+  GetStartedRoute: GetStartedRoute,
+  HelpRoute: HelpRoute,
+  IntegrationsRoute: IntegrationsRoute,
+  LegalRoute: LegalRoute,
   McpRoute: McpRoute,
+  MessagingPolicyRoute: MessagingPolicyRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiCallRecordingRoute: ApiCallRecordingRoute,
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
+  IntegrationsCalendarsRoute: IntegrationsCalendarsRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicAgentToolsRoute: ApiPublicAgentToolsRoute,
+  ApiPublicCheckoutRoute: ApiPublicCheckoutRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
   ApiPublicIncomingSmsRoute: ApiPublicIncomingSmsRoute,
+  ApiPublicSquareBillingWebhookRoute: ApiPublicSquareBillingWebhookRoute,
   ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,
 }
 export const routeTree = rootRouteImport

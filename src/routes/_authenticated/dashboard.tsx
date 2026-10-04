@@ -1,3 +1,4 @@
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LocationCtx } from "@/components/dashboard/location-context";
@@ -79,15 +80,7 @@ function DashboardLayout() {
           <BrandLogo className="w-[150px] sm:w-[150px]" />
           <button aria-label="Open menu" onClick={() => setMobileOpen(true)} className="grid size-10 place-items-center rounded-full bg-accent"><Menu className="size-5" /></button>
         </header>
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden">
-            <button aria-label="Close menu" className="absolute inset-0 bg-background/70 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-            <div className="animate-rise absolute inset-y-0 left-0 w-[290px] max-w-[85vw] border-r border-border bg-surface">
-              <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="absolute top-4 right-3 grid size-9 place-items-center rounded-full bg-accent"><X className="size-4" /></button>
-              {sidebar}
-            </div>
-          </div>
-        )}
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}><SheetContent side="left" className="w-[290px] max-w-[85vw] p-0 lg:hidden"><SheetTitle className="sr-only">Salon navigation</SheetTitle><SheetDescription className="sr-only">Switch locations or open a workspace page.</SheetDescription>{sidebar}</SheetContent></Sheet>
         <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-10"><Outlet /></main>
       </div>
     </LocationCtx.Provider>

@@ -1,7 +1,21 @@
+import { SiteHeader, SiteFooter } from "@/components/site/SiteShell";
+import { PlanCards, PricingNotes, PlanComparison } from "@/components/site/PlanCards";
 import { useEffect, useState } from "react";
 import {
-  ArrowRight, BellRing, CalendarCheck, Check, HelpCircle, Languages, Menu, MessageSquareText,
-  Moon, Phone, PhoneForwarded, Repeat, UserRound, X,
+  ArrowRight,
+  BellRing,
+  CalendarCheck,
+  Check,
+  HelpCircle,
+  Languages,
+  Menu,
+  MessageSquareText,
+  Moon,
+  Phone,
+  PhoneForwarded,
+  Repeat,
+  UserRound,
+  X,
 } from "lucide-react";
 import { plans, comparison, setup, schedulingAddon, defaultCta } from "@/lib/pricing";
 import { CallDemo } from "./CallDemo";
@@ -11,58 +25,13 @@ import { Eyebrow, Logo, NdButton, Reveal, SectionHead, Waveform } from "./primit
 import { useSequence } from "./useSequence";
 import { BrandMark } from "@/components/brand/Brand";
 
-const nav = [
-  ["Product", "#product"],
-  ["AI Receptionist", "#receptionist"],
-  ["Text to Book", "#text-to-book"],
-  ["How It Works", "#how"],
-  ["Pricing", "#pricing"],
-];
-
 export function Nav() {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const f = () => setScrolled(window.scrollY > 12);
-    f();
-    window.addEventListener("scroll", f, { passive: true });
-    return () => window.removeEventListener("scroll", f);
-  }, []);
-  return (
-    <header className="fixed inset-x-0 top-4 z-50 px-4">
-      <div className={`mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 transition-all duration-300 ${scrolled || open ? "glass" : ""}`}>
-        <Logo href="#top" />
-        <nav aria-label="Main navigation" className="hidden items-center gap-1 xl:flex">
-          {nav.map(([l, h]) => (
-            <a key={h} href={h} className="rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">{l}</a>
-          ))}
-        </nav>
-        <div className="hidden items-center gap-2 xl:flex">
-          <NdButton variant="link" size="sm" href="/auth">Sign In</NdButton>
-          <NdButton size="sm" href="/setup">{defaultCta}</NdButton>
-        </div>
-        <button className="grid size-11 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring xl:hidden" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-navigation">
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
-      </div>
-      {open && (
-        <nav id="mobile-navigation" aria-label="Mobile navigation" className="glass animate-rise mx-auto mt-2 max-w-6xl rounded-3xl p-3 xl:hidden">
-          {nav.map(([l, h]) => (
-            <a key={h} href={h} onClick={() => setOpen(false)} className="block rounded-2xl px-4 py-3 text-sm hover:bg-accent">{l}</a>
-          ))}
-          <div className="mt-2 flex flex-wrap gap-2 p-1">
-            <NdButton variant="ghost" size="sm" href="/auth" className="flex-1">Sign In</NdButton>
-            <NdButton size="sm" href="/setup" className="flex-1">{defaultCta}</NdButton>
-          </div>
-        </nav>
-      )}
-    </header>
-  );
+  return <SiteHeader />;
 }
 
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden px-4 pt-36 pb-24 md:pt-44">
+    <section id="top" className="relative overflow-hidden px-4 pt-20 pb-24 md:pt-28">
       <div className="aurora -top-40 left-[-10%] size-[620px] bg-cobalt" />
       <div className="aurora top-10 right-[-15%] size-[560px] bg-magenta [animation-delay:-6s]" />
       <div className="aurora top-[40%] left-[35%] size-[420px] bg-violet [animation-delay:-11s]" />
@@ -76,14 +45,21 @@ export function Hero() {
             <span className="text-gradient">Your front desk shouldn't be.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
-            Salon Pro Agent is your salon's AI answering service — it picks up every call, texts clients back and books appointments around the clock, even when everyone in the salon is busy with a client.
+            Salon Pro Agent is your salon's AI answering service — it picks up every call, texts
+            clients back and books appointments around the clock, even when everyone in the salon is
+            busy with a client.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <NdButton size="lg" href="#talk"><Phone className="size-4" /> See it in action</NdButton>
-            <NdButton size="lg" variant="ghost" href="#how">See How It Works</NdButton>
+            <NdButton size="lg" href="#talk">
+              <Phone className="size-4" /> See it in action
+            </NdButton>
+            <NdButton size="lg" variant="ghost" href="#how">
+              See How It Works
+            </NdButton>
           </div>
           <p className="mt-8 text-sm text-muted-foreground">
-            Built for salons & studios <span className="mx-2 opacity-40">•</span> Works with your existing number <span className="mx-2 opacity-40">•</span> English + Vietnamese
+            Built for salons & studios <span className="mx-2 opacity-40">•</span> Works with your
+            existing number <span className="mx-2 opacity-40">•</span> English + Vietnamese
           </p>
         </div>
         <CallDemo />
@@ -99,29 +75,69 @@ export function TextToBook() {
       <div className="relative mx-auto max-w-6xl">
         <SectionHead
           eyebrow="Text to Book"
-          title={<>They don't even <span className="text-gradient">have to call.</span></>}
+          title={
+            <>
+              They don't even <span className="text-gradient">have to call.</span>
+            </>
+          }
           body="Customers can text your salon just like they text a friend. Salon Pro Agent understands what they need, checks availability and books the appointment automatically."
         />
-        <Reveal className="mt-16"><TextDemo /></Reveal>
+        <Reveal className="mt-16">
+          <TextDemo />
+        </Reveal>
       </div>
     </section>
   );
 }
 
 const channels = [
-  { icon: Phone, t: "Calls", d: "AI answers incoming salon calls.", demo: "“Thanks for calling Luna Nails…”" },
-  { icon: MessageSquareText, t: "Texts", d: "Customers can text questions or book appointments.", demo: "419 texts handled this month" },
-  { icon: CalendarCheck, t: "Appointments", d: "Salon Pro Agent checks availability and manages bookings.", demo: "Books · reschedules · cancels" },
-  { icon: BellRing, t: "Confirmations", d: "Automatic confirmations and reminders.", demo: "Reminder sent · 24h before" },
-  { icon: HelpCircle, t: "Questions", d: "Salon Pro Agent knows salon hours, pricing, services and policies.", demo: "“Gel removal is $10 with a new set.”" },
-  { icon: PhoneForwarded, t: "Human handoff", d: "Transfer complicated conversations to staff.", demo: "Transferring to front desk…" },
+  {
+    icon: Phone,
+    t: "Calls",
+    d: "AI answers incoming salon calls.",
+    demo: "“Thanks for calling Luna Nails…”",
+  },
+  {
+    icon: MessageSquareText,
+    t: "Texts",
+    d: "Customers can text questions or book appointments.",
+    demo: "419 texts handled this month",
+  },
+  {
+    icon: CalendarCheck,
+    t: "Appointments",
+    d: "Salon Pro Agent checks availability and manages bookings.",
+    demo: "Books · reschedules · cancels",
+  },
+  {
+    icon: BellRing,
+    t: "Confirmations",
+    d: "Automatic confirmations and reminders.",
+    demo: "Reminder sent · 24h before",
+  },
+  {
+    icon: HelpCircle,
+    t: "Questions",
+    d: "Salon Pro Agent knows salon hours, pricing, services and policies.",
+    demo: "“Gel removal is $10 with a new set.”",
+  },
+  {
+    icon: PhoneForwarded,
+    t: "Human handoff",
+    d: "Transfer complicated conversations to staff.",
+    demo: "Transferring to front desk…",
+  },
 ];
 
 export function Channels() {
   return (
     <section id="product" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Product" title="One front desk. Every channel." body="Every call, text and booking flows through one AI that knows your salon as well as your best receptionist." />
+        <SectionHead
+          eyebrow="Product"
+          title="One front desk. Every channel."
+          body="Every call, text and booking flows through one AI that knows your salon as well as your best receptionist."
+        />
         <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {channels.map(({ icon: I, t, d, demo }, i) => (
             <Reveal key={t} delay={i * 70}>
@@ -147,10 +163,17 @@ export function Channels() {
 }
 
 const voiceFeatures = [
-  [Sparkle, "Natural AI conversations"], [CalendarCheck, "Book and reschedule appointments"], [HelpCircle, "Answers service and pricing questions"],
-  [Languages, "English + Vietnamese"], [Moon, "After-hours answering"], [PhoneForwarded, "Smart call transfers"], [MessageSquareText, "SMS follow-up after calls"],
+  [Sparkle, "Natural AI conversations"],
+  [CalendarCheck, "Book and reschedule appointments"],
+  [HelpCircle, "Answers service and pricing questions"],
+  [Languages, "English + Vietnamese"],
+  [Moon, "After-hours answering"],
+  [PhoneForwarded, "Smart call transfers"],
+  [MessageSquareText, "SMS follow-up after calls"],
 ] as const;
-function Sparkle(p: { className?: string }) { return <Waveform bars={4} className={`h-4 ${p.className ?? ""}`} />; }
+function Sparkle(p: { className?: string }) {
+  return <Waveform bars={4} className={`h-4 ${p.className ?? ""}`} />;
+}
 
 const transcript = [
   ["Caller", "Hi, I need to move my appointment to Saturday."],
@@ -170,20 +193,26 @@ export function VoiceUpsell() {
           <Reveal>
             <Eyebrow>Salon Pro Agent · AI phone receptionist</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.035em] text-balance md:text-5xl">
-              Give your salon a receptionist that <span className="text-gradient">answers every call.</span>
+              Give your salon a receptionist that{" "}
+              <span className="text-gradient">answers every call.</span>
             </h2>
             <p className="mt-5 text-lg text-muted-foreground">
-              Salon Pro Agent is your AI phone receptionist — it answers your salon's phone 24/7, so your technicians stay focused on the client in their chair, not the one on hold.
+              Salon Pro Agent is your AI phone receptionist — it answers your salon's phone 24/7, so
+              your technicians stay focused on the client in their chair, not the one on hold.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {voiceFeatures.map(([I, t]) => (
                 <li key={t} className="flex items-center gap-3 text-sm">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-accent"><I className="size-4" /></span>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-accent">
+                    <I className="size-4" />
+                  </span>
                   {t}
                 </li>
               ))}
             </ul>
-            <NdButton variant="brand" size="lg" href="/setup" className="mt-10">{defaultCta} <ArrowRight className="size-4" /></NdButton>
+            <NdButton variant="brand" size="lg" href="/get-started" className="mt-10">
+              {defaultCta} <ArrowRight className="size-4" />
+            </NdButton>
           </Reveal>
           <Reveal delay={150}>
             <div className="glass rounded-[28px] p-5">
@@ -191,23 +220,32 @@ export function VoiceUpsell() {
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <span className="size-2 rounded-full bg-success pulse-ring" /> Live call · Line 1
                 </div>
-                <span className="rounded-full bg-muted px-2.5 py-1 font-mono text-[11px] text-muted-foreground">EN · VI</span>
+                <span className="rounded-full bg-muted px-2.5 py-1 font-mono text-[11px] text-muted-foreground">
+                  EN · VI
+                </span>
               </div>
               <div className="mt-5 grid place-items-center rounded-2xl bg-background/60 py-8">
                 <Waveform bars={40} className="h-14" />
               </div>
-              <div className="mt-4 text-[11px] tracking-wider text-muted-foreground uppercase">Live transcription</div>
+              <div className="mt-4 text-[11px] tracking-wider text-muted-foreground uppercase">
+                Live transcription
+              </div>
               <div className="mt-2 min-h-[170px] space-y-2 font-mono text-[13px]">
                 {transcript.slice(0, Math.min(s, 4)).map(([w, t]) => (
                   <div key={t} className="animate-rise flex flex-col gap-1 sm:flex-row sm:gap-3">
-                    <span className={`inline-flex shrink-0 items-center gap-1.5 sm:w-32 ${w === "Salon Pro Agent" ? "text-violet" : "text-muted-foreground"}`}>
-                      {w === "Salon Pro Agent" && <BrandMark className="size-4" />}{w}
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1.5 sm:w-32 ${w === "Salon Pro Agent" ? "text-violet" : "text-muted-foreground"}`}
+                    >
+                      {w === "Salon Pro Agent" && <BrandMark className="size-4" />}
+                      {w}
                     </span>
                     <span className="min-w-0">{t}</span>
                   </div>
                 ))}
               </div>
-              <div className={`mt-4 flex items-center gap-3 rounded-2xl border border-border bg-surface-2 p-3.5 transition-all duration-500 ${s >= 5 ? "opacity-100" : "opacity-30"}`}>
+              <div
+                className={`mt-4 flex items-center gap-3 rounded-2xl border border-border bg-surface-2 p-3.5 transition-all duration-500 ${s >= 5 ? "opacity-100" : "opacity-30"}`}
+              >
                 <Repeat className="size-4 text-violet" />
                 <div className="flex-1 text-sm">
                   <div className="font-medium">Rescheduled · Sat 11:00 AM with Kim</div>
@@ -224,16 +262,37 @@ export function VoiceUpsell() {
 }
 
 export function Value() {
-  const before = ["Phone rings while technicians are working", "Customer hangs up", "Staff forget to return calls", "Appointment opportunities disappear", "Repetitive questions interrupt the salon"];
-  const after = ["Every customer receives an answer", "Appointments book automatically", "Staff stay focused on clients", "Customers can call or text", "Salon stays available after hours"];
+  const before = [
+    "Phone rings while technicians are working",
+    "Customer hangs up",
+    "Staff forget to return calls",
+    "Appointment opportunities disappear",
+    "Repetitive questions interrupt the salon",
+  ];
+  const after = [
+    "Every customer receives an answer",
+    "Appointments book automatically",
+    "Staff stay focused on clients",
+    "Customers can call or text",
+    "Salon stays available after hours",
+  ];
   return (
     <section className="px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead title={<>Stay focused on your client. <span className="text-muted-foreground">We'll answer the phone.</span></>} />
+        <SectionHead
+          title={
+            <>
+              Stay focused on your client.{" "}
+              <span className="text-muted-foreground">We'll answer the phone.</span>
+            </>
+          }
+        />
         <div className="mt-16 grid gap-4 md:grid-cols-2">
           <Reveal>
             <div className="h-full rounded-3xl border border-border p-8">
-              <div className="text-sm font-medium text-muted-foreground">Before Salon Pro Agent</div>
+              <div className="text-sm font-medium text-muted-foreground">
+                Before Salon Pro Agent
+              </div>
               <ul className="mt-6 space-y-4">
                 {before.map((t) => (
                   <li key={t} className="flex items-start gap-3 text-muted-foreground">
@@ -252,7 +311,9 @@ export function Value() {
                 <ul className="mt-6 space-y-4">
                   {after.map((t) => (
                     <li key={t} className="flex items-start gap-3">
-                      <span className="bg-brand mt-0.5 grid size-5 shrink-0 place-items-center rounded-full"><Check className="size-3 text-primary-foreground" /></span>
+                      <span className="bg-brand mt-0.5 grid size-5 shrink-0 place-items-center rounded-full">
+                        <Check className="size-3 text-primary-foreground" />
+                      </span>
                       {t}
                     </li>
                   ))}
@@ -271,8 +332,14 @@ export function DashboardSection() {
     <section className="relative px-4 py-28">
       <div className="aurora top-1/2 left-1/2 size-[700px] -translate-x-1/2 -translate-y-1/2 bg-cobalt opacity-20" />
       <div className="relative mx-auto max-w-6xl">
-        <SectionHead eyebrow="Dashboard" title="See everything your front desk handled." body="Every conversation, booking and call — organized in one place, ready when you finish your last client." />
-        <Reveal className="mt-16"><Dashboard /></Reveal>
+        <SectionHead
+          eyebrow="Dashboard"
+          title="See everything your front desk handled."
+          body="Every conversation, booking and call — organized in one place, ready when you finish your last client."
+        />
+        <Reveal className="mt-16">
+          <Dashboard />
+        </Reveal>
       </div>
     </section>
   );
@@ -280,9 +347,21 @@ export function DashboardSection() {
 
 export function HowItWorks() {
   const steps = [
-    ["Connect your salon", "Add your services, staff, hours, pricing and booking system.", UserRound],
-    ["Connect your number", "Keep your existing number. Salon Pro Agent can handle calls and texts.", Phone],
-    ["Salon Pro Agent gets to work", "Customers call or text and Salon Pro Agent handles the conversation and booking automatically.", CalendarCheck],
+    [
+      "Connect your salon",
+      "Add your services, staff, hours, pricing and booking system.",
+      UserRound,
+    ],
+    [
+      "Connect your number",
+      "Keep your existing number. Salon Pro Agent can handle calls and texts.",
+      Phone,
+    ],
+    [
+      "Salon Pro Agent gets to work",
+      "Customers call or text and Salon Pro Agent handles the conversation and booking automatically.",
+      CalendarCheck,
+    ],
   ] as const;
   return (
     <section id="how" className="scroll-mt-24 px-4 py-28">
@@ -309,36 +388,25 @@ export function HowItWorks() {
 }
 
 export function Pricing() {
-  const cell = (v: boolean | string) => v === true ? <Check className="mx-auto size-4 text-success" /> : v === false ? <span className="text-muted-foreground">—</span> : <span className="text-xs">{v}</span>;
   return (
-    <section id="pricing" className="scroll-mt-24 px-4 py-28">
-      <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Pricing" title={<>Pick your plan. <span className="text-gradient">Every one answers every call.</span></>} body="Every plan includes the Salon Pro Agent AI receptionist, text booking and calendar connection. Set up for you by our team." />
-        <Reveal>
-          <div className="mt-16 grid gap-4 lg:grid-cols-3">
-            {plans.map((p) => (
-              <div key={p.id} className={p.highlight ? "relative overflow-hidden rounded-[28px] p-px" : "rounded-[28px] border border-border"}>
-                {p.highlight && <div className="bg-brand absolute inset-0" />}
-                <div className="relative flex h-full flex-col rounded-[27px] bg-surface p-8">
-                  <div className="flex items-center gap-2"><h3 className="text-xl font-semibold tracking-tight">{p.name}</h3>{p.highlight && <span className="rounded-full bg-accent px-3 py-1 text-xs">Most popular</span>}</div>
-                  <p className="mt-3 text-sm text-muted-foreground">{p.blurb}</p>
-                  <div className="mt-6 flex items-baseline gap-1"><span className="text-5xl font-semibold tracking-[-0.04em]">{p.price}</span><span className="text-muted-foreground">{p.period}</span></div>
-                  <p className="mt-3 text-xs text-muted-foreground">{p.id === "essential" ? `${schedulingAddon.name} ${schedulingAddon.price}${schedulingAddon.period} add-on` : `${schedulingAddon.name} included`}</p>
-                  <div className="flex-1" />
-                  <NdButton size="lg" variant={p.highlight ? "brand" : undefined} href="/setup" className="mt-8 w-full">{p.cta} <ArrowRight className="size-4" /></NdButton>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-sm text-muted-foreground">Plus {setup.price} {setup.note} {setup.label.toLowerCase()} on every plan.</p>
-          <div className="mt-10 overflow-x-auto rounded-[28px] border border-border">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead><tr className="border-b border-border"><th className="px-5 py-4 text-left font-medium">Compare plans</th>{plans.map((p) => <th key={p.id} className="px-5 py-4 text-center font-medium">{p.name}<span className="block text-xs font-normal text-muted-foreground">{p.price}{p.period}</span></th>)}</tr></thead>
-              <tbody className="divide-y divide-border">{comparison.map(([f, ...v]) => (
-                <tr key={f}><td className="px-5 py-3">{f}</td>{v.map((x, i) => <td key={i} className="px-5 py-3 text-center">{cell(x)}</td>)}</tr>))}</tbody>
-            </table>
-          </div>
-        </Reveal>
+    <section id="pricing" className="scroll-mt-24 px-5 py-24 sm:px-8">
+      <div className="mx-auto max-w-7xl">
+        <SectionHead
+          eyebrow="Your front desk, your way"
+          title={
+            <>
+              Room to grow.
+              <br />
+              <span className="text-gradient">A plan to match.</span>
+            </>
+          }
+          body="Choose the voice minutes, messages and team access that fit your salon. Every plan includes guided setup and support through launch."
+        />
+        <div className="mt-14">
+          <PlanCards />
+          <PricingNotes />
+          <PlanComparison />
+        </div>
       </div>
     </section>
   );
@@ -351,11 +419,17 @@ export function FinalCta() {
       <div className="aurora top-10 right-[5%] size-[500px] bg-magenta [animation-delay:-5s]" />
       <div className="aurora bottom-[-30%] left-[40%] size-[500px] bg-coral opacity-40 [animation-delay:-9s]" />
       <Reveal className="relative mx-auto max-w-4xl">
-        <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">Your next appointment may already be calling.</h2>
+        <h2 className="text-5xl leading-[1] font-semibold tracking-[-0.045em] text-balance md:text-7xl">
+          Your next appointment may already be calling.
+        </h2>
         <p className="mt-6 text-xl text-muted-foreground">Make sure someone answers.</p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <NdButton size="lg" href="/setup">{defaultCta}</NdButton>
-          <NdButton size="lg" variant="ghost" href="#receptionist"><Phone className="size-4" /> Hear Salon Pro Agent</NdButton>
+          <NdButton size="lg" href="/get-started">
+            {defaultCta}
+          </NdButton>
+          <NdButton size="lg" variant="ghost" href="#receptionist">
+            <Phone className="size-4" /> Hear Salon Pro Agent
+          </NdButton>
         </div>
       </Reveal>
     </section>
@@ -363,23 +437,27 @@ export function FinalCta() {
 }
 
 export function Footer() {
-  return (
-    <footer className="border-t border-border px-4 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-        <Logo href="#top" variant="white" />
-        <span>The AI receptionist for salons.</span>
-        <span>© {new Date().getFullYear()} Salon Pro Agent</span>
-      </div>
-    </footer>
-  );
+  return <SiteFooter />;
 }
 
 export function SetupFlow() {
   const steps = [
-    ["Tell us about your salon", "Name, hours, languages, and your services. Upload a menu or paste your website and we fill it in."],
-    ["Pick your voice", "Choose from six receptionists, then hear each one answer with your salon's name."],
-    ["We build your receptionist", "Salon Pro Agent learns your prices, policies and booking rules for you. No tech skills needed."],
-    ["Go live", "Forward your calls and you're answering 24/7. Texting starts once business texting is approved."],
+    [
+      "Tell us about your salon",
+      "Name, hours, languages, and your services. Upload a menu or paste your website and we fill it in.",
+    ],
+    [
+      "Pick your voice",
+      "Choose from six receptionists, then hear each one answer with your salon's name.",
+    ],
+    [
+      "We build your receptionist",
+      "Salon Pro Agent learns your prices, policies and booking rules for you. No tech skills needed.",
+    ],
+    [
+      "Go live",
+      "Forward your calls and you're answering 24/7. Texting starts once business texting is approved.",
+    ],
   ];
   const ways = [
     ["Online", "Finish setup yourself in about 10 minutes."],
@@ -389,7 +467,11 @@ export function SetupFlow() {
   return (
     <section id="setup" className="scroll-mt-24 px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHead eyebrow="Setup" title="Set up in minutes, not weeks." body="You share the basics. Salon Pro Agent builds itself around your salon." />
+        <SectionHead
+          eyebrow="Setup"
+          title="Set up in minutes, not weeks."
+          body="You share the basics. Salon Pro Agent builds itself around your salon."
+        />
         <div className="mt-16 grid gap-4 md:grid-cols-4">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 80}>
@@ -410,7 +492,9 @@ export function SetupFlow() {
           ))}
         </div>
         <div className="mt-10 text-center">
-          <NdButton size="lg" href="/setup">Start setup <ArrowRight className="size-4" /></NdButton>
+          <NdButton size="lg" href="/get-started">
+            Start setup <ArrowRight className="size-4" />
+          </NdButton>
         </div>
       </div>
     </section>

@@ -26,6 +26,7 @@ import { Route as AuthenticatedDashboardSectionRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardAppointmentsRouteImport } from './routes/_authenticated/dashboard.appointments'
 import { Route as AuthenticatedDashboardCallsRouteImport } from './routes/_authenticated/dashboard.calls'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
+import { Route as AuthenticatedDashboardTeamRouteImport } from './routes/_authenticated/dashboard.team'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicAgentToolsRouteImport } from './routes/api/public/agent-tools'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
@@ -122,6 +123,12 @@ const AuthenticatedDashboardMessagesRoute =
     path: '/messages',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardTeamRoute =
+  AuthenticatedDashboardTeamRouteImport.update({
+    id: '/team',
+    path: '/team',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
   id: '/api/public/agent-token',
   path: '/api/public/agent-token',
@@ -164,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
@@ -186,6 +194,7 @@ export interface FileRoutesByTo {
   '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
@@ -211,6 +220,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/_authenticated/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/_authenticated/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/dashboard/appointments'
     | '/dashboard/calls'
     | '/dashboard/messages'
+    | '/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/incoming-call'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/dashboard/appointments'
     | '/dashboard/calls'
     | '/dashboard/messages'
+    | '/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/incoming-call'
@@ -282,6 +294,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/appointments'
     | '/_authenticated/dashboard/calls'
     | '/_authenticated/dashboard/messages'
+    | '/_authenticated/dashboard/team'
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/incoming-call'
@@ -428,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMessagesRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/team': {
+      id: '/_authenticated/dashboard/team'
+      path: '/team'
+      fullPath: '/dashboard/team'
+      preLoaderRoute: typeof AuthenticatedDashboardTeamRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/api/public/agent-token': {
       id: '/api/public/agent-token'
       path: '/api/public/agent-token'
@@ -471,6 +491,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAppointmentsRoute: typeof AuthenticatedDashboardAppointmentsRoute
   AuthenticatedDashboardCallsRoute: typeof AuthenticatedDashboardCallsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
+  AuthenticatedDashboardTeamRoute: typeof AuthenticatedDashboardTeamRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
@@ -481,6 +502,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardAppointmentsRoute,
     AuthenticatedDashboardCallsRoute: AuthenticatedDashboardCallsRoute,
     AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
+    AuthenticatedDashboardTeamRoute: AuthenticatedDashboardTeamRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }
 

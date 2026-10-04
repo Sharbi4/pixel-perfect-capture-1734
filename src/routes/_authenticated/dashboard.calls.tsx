@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock, Loader2, Pause, PhoneCall, Play, Trash2, X } from "lucide-react";
@@ -125,11 +125,14 @@ function CallDrawer({ c, name, onChange, onClose }: { c: Call; name: string; onC
   const [me, setMe] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const hl = highlights(c.transcript);
+  const [appt, setAppt] = useState<string | null>(null);
   const [texts, setTexts] = useState<{ id: string; body: string; sent_at: string; sent_by: string }[]>([]);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
     void supabase.from("call_notes").select("id,body,user_id,created_at").eq("call_id", c.id).order("created_at").then(({ data }) => setNotes(data ?? []));
+    void supabase.from("appointments").select("service_name,starts_at,status").eq("call_id", c.id).neq("status", "cancelled").limit(1).maybeSingle()
+      .then(({ data }) => setAppt(data ? `${data.service_name} · ${when(data.starts_at)}` : null));
     if (c.customer_phone) {
       const end = new Date(new Date(c.started_at).getTime() + (c.duration_secs + 3600) * 1000).toISOString();
       void supabase.from("messages").select("id,body,sent_at,sent_by").eq("salon_id", c.salon_id).eq("customer_phone", c.customer_phone).eq("direction", "outbound").gte("sent_at", c.started_at).lte("sent_at", end).order("sent_at").then(({ data }) => setTexts(data ?? []));
@@ -178,12 +181,13 @@ function CallDrawer({ c, name, onChange, onClose }: { c: Call; name: string; onC
           {c.has_recording && <section><h3 className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Recording</h3><Recording id={c.id} /></section>}
           {c.customer_phone && <div className="flex gap-2">
             <a href={`tel:${c.customer_phone}`} className="inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground">Call customer</a>
-            <a href={`sms:${c.customer_phone}`} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm">Text customer</a></div>}
+            <a href={`sms:${c.customer_phone}`} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm">Text customer</a>
+            <Link to="/dashboard/appointments" search={{ new: 1, phone: c.customer_phone, name: name || undefined, call: c.id }} className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm">Book appointment</Link></div>}
 
           <section className="grid grid-cols-2 gap-2 text-sm">
             {([["Agent", "Salon Agent"], ["Outcome", c.resolved_at ? "Resolved" : needsFollow(c) ? "Needs follow-up" : c.outcome === "success" ? "Handled" : isMissed(c) ? "Missed / short" : "—"],
               ["Transferred", kinds(c).has("transfer") ? "Yes" : "No"], ["Callback needed", needsFollow(c) ? "Yes" : "No"],
-              ["Recording", c.has_recording ? "Available" : "Not available"], ["Appointment", "Booking system not connected"]] as const).map(([k, v]) => (
+              ["Recording", c.has_recording ? "Available" : "Not available"], ["Appointment", appt ?? "None booked from this call"]] as const).map(([k, v]) => (
               <div key={k} className="rounded-2xl bg-accent px-3 py-2"><span className="block text-[11px] text-muted-foreground">{k}</span>{v}</div>))}
           </section>
 

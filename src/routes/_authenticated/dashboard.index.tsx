@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, CalendarDays, MessageSquare, PhoneCall, TrendingUp } from "lucide-react";
-import { BrandMark } from "@/components/brand/Brand";
 import { loadPhoneSetup } from "@/lib/salon-data";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUsNumber } from "@/lib/phone-format";
 import type { PhoneSetup } from "@/lib/phone-status";
+import { addDays, fmtTime, localDate, zoned } from "@/lib/availability";
 import { useActiveLocation as useLocation } from "@/components/dashboard/location-context";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
   component: Overview,
 });
 
-// Calls and texts count real saved activity; bookings and revenue stay zero until bookings are stored.
+// Calls, texts, bookings and revenue all count real saved activity.
 const KPIS = [
   { label: "Calls answered", icon: PhoneCall },
   { label: "Appointments booked", icon: CalendarDays },
@@ -48,7 +48,11 @@ function Overview() {
     void Promise.all([
       supabase.from("calls").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("started_at", s).lt("started_at", u),
       supabase.from("messages").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("sent_at", s).lt("sent_at", u),
-    ]).then(([c, m]) => setCounts({ "Calls answered": c.count ?? 0, "Texts handled": m.count ?? 0 }));
+      supabase.from("appointments").select("price,source,status").eq("salon_id", location.id).gte("created_at", s).lt("created_at", u).neq("status", "cancelled"),
+    ]).then(([c, m, a]) => {
+      const ai = (a.data ?? []).filter((x) => x.source !== "staff");
+      setCounts({ "Calls answered": c.count ?? 0, "Texts handled": m.count ?? 0, "Appointments booked": (a.data ?? []).length, revenue: ai.reduce((t, x) => t + Number(x.price), 0) });
+    });
   }, [location.id, s, u]);
   useEffect(() => { setSetup(null); void loadPhoneSetup(location.id).then(setSetup).catch(() => {}); }, [location.id]);
 
@@ -94,21 +98,14 @@ function Overview() {
         {KPIS.map(({ label, icon: I, money }) => (
           <div key={label} className="glass rounded-3xl p-5">
             <div className="flex items-center justify-between text-muted-foreground"><span className="text-xs sm:text-sm">{label}</span><I className="size-4" /></div>
-            <div className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{money ? "$0" : (counts[label] ?? 0)}</div>
+            <div className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{money ? `$${Math.round(counts["revenue"] ?? 0).toLocaleString()}` : (counts[label] ?? 0)}</div>
             <div className="mt-1 text-xs text-muted-foreground">{periodLabel}</div>
           </div>
         ))}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <section className="glass rounded-[28px] p-6">
-          <h2 className="font-medium">Recent activity</h2>
-          <div className="grid place-items-center py-14 text-center">
-            <BrandMark className="size-12 opacity-80" />
-            <p className="mt-4 font-medium">No calls or texts yet</p>
-            <p className="mt-1 max-w-xs text-sm text-muted-foreground">{live ? "When clients call or text, you'll see each conversation here." : "Once your agent is live, every conversation shows up here."}</p>
-          </div>
-        </section>
+        <TodayCard salonId={location.id} />
 
         <section className="glass rounded-[28px] p-6">
           <h2 className="font-medium">Your agent</h2>
@@ -128,5 +125,36 @@ function Overview() {
         </section>
       </div>
     </div>
+  );
+}
+
+function TodayCard({ salonId }: { salonId: string }) {
+  const [rows, setRows] = useState<{ id: string; client_name: string; service_name: string; starts_at: string; source: string; status: string; staff: { name: string } | null }[] | null>(null);
+  const [tz, setTz] = useState("America/Phoenix");
+  useEffect(() => {
+    void (async () => {
+      const { data: s } = await supabase.from("salons").select("timezone").eq("id", salonId).single();
+      const zone = s?.timezone ?? "America/Phoenix"; setTz(zone);
+      const day = localDate(new Date(), zone);
+      const { data } = await supabase.from("appointments").select("id,client_name,service_name,starts_at,source,status,staff:staff(name)").eq("salon_id", salonId)
+        .gte("starts_at", zoned(day, 0, zone).toISOString()).lt("starts_at", zoned(addDays(day, 1), 0, zone).toISOString()).neq("status", "cancelled").order("starts_at");
+      setRows((data ?? []) as never);
+    })();
+  }, [salonId]);
+  return (
+    <section className="glass rounded-[28px] p-6">
+      <div className="flex items-center justify-between"><h2 className="font-medium">Today's appointments</h2>
+        <Link to="/dashboard/appointments" className="inline-flex items-center gap-1 text-sm text-violet hover:underline">View calendar <ArrowRight className="size-3.5" /></Link></div>
+      {!rows ? <p className="py-10 text-center text-sm text-muted-foreground">Loading…</p> : !rows.length ? (
+        <div className="grid place-items-center py-12 text-center"><CalendarDays className="size-8 text-muted-foreground" /><p className="mt-3 font-medium">Nothing booked today</p><p className="mt-1 text-sm text-muted-foreground">New bookings from your Salon Agent show up here.</p></div>
+      ) : (
+        <ul className="mt-4 divide-y divide-border">{rows.map((r) => (
+          <li key={r.id} className="flex items-center gap-3 py-3 text-sm">
+            <span className="w-16 font-mono text-xs text-muted-foreground">{fmtTime(r.starts_at, tz)}</span>
+            <span className="min-w-0 flex-1"><span className="block truncate font-medium">{r.client_name || "Client"}</span><span className="block truncate text-xs text-muted-foreground">{r.service_name} · {r.staff?.name ?? "Any"}</span></span>
+            {r.source !== "staff" && <span className="rounded-full bg-violet/20 px-2 py-0.5 text-[11px] text-violet">AI Booked</span>}
+          </li>))}</ul>
+      )}
+    </section>
   );
 }

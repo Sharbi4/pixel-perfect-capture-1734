@@ -3,10 +3,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Mic, PhoneOff } from "lucide-react";
 import { getTestCallToken } from "@/lib/setup.functions";
+import { getLocationTestToken } from "@/lib/agent-settings.functions";
 import { Waveform } from "./primitives";
 
-function Inner() {
-  const getToken = useServerFn(getTestCallToken);
+function Inner({ salonId, bare }: { salonId?: string; bare?: boolean }) {
+  const ownerToken = useServerFn(getTestCallToken);
+  const locToken = useServerFn(getLocationTestToken);
+  const getToken = () => (salonId ? locToken({ data: { salonId } }) : ownerToken());
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const c = useConversation({ onError: () => setErr("The call dropped. Please try again.") });
@@ -24,9 +27,9 @@ function Inner() {
   }
 
   return (
-    <div className="glass mt-6 rounded-[28px] p-6 text-center">
-      <div className="font-medium">Test your receptionist</div>
-      <p className="mt-1 text-sm text-muted-foreground">Talk to it like a customer would — ask prices or book an appointment.</p>
+    <div className={bare ? "text-center" : "glass mt-6 rounded-[28px] p-6 text-center"}>
+      {!bare && <><div className="font-medium">Test your receptionist</div>
+      <p className="mt-1 text-sm text-muted-foreground">Talk to it like a customer would — ask prices or book an appointment.</p></>}
       <div className="mt-5 flex h-10 items-center justify-center">
         {live ? <Waveform bars={28} className={c.isSpeaking ? "" : "opacity-40"} /> : <Mic className="size-7 text-muted-foreground" />}
       </div>
@@ -44,6 +47,6 @@ function Inner() {
   );
 }
 
-export function TestCall() {
-  return <ConversationProvider><Inner /></ConversationProvider>;
+export function TestCall(p: { salonId?: string; bare?: boolean }) {
+  return <ConversationProvider><Inner {...p} /></ConversationProvider>;
 }

@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { streamText, type ModelMessage } from "ai";
+import { streamText, stepCountIs, type ModelMessage, type ToolSet } from "ai";
 
 const BASE = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
@@ -37,8 +37,8 @@ function gateway() {
 const OPTS = { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } } as const;
 
 /** One short text reply; streamed internally, final text returned. */
-export async function writeReply(system: string, messages: ModelMessage[]): Promise<string> {
-  const result = streamText({ model: gateway().responses(MODEL), system, messages, providerOptions: OPTS as never });
+export async function writeReply(system: string, messages: ModelMessage[], tools?: ToolSet): Promise<string> {
+  const result = streamText({ model: gateway().responses(MODEL), system, messages, providerOptions: OPTS as never, ...(tools ? { tools, stopWhen: stepCountIs(6) } : {}) });
   return (await result.text).trim();
 }
 

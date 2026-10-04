@@ -593,8 +593,10 @@ export type Database = {
           address: string
           agent_error: string
           agent_id: string
+          agent_sync_status: string
           agent_synced_version: number
           booking_app: string
+          booking_provider: string
           buffer_min: number
           cancellation_policy: string
           config_version: number
@@ -607,6 +609,7 @@ export type Database = {
           hours: string
           id: string
           languages: string[]
+          last_synced_at: string | null
           launched_at: string | null
           lead_min: number
           name: string
@@ -633,8 +636,10 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_sync_status?: string
           agent_synced_version?: number
           booking_app?: string
+          booking_provider?: string
           buffer_min?: number
           cancellation_policy?: string
           config_version?: number
@@ -647,6 +652,7 @@ export type Database = {
           hours?: string
           id?: string
           languages?: string[]
+          last_synced_at?: string | null
           launched_at?: string | null
           lead_min?: number
           name?: string
@@ -673,8 +679,10 @@ export type Database = {
           address?: string
           agent_error?: string
           agent_id?: string
+          agent_sync_status?: string
           agent_synced_version?: number
           booking_app?: string
+          booking_provider?: string
           buffer_min?: number
           cancellation_policy?: string
           config_version?: number
@@ -687,6 +695,7 @@ export type Database = {
           hours?: string
           id?: string
           languages?: string[]
+          last_synced_at?: string | null
           launched_at?: string | null
           lead_min?: number
           name?: string

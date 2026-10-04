@@ -682,6 +682,65 @@ export type Database = {
           },
         ]
       }
+      salon_square_connections: {
+        Row: {
+          access_token_ciphertext: string
+          created_at: string
+          expires_at: string
+          id: string
+          location_id: string
+          location_name: string
+          merchant_id: string
+          merchant_name: string
+          reconnect_required: boolean
+          refresh_token_ciphertext: string
+          salon_id: string
+          scopes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_ciphertext: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          location_id?: string
+          location_name?: string
+          merchant_id: string
+          merchant_name?: string
+          reconnect_required?: boolean
+          refresh_token_ciphertext: string
+          salon_id: string
+          scopes?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_ciphertext?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          location_id?: string
+          location_name?: string
+          merchant_id?: string
+          merchant_name?: string
+          reconnect_required?: boolean
+          refresh_token_ciphertext?: string
+          salon_id?: string
+          scopes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salon_square_connections_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: true
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salons: {
         Row: {
           address: string
@@ -835,6 +894,7 @@ export type Database = {
           position: number
           price: number
           salon_id: string
+          square_variation_id: string
         }
         Insert: {
           archived?: boolean
@@ -850,6 +910,7 @@ export type Database = {
           position?: number
           price?: number
           salon_id: string
+          square_variation_id?: string
         }
         Update: {
           archived?: boolean
@@ -865,6 +926,7 @@ export type Database = {
           position?: number
           price?: number
           salon_id?: string
+          square_variation_id?: string
         }
         Relationships: [
           {
@@ -986,6 +1048,38 @@ export type Database = {
           },
         ]
       }
+      square_oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          nonce: string
+          salon_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          nonce: string
+          salon_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          nonce?: string
+          salon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "square_oauth_states_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff: {
         Row: {
           active: boolean
@@ -996,6 +1090,7 @@ export type Database = {
           position: number
           salon_id: string
           service_ids: string[]
+          square_team_member_id: string
         }
         Insert: {
           active?: boolean
@@ -1006,6 +1101,7 @@ export type Database = {
           position?: number
           salon_id: string
           service_ids?: string[]
+          square_team_member_id?: string
         }
         Update: {
           active?: boolean
@@ -1016,6 +1112,7 @@ export type Database = {
           position?: number
           salon_id?: string
           service_ids?: string[]
+          square_team_member_id?: string
         }
         Relationships: [
           {

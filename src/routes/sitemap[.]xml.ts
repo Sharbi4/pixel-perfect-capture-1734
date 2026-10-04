@@ -11,10 +11,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         const origin = process.env["PUBLIC_APP_ORIGIN"]?.replace(/\/$/, "") || "https://salonagentai.com";
         const lastmod = new Date().toISOString().slice(0, 10);
 
-        const urls = ["", "/auth"]
+        const urls = ["/", "/auth"]
           .map(
             (path) =>
-              `  <url>\n    <loc>${origin}/${path}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`,
+              `  <url>\n    <loc>${origin}${path}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`,
           )
           .join("\n");
 

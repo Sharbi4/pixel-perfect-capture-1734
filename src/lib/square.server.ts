@@ -1,4 +1,5 @@
 // Server-only Square helpers. Never import from client-reachable modules.
+import { createHmac, timingSafeEqual } from "crypto";
 
 export const SETUP_FEE_CENTS = 150_000; // $1,500 one-time setup
 export const MONTHLY_CENTS = 44_900; // $449/month (recurring plan — see notes)
@@ -17,6 +18,32 @@ export function squareWebhookUrl(): string {
   if (!origin) throw new Error("Payments are not configured yet.");
   return `${origin.replace(/\/$/, "")}/api/public/square-webhook`;
 }
+
+/**
+ * Verify Square's x-square-hmacsha256-signature, defined by Square as
+ * base64(HMAC_SHA256(signatureKey, notificationUrl + rawBody)).
+ *
+ * Every candidate notification URL is tried (the canonical PUBLIC_APP_ORIGIN URL
+ * and the URL actually hit), because the public domain canonicalises
+ * www -> apex while Square signs the exact URL it was configured with. A valid
+ * signature is still required either way — without the secret key nothing passes.
+ */
+export function verifySquareSignature(args: {
+  signatureKey: string;
+  notificationUrls: string[];
+  signature: string;
+  body: string;
+}): boolean {
+  const provided = Buffer.from(args.signature);
+  for (const notificationUrl of new Set(args.notificationUrls.filter(Boolean))) {
+    const expected = Buffer.from(
+      createHmac("sha256", args.signatureKey).update(notificationUrl + args.body).digest("base64"),
+    );
+    if (provided.length === expected.length && timingSafeEqual(provided, expected)) return true;
+  }
+  return false;
+}
+
 
 async function squareFetch(path: string, init: RequestInit): Promise<unknown> {
   const { token } = squareConfig();

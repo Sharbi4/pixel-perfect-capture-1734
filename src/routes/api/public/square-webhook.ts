@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createHmac, timingSafeEqual } from "crypto";
 
 /**
- * Square webhook receiver. Verifies x-square-hmacsha256-signature as
- * base64(HMAC_SHA256(signatureKey, notificationUrl + rawBody)) before any write.
+ * Square webhook receiver. Verifies x-square-hmacsha256-signature before any
+ * write. See verifySquareSignature for why several notification URLs are tried.
  */
 export const Route = createFileRoute("/api/public/square-webhook")({
   server: {
@@ -12,24 +11,29 @@ export const Route = createFileRoute("/api/public/square-webhook")({
         const signatureKey = process.env["SQUARE_WEBHOOK_SIGNATURE_KEY"];
         if (!signatureKey) return new Response("not configured", { status: 503 });
 
-        const { squareWebhookUrl } = await import("@/lib/square.server");
-        let notificationUrl: string;
+        const { squareWebhookUrl, verifySquareSignature } = await import("@/lib/square.server");
+        const candidates: string[] = [];
         try {
-          notificationUrl = squareWebhookUrl();
+          candidates.push(squareWebhookUrl());
         } catch {
-          return new Response("not configured", { status: 503 });
+          // PUBLIC_APP_ORIGIN not set yet — fall back to the URL that was hit.
         }
+        try {
+          const hit = new URL(request.url);
+          candidates.push(`${hit.origin}${hit.pathname}`);
+        } catch {
+          // Unparseable request URL — nothing else to try.
+        }
+        if (candidates.length === 0) return new Response("not configured", { status: 503 });
 
         const body = await request.text();
-        const signature = request.headers.get("x-square-hmacsha256-signature") ?? "";
-        const expected = createHmac("sha256", signatureKey)
-          .update(notificationUrl + body)
-          .digest("base64");
-        const a = Buffer.from(signature);
-        const b = Buffer.from(expected);
-        if (a.length !== b.length || !timingSafeEqual(a, b)) {
-          return new Response("invalid signature", { status: 401 });
-        }
+        const verified = verifySquareSignature({
+          signatureKey,
+          notificationUrls: candidates,
+          signature: request.headers.get("x-square-hmacsha256-signature") ?? "",
+          body,
+        });
+        if (!verified) return new Response("invalid signature", { status: 401 });
 
         let event: {
           type?: string;

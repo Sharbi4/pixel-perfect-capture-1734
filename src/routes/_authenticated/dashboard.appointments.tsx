@@ -9,7 +9,7 @@ import { sendApptConfirmation, sendText } from "@/lib/texting.functions";
 import { formatUsNumber } from "@/lib/phone-format";
 import { cn } from "@/lib/utils";
 import { addDays, fmtDay, fmtTime, localDate, openSlots, weekday, zoned } from "@/lib/availability";
-import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
+import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, BOOKED_BY, DEPOSIT, PROVIDER, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
 
 const Search_ = z.object({ new: z.coerce.number().optional(), phone: z.string().max(30).optional(), name: z.string().max(120).optional(), call: z.string().uuid().optional() });
 

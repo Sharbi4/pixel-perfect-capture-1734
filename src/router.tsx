@@ -13,5 +13,12 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
   });
 
+  if (typeof window !== "undefined") {
+    initAnalytics();
+    router.subscribe("onResolved", ({ toLocation }) => {
+      trackPageView(toLocation.pathname);
+    });
+  }
+
   return router;
 };

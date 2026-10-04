@@ -764,6 +764,44 @@ export type Database = {
           },
         ]
       }
+      sms_automations: {
+        Row: {
+          body: string
+          enabled: boolean
+          kind: string
+          marketing_ack_at: string | null
+          salon_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string
+          enabled?: boolean
+          kind: string
+          marketing_ack_at?: string | null
+          salon_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          enabled?: boolean
+          kind?: string
+          marketing_ack_at?: string | null
+          salon_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_automations_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_threads: {
         Row: {
           ai_enabled: boolean
@@ -771,7 +809,11 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          marketing_opt_in: boolean
+          marketing_opt_in_at: string | null
+          marketing_opt_in_source: string
           notes: string
+          opted_out: boolean
           salon_id: string
           tags: string[]
           updated_at: string
@@ -782,7 +824,11 @@ export type Database = {
           customer_name?: string
           customer_phone: string
           id?: string
+          marketing_opt_in?: boolean
+          marketing_opt_in_at?: string | null
+          marketing_opt_in_source?: string
           notes?: string
+          opted_out?: boolean
           salon_id: string
           tags?: string[]
           updated_at?: string
@@ -793,7 +839,11 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          marketing_opt_in?: boolean
+          marketing_opt_in_at?: string | null
+          marketing_opt_in_source?: string
           notes?: string
+          opted_out?: boolean
           salon_id?: string
           tags?: string[]
           updated_at?: string
@@ -993,6 +1043,10 @@ export type Database = {
           provider_ref: string
           target: string
         }[]
+      }
+      can_manage_salon: {
+        Args: { _salon: string; _user: string }
+        Returns: boolean
       }
       claim_checkout: {
         Args: { p_draft: Json; p_email: string; p_owner: string }

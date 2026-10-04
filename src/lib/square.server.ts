@@ -1,4 +1,5 @@
 // Server-only Square helpers. Never import from client-reachable modules.
+import { createHmac, timingSafeEqual } from "crypto";
 
 export const SETUP_FEE_CENTS = 150_000; // $1,500 one-time setup
 export const MONTHLY_CENTS = 44_900; // $449/month (recurring plan — see notes)

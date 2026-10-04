@@ -1,6 +1,7 @@
 // Google Analytics (gtag.js) initialization and SPA page-view tracking.
-const measurementId = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY as string | undefined;
+const measurementId = import.meta.env[
+  "VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY"
+] as string | undefined;
 
 declare global {
   interface Window {

@@ -5,11 +5,11 @@ import { z } from "zod";
 import { Bot, CalendarDays, Check, ChevronLeft, ChevronRight, Loader2, MessageSquare, Phone, Plus, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
-import { sendText } from "@/lib/texting.functions";
+import { sendApptConfirmation, sendText } from "@/lib/texting.functions";
 import { formatUsNumber } from "@/lib/phone-format";
 import { cn } from "@/lib/utils";
 import { addDays, fmtDay, fmtTime, localDate, openSlots, weekday, zoned } from "@/lib/availability";
-import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
+import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, BOOKED_BY, durationMin, DEPOSIT, PROVIDER, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
 
 const Search_ = z.object({ new: z.coerce.number().optional(), phone: z.string().max(30).optional(), name: z.string().max(120).optional(), call: z.string().uuid().optional() });
 
@@ -88,8 +88,8 @@ function AppointmentsPage() {
           <span className="min-w-48 text-center font-medium">{title}</span>
           <button onClick={() => step(1)} aria-label="Next" className="grid size-9 place-items-center rounded-full bg-accent"><ChevronRight className="size-4" /></button>
           <span className="mx-1 h-6 w-px bg-border" />
-          <Pill on={false} onClick={() => { setDate(localDate(new Date(), tz)); setView("staff"); }}>Today</Pill>
-          {(["day", "week", "month", "staff"] as const).map((v) => <Pill key={v} on={view === v} onClick={() => setView(v)}>{v[0]!.toUpperCase() + v.slice(1)}</Pill>)}
+          <Pill on={false} onClick={() => { setDate(localDate(new Date(), tz)); setView("day"); }}>Today</Pill>
+          {([["day", "Day"], ["week", "Week"], ["month", "Calendar"], ["staff", "By technician"]] as const).map(([v, l]) => <Pill key={v} on={view === v} onClick={() => setView(v)}>{l}</Pill>)}
         </div>
         <Filters f={f} setF={setF} staff={basics.staff} services={basics.services} />
         <div className="glass mt-4 overflow-x-auto rounded-[28px]">
@@ -133,11 +133,12 @@ function Card({ a, tz, staffName, onOpen, style }: { a: Appt; tz: string; staffN
     <button onClick={() => onOpen(a)} style={style} className={cn("absolute inset-x-1 overflow-hidden rounded-xl border border-border bg-surface px-2.5 py-1.5 text-left text-xs shadow-sm hover:border-violet", a.status === "cancelled" && "opacity-50")}>
       <span className="block truncate font-semibold">{a.client_name || formatUsNumber(a.client_phone) || "Client"}</span>
       <span className="block truncate text-muted-foreground">{a.service_name}</span>
-      <span className="block truncate text-muted-foreground">{fmtTime(a.starts_at, tz)}–{fmtTime(a.ends_at, tz)} · {staffName(a.staff_id)}</span>
+      <span className="block truncate text-muted-foreground">{fmtTime(a.starts_at, tz)} · {durationMin(a)} min · {staffName(a.staff_id)}</span>
       <span className="mt-1 flex flex-wrap gap-1">
         <span className={cn("rounded-full px-1.5 py-px text-[10px]", STATUS[a.status]?.cls)}>{STATUS[a.status]?.label}</span>
-        {a.source !== "staff" && <span className="inline-flex items-center gap-0.5 rounded-full bg-violet/20 px-1.5 py-px text-[10px] text-violet"><Bot className="size-2.5" />AI Booked</span>}
-        {a.text_confirmed && <span className="rounded-full bg-success/15 px-1.5 py-px text-[10px] text-success">✓ Text</span>}
+        <span className={cn("inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[10px]", a.source.startsWith("ai") ? "bg-violet/20 text-violet" : "bg-accent text-muted-foreground")}>{a.source.startsWith("ai") && <Bot className="size-2.5" />}{BOOKED_BY[a.source]}</span>
+        {a.text_confirmed && <span className="rounded-full bg-success/15 px-1.5 py-px text-[10px] text-success">✓ Confirmed</span>}
+        {a.deposit_status !== "none" && <span className={cn("rounded-full px-1.5 py-px text-[10px]", a.deposit_status === "paid" ? "bg-success/15 text-success" : "bg-coral/15 text-coral")}>{DEPOSIT[a.deposit_status]}</span>}
       </span>
     </button>
   );
@@ -221,7 +222,7 @@ function ListTab({ salonId, tz, staffName, onOpen }: { salonId: string; tz: stri
                 <td className="px-5 py-3">{a.client_name || "—"}<span className="block text-xs text-muted-foreground">{formatUsNumber(a.client_phone)}</span></td>
                 <td className="px-5 py-3">{a.service_name}</td><td className="px-5 py-3">{staffName(a.staff_id)}</td>
                 <td className="px-5 py-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", STATUS[a.status]?.cls)}>{STATUS[a.status]?.label}</span></td>
-                <td className="px-5 py-3 text-muted-foreground">{SOURCE[a.source]}</td>
+                <td className="px-5 py-3 text-muted-foreground">{BOOKED_BY[a.source]}<span className="block text-xs">{durationMin(a)} min · {a.text_confirmed ? "Confirmed" : "Not confirmed"} · {DEPOSIT[a.deposit_status]}</span></td>
               </tr>))}</tbody></table>}
       </div>
     </div>
@@ -353,7 +354,18 @@ function NewAppt({ salonId, basics, init, onClose, onSaved }: { salonId: string;
 
 function ApptDrawer({ a, tz, basics, salonId, onClose, onChanged }: { a: Appt; tz: string; basics: { rules: SalonRules; staff: Staff[]; services: Service[] }; salonId: string; onClose: () => void; onChanged: () => Promise<void> }) {
   const send = useServerFn(sendText);
+  const confirmFn = useServerFn(sendApptConfirmation);
   const [cur, setCur] = useState(a);
+  const [notes, setNotes] = useState(a.notes);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+  const sendConfirm = async () => {
+    setBusy("confirm"); setErr(null); setOk(null);
+    const r = await confirmFn({ data: { appointmentId: cur.id } }).catch(() => ({ ok: false, error: "Couldn't send." }));
+    setBusy(null);
+    if (!r.ok) return setErr(("error" in r && r.error) || "Couldn't send.");
+    setCur({ ...cur, text_confirmed: true, confirmation_sent_at: new Date().toISOString() }); setOk("Confirmation sent."); await onChanged();
+  };
   const [err, setErr] = useState<string | null>(null);
   const [moving, setMoving] = useState(false);
   const [day, setDay] = useState(localDate(new Date(a.starts_at), tz));
@@ -390,19 +402,27 @@ function ApptDrawer({ a, tz, basics, salonId, onClose, onChanged }: { a: Appt; t
     <Sheet title={cur.client_name || "Appointment"} onClose={onClose}>
       <div className="flex flex-wrap gap-1.5">
         <span className={cn("rounded-full px-2.5 py-0.5 text-xs", STATUS[cur.status]?.cls)}>{STATUS[cur.status]?.label}</span>
-        {cur.source !== "staff" && <span className="inline-flex items-center gap-1 rounded-full bg-violet/20 px-2.5 py-0.5 text-xs text-violet"><Bot className="size-3" />AI Booked · {SOURCE[cur.source]}</span>}
-        {cur.text_confirmed && <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs text-success">✓ Confirmation texted</span>}
+        <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs", cur.source.startsWith("ai") ? "bg-violet/20 text-violet" : "bg-accent")}>{cur.source.startsWith("ai") && <Bot className="size-3" />}{BOOKED_BY[cur.source]} · {SOURCE[cur.source]}</span>
+        <span className={cn("rounded-full px-2.5 py-0.5 text-xs", cur.text_confirmed ? "bg-success/15 text-success" : "bg-accent text-muted-foreground")}>{cur.text_confirmed ? `✓ Confirmation sent${cur.confirmation_sent_at ? ` ${new Date(cur.confirmation_sent_at).toLocaleDateString()}` : ""}` : "Not confirmed"}</span>
       </div>
       <dl className="grid grid-cols-2 gap-2 text-sm">
-        {([["When", `${fmtDay(cur.starts_at, tz)}, ${fmtTime(cur.starts_at, tz)}–${fmtTime(cur.ends_at, tz)}`], ["Service", `${cur.service_name}${cur.price ? ` · $${cur.price}` : ""}`], ["Technician", basics.staff.find((s) => s.id === cur.staff_id)?.name ?? "Any"], ["Phone", formatUsNumber(cur.client_phone) || "—"], ["Source", SOURCE[cur.source] ?? cur.source], ["Deposit", "Not set up"]] as const).map(([k, v]) => (
+        {([["When", `${fmtDay(cur.starts_at, tz)}, ${fmtTime(cur.starts_at, tz)}–${fmtTime(cur.ends_at, tz)}`], ["Service", `${cur.service_name}${cur.price ? ` · $${cur.price}` : ""}`], ["Technician", basics.staff.find((s) => s.id === cur.staff_id)?.name ?? "Any"], ["Phone", formatUsNumber(cur.client_phone) || "—"], ["Duration", `${durationMin(cur)} min`], ["Calendar", PROVIDER[cur.provider] ?? cur.provider], ["Deposit", `${DEPOSIT[cur.deposit_status]}${cur.deposit_cents ? ` · $${(cur.deposit_cents / 100).toFixed(2)}` : ""}`]] as const).map(([k, v]) => (
           <div key={k} className="rounded-2xl bg-accent px-3 py-2"><dt className="text-[11px] text-muted-foreground">{k}</dt><dd>{v}</dd></div>))}
       </dl>
-      {cur.notes && <p className="rounded-2xl bg-accent px-4 py-3 text-sm">{cur.notes}</p>}
+      <label className="block text-sm"><span className="text-xs text-muted-foreground">Notes</span>
+        <textarea value={notes} maxLength={2000} rows={3} onChange={(e) => setNotes(e.target.value)} onBlur={() => notes !== cur.notes && update({ notes })} placeholder="Add a note for the team" className="mt-1 w-full rounded-2xl bg-accent p-3 text-sm outline-none" /></label>
+      {active && (
+        <label className="block text-sm"><span className="text-xs text-muted-foreground">Technician</span>
+          <select value={cur.staff_id ?? ""} onChange={(e) => update({ staff_id: e.target.value || null })} className={cn(field, "mt-1 w-full")}>
+            <option value="">Unassigned</option>{basics.staff.filter((s) => s.active || s.id === cur.staff_id).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+      )}
       {cur.call_id && <Link to="/dashboard/calls" className="inline-flex items-center gap-1.5 text-sm text-violet hover:underline"><Phone className="size-3.5" /> Open the call this came from</Link>}
       <div className="flex flex-wrap gap-2">
         {cur.client_phone && <><a href={`tel:${cur.client_phone}`} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm"><Phone className="size-4" />Call</a>
           <Link to="/dashboard/messages" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm"><MessageSquare className="size-4" />Text</Link></>}
         {cur.status === "booked" && <button onClick={() => update({ status: "confirmed" })} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm"><Check className="size-4" />Confirm</button>}
+        {active && cur.client_phone && <button disabled={busy === "confirm"} onClick={sendConfirm} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm disabled:opacity-60">{busy === "confirm" ? <Loader2 className="size-4 animate-spin" /> : <MessageSquare className="size-4" />}{cur.text_confirmed ? "Resend confirmation" : "Send confirmation"}</button>}
+        {active && <button disabled title="Connect your salon's own payment account to send deposit links" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm opacity-50">Send payment link</button>}
         {active && <button onClick={() => setMoving((m) => !m)} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm"><CalendarDays className="size-4" />Reschedule</button>}
         {active && <button onClick={() => update({ status: "completed" })} className="h-10 rounded-full bg-accent px-4 text-sm">Completed</button>}
         {active && <button onClick={() => update({ status: "no_show" })} className="h-10 rounded-full bg-accent px-4 text-sm">No-show</button>}
@@ -419,6 +439,8 @@ function ApptDrawer({ a, tz, basics, salonId, onClose, onChanged }: { a: Appt; t
         </div>
       )}
       {err && <p className="text-sm text-coral">{err}</p>}
+      {ok && <p className="text-sm text-success">{ok}</p>}
+      {active && <p className="text-xs text-muted-foreground">Payment links need your salon's own payment account connected. That's coming with deposits.</p>}
       {cur.status === "cancelled" && matches.length > 0 && (
         <section className="rounded-2xl border border-violet/40 p-4">
           <h3 className="text-sm font-medium">Fill this opening from your waitlist</h3>

@@ -106,7 +106,7 @@ export async function book(sb: Admin, salonId: string, i: { service: string; sta
     const { sendAutomation } = await import("./texting.server");
     const ok = await sendAutomation(sb, salonId, i.reschedule_id ? "reschedule_confirmation" : "appointment_confirmation", phone,
       { service: svc.name, tech: slot.staff_name, when, address: salon.address ? `${salon.address}.` : "" });
-    if (ok) await sb.from("appointments").update({ text_confirmed: true }).eq("id", id);
+    if (ok) await sb.from("appointments").update({ text_confirmed: true, confirmation_sent_at: new Date().toISOString() }).eq("id", id);
   }
   return { ok: true, appointment_id: id, summary: `${svc.name} with ${slot.staff_name} on ${when}` };
 }

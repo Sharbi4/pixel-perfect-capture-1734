@@ -7,6 +7,7 @@ export type Service = { id: string; name: string; price: number; minutes: number
 export type Appt = {
   id: string; staff_id: string | null; service_id: string | null; service_name: string; price: number; client_name: string; client_phone: string;
   starts_at: string; ends_at: string; status: string; source: string; call_id: string | null; notes: string; text_confirmed: boolean;
+  provider: string; deposit_status: string; deposit_cents: number; confirmation_sent_at: string | null;
 };
 export type WaitItem = { id: string; client_name: string; client_phone: string; service_name: string; staff_id: string | null; preferred: string; status: string; created_at: string };
 export type SalonRules = Rules & { confirm_texts: boolean; name: string };
@@ -18,7 +19,11 @@ export const STATUS: Record<string, { label: string; cls: string }> = {
   cancelled: { label: "Cancelled", cls: "bg-coral/15 text-coral" },
   no_show: { label: "No-show", cls: "bg-coral/15 text-coral" },
 };
-export const SOURCE: Record<string, string> = { staff: "Staff", ai_call: "AI call", ai_text: "AI text" };
+export const SOURCE: Record<string, string> = { staff: "Staff", ai_call: "AI call", ai_text: "AI text", online: "Online" };
+export const BOOKED_BY: Record<string, string> = { staff: "Staff booked", ai_call: "AI booked", ai_text: "AI booked", online: "Online booked" };
+export const DEPOSIT: Record<string, string> = { none: "No deposit", required: "Deposit due", link_sent: "Payment link sent", paid: "Deposit paid", waived: "Deposit waived" };
+export const PROVIDER: Record<string, string> = { salon_pro: "Salon Pro Scheduling", square: "Square", google: "Google Calendar", outlook: "Outlook", acuity: "Acuity", mindbody: "Mindbody", calendly: "Calendly" };
+export const durationMin = (a: { starts_at: string; ends_at: string }) => Math.round((Date.parse(a.ends_at) - Date.parse(a.starts_at)) / 60000);
 export const ACTIVE = ["booked", "confirmed"];
 
 export async function loadBasics(salonId: string) {
@@ -35,7 +40,7 @@ export async function loadBasics(salonId: string) {
 }
 
 export async function loadAppts(salonId: string, from: string, to: string) {
-  const { data } = await supabase.from("appointments").select("id,staff_id,service_id,service_name,price,client_name,client_phone,starts_at,ends_at,status,source,call_id,notes,text_confirmed")
+  const { data } = await supabase.from("appointments").select("id,staff_id,service_id,service_name,price,client_name,client_phone,starts_at,ends_at,status,source,call_id,notes,text_confirmed,provider,deposit_status,deposit_cents,confirmation_sent_at")
     .eq("salon_id", salonId).lt("starts_at", to).gt("ends_at", from).order("starts_at").limit(1000);
   return (data ?? []) as Appt[];
 }

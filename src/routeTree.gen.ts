@@ -23,6 +23,7 @@ import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardSectionRouteImport } from './routes/_authenticated/dashboard.$section'
+import { Route as AuthenticatedDashboardAppointmentsRouteImport } from './routes/_authenticated/dashboard.appointments'
 import { Route as AuthenticatedDashboardCallsRouteImport } from './routes/_authenticated/dashboard.calls'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
@@ -103,6 +104,12 @@ const AuthenticatedDashboardSectionRoute =
     path: '/$section',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardAppointmentsRoute =
+  AuthenticatedDashboardAppointmentsRouteImport.update({
+    id: '/appointments',
+    path: '/appointments',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardCallsRoute =
   AuthenticatedDashboardCallsRouteImport.update({
     id: '/calls',
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
+  '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
+  '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
@@ -199,6 +208,7 @@ export interface FileRoutesById {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
+  '/_authenticated/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/_authenticated/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
+    | '/dashboard/appointments'
     | '/dashboard/calls'
     | '/dashboard/messages'
     | '/api/public/agent-token'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/dashboard/$section'
+    | '/dashboard/appointments'
     | '/dashboard/calls'
     | '/dashboard/messages'
     | '/api/public/agent-token'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/.lovable/oauth/consent'
     | '/_authenticated/dashboard/$section'
+    | '/_authenticated/dashboard/appointments'
     | '/_authenticated/dashboard/calls'
     | '/_authenticated/dashboard/messages'
     | '/api/public/agent-token'
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSectionRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/appointments': {
+      id: '/_authenticated/dashboard/appointments'
+      path: '/appointments'
+      fullPath: '/dashboard/appointments'
+      preLoaderRoute: typeof AuthenticatedDashboardAppointmentsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/calls': {
       id: '/_authenticated/dashboard/calls'
       path: '/calls'
@@ -448,6 +468,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardSectionRoute: typeof AuthenticatedDashboardSectionRoute
+  AuthenticatedDashboardAppointmentsRoute: typeof AuthenticatedDashboardAppointmentsRoute
   AuthenticatedDashboardCallsRoute: typeof AuthenticatedDashboardCallsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -456,6 +477,8 @@ interface AuthenticatedDashboardRouteChildren {
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardSectionRoute: AuthenticatedDashboardSectionRoute,
+    AuthenticatedDashboardAppointmentsRoute:
+      AuthenticatedDashboardAppointmentsRoute,
     AuthenticatedDashboardCallsRoute: AuthenticatedDashboardCallsRoute,
     AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,

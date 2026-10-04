@@ -1,25 +1,54 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  classifyHttp, pickTemporaryNumber, reconcile, runAgentCreate, runPurchase,
-  type JobHandle, type Outcome, type PurchaseDeps,
+  classifyHttp,
+  pickTemporaryNumber,
+  reconcile,
+  runAgentCreate,
+  runPurchase,
+  type JobHandle,
+  type Outcome,
+  type PurchaseDeps,
 } from "./provisioning";
 import { areaCodeOf, normalizeUsNumber, stateFromAddress } from "./phone-format";
 
 /** In-memory model of the DB job rules (one active job per salon+kind, key idempotency, token-guarded transitions). */
 function memoryStore() {
-  type J = { id: string; key: string; state: string; token: string | null; target: string; ref: string; code: string };
+  type J = {
+    id: string;
+    key: string;
+    state: string;
+    token: string | null;
+    target: string;
+    ref: string;
+    code: string;
+  };
   const jobs: J[] = [];
   let n = 0;
   const handle = (j: J, acquired: boolean): JobHandle => ({
-    job_id: j.id, acquired, job_state: j.state, lock_token: acquired ? j.token : null, target: j.target, provider_ref: j.ref, error_code: j.code,
+    job_id: j.id,
+    acquired,
+    job_state: j.state,
+    lock_token: acquired ? j.token : null,
+    target: j.target,
+    provider_ref: j.ref,
+    error_code: j.code,
   });
   return {
     jobs,
     async begin(key: string) {
-      let j = jobs.find((x) => x.key === key) ?? jobs.find((x) => ["pending", "in_progress", "uncertain"].includes(x.state));
+      let j =
+        jobs.find((x) => x.key === key) ??
+        jobs.find((x) => ["pending", "in_progress", "uncertain"].includes(x.state));
       if (!j) j = jobs.find((x) => x.state === "succeeded"); // completed once → never a new job
-      if (!j) { j = { id: `job-${++n}`, key, state: "pending", token: null, target: "", ref: "", code: "" }; jobs.push(j); }
-      if (j.state === "pending") { j.state = "in_progress"; j.token = `tok-${n}`; return handle(j, true); }
+      if (!j) {
+        j = { id: `job-${++n}`, key, state: "pending", token: null, target: "", ref: "", code: "" };
+        jobs.push(j);
+      }
+      if (j.state === "pending") {
+        j.state = "in_progress";
+        j.token = `tok-${n}`;
+        return handle(j, true);
+      }
       return handle(j, false);
     },
     async setTarget(id: string, token: string, target: string) {
@@ -27,8 +56,18 @@ function memoryStore() {
       if (j) j.target = target;
       return !!j;
     },
-    async transition(id: string, token: string | null, to: "succeeded" | "failed" | "uncertain", ref: string, code: string) {
-      const j = jobs.find((x) => x.id === id && (token ? x.token === token && x.state === "in_progress" : x.state === "uncertain"));
+    async transition(
+      id: string,
+      token: string | null,
+      to: "succeeded" | "failed" | "uncertain",
+      ref: string,
+      code: string,
+    ) {
+      const j = jobs.find(
+        (x) =>
+          x.id === id &&
+          (token ? x.token === token && x.state === "in_progress" : x.state === "uncertain"),
+      );
       if (!j || (!token && to === "uncertain")) return false;
       Object.assign(j, { state: to, ref: ref || j.ref, code, token: null });
       return true;
@@ -39,9 +78,18 @@ function memoryStore() {
 const BUSINESS = "+14805550123";
 const local = (num: string, region = "AZ") => ({ number: num, region, locality: "Phoenix" });
 
-function purchaseDeps(buy: PurchaseDeps["buy"], byArea = [local("+14805550999")], nearby: ReturnType<typeof local>[] = []) {
+function purchaseDeps(
+  buy: PurchaseDeps["buy"],
+  byArea = [local("+14805550999")],
+  nearby: ReturnType<typeof local>[] = [],
+) {
   const store = memoryStore();
-  const deps = { ...store, searchByArea: vi.fn(async () => byArea), searchNearby: vi.fn(async () => nearby), buy: vi.fn(buy) };
+  const deps = {
+    ...store,
+    searchByArea: vi.fn(async () => byArea),
+    searchNearby: vi.fn(async () => nearby),
+    buy: vi.fn(buy),
+  };
   return { store, deps };
 }
 
@@ -70,14 +118,21 @@ describe("provider outcome classification", () => {
 
 describe("temporary number selection", () => {
   it("prefers the business area code", () => {
-    const r = pickTemporaryNumber(BUSINESS, [local("+16025550000"), local("+14805550999")], [], "AZ");
+    const r = pickTemporaryNumber(
+      BUSINESS,
+      [local("+16025550000"), local("+14805550999")],
+      [],
+      "AZ",
+    );
     expect(r?.candidate.number).toBe("+14805550999");
     expect(r?.reason).toBe("same_area_code");
   });
   it("falls back only to a nearby number in the salon's state, never an unrelated area", () => {
     expect(pickTemporaryNumber(BUSINESS, [local("+12125550000", "NY")], [], "AZ")).toBeNull();
     expect(pickTemporaryNumber(BUSINESS, [], [local("+17025550000", "NV")], "AZ")).toBeNull();
-    expect(pickTemporaryNumber(BUSINESS, [], [local("+16235550000", "AZ")], "AZ")?.reason).toBe("nearby");
+    expect(pickTemporaryNumber(BUSINESS, [], [local("+16235550000", "AZ")], "AZ")?.reason).toBe(
+      "nearby",
+    );
     expect(pickTemporaryNumber(BUSINESS, [], [local("+16235550000", "")], null)).toBeNull();
   });
 });
@@ -95,7 +150,10 @@ describe("purchase job", () => {
   it("concurrent requests (double click / two tabs) purchase only once", async () => {
     let release!: () => void;
     const gate = new Promise<void>((r) => (release = r));
-    const { deps } = purchaseDeps(async () => { await gate; return { kind: "ok", value: { sid: "PN1" } }; });
+    const { deps } = purchaseDeps(async () => {
+      await gate;
+      return { kind: "ok", value: { sid: "PN1" } };
+    });
     const a = runPurchase(deps, input);
     const b = runPurchase(deps, { ...input, key: "k2" }); // different key, same salon
     const c = runPurchase(deps, input); // same key
@@ -107,7 +165,9 @@ describe("purchase job", () => {
   });
 
   it("an unclear result is never retried automatically, even with a new key", async () => {
-    const { deps, store } = purchaseDeps(async () => { throw new Error("socket hang up"); });
+    const { deps, store } = purchaseDeps(async () => {
+      throw new Error("socket hang up");
+    });
     expect((await runPurchase(deps, input)).status).toBe("needs_review");
     expect((await runPurchase(deps, input)).status).toBe("needs_review");
     expect((await runPurchase(deps, { ...input, key: "k-new" })).status).toBe("needs_review");
@@ -121,17 +181,30 @@ describe("purchase job", () => {
   });
 
   it("a clean refusal fails and a new intentional action may try again", async () => {
-    const outs: Outcome<{ sid: string }>[] = [{ kind: "rejected", code: "number_unavailable" }, { kind: "ok", value: { sid: "PN2" } }];
+    const outs: Outcome<{ sid: string }>[] = [
+      { kind: "rejected", code: "number_unavailable" },
+      { kind: "ok", value: { sid: "PN2" } },
+    ];
     const { deps } = purchaseDeps(async () => outs.shift()!);
-    expect(await runPurchase(deps, input)).toMatchObject({ status: "failed", code: "number_unavailable" });
+    expect(await runPurchase(deps, input)).toMatchObject({
+      status: "failed",
+      code: "number_unavailable",
+    });
     expect((await runPurchase(deps, input)).status).toBe("failed"); // same key replays the result
     expect((await runPurchase(deps, { ...input, key: "k2" })).status).toBe("done");
     expect(deps.buy).toHaveBeenCalledTimes(2);
   });
 
   it("no local number means no purchase", async () => {
-    const { deps } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "X" } }), [local("+12125550000", "NY")], []);
-    expect(await runPurchase(deps, input)).toMatchObject({ status: "failed", code: "no_local_numbers" });
+    const { deps } = purchaseDeps(
+      async () => ({ kind: "ok", value: { sid: "X" } }),
+      [local("+12125550000", "NY")],
+      [],
+    );
+    expect(await runPurchase(deps, input)).toMatchObject({
+      status: "failed",
+      code: "no_local_numbers",
+    });
     expect(deps.buy).not.toHaveBeenCalled();
   });
 });
@@ -144,36 +217,68 @@ describe("reconciliation of unclear results", () => {
   }
   it("found at provider → succeeded with its real id", async () => {
     const { store, job } = await uncertainJob();
-    const r = await reconcile(store.transition, job, async () => ({ kind: "ok", value: "PN9" }), "not_purchased");
+    const r = await reconcile(
+      store.transition,
+      job,
+      async () => ({ kind: "ok", value: "PN9" }),
+      "not_purchased",
+    );
     expect(r.status).toBe("done");
     expect(store.jobs[0]!).toMatchObject({ state: "succeeded", ref: "PN9" });
   });
   it("empty lookup keeps it unclear; a later lookup that finds it resolves it, with no new attempt", async () => {
     const { store, job } = await uncertainJob();
-    const r1 = await reconcile(store.transition, job, async () => ({ kind: "ok", value: null }), "not_purchased");
+    const r1 = await reconcile(
+      store.transition,
+      job,
+      async () => ({ kind: "ok", value: null }),
+      "not_purchased",
+    );
     expect(r1).toMatchObject({ status: "needs_review", code: "not_found_yet" });
     expect(store.jobs[0]!.state).toBe("uncertain");
     expect(store.jobs.length).toBe(1);
-    const r2 = await reconcile(store.transition, job, async () => ({ kind: "ok", value: "PN7" }), "not_purchased");
+    const r2 = await reconcile(
+      store.transition,
+      job,
+      async () => ({ kind: "ok", value: "PN7" }),
+      "not_purchased",
+    );
     expect(r2.status).toBe("done");
     expect(store.jobs[0]!).toMatchObject({ state: "succeeded", ref: "PN7" });
     expect(store.jobs.length).toBe(1);
   });
   it("malformed lookup result never unlocks", async () => {
     const { store, job } = await uncertainJob();
-    const r = await reconcile(store.transition, job, async () => ({ kind: "ok", value: 42 as unknown as string }), "not_purchased");
+    const r = await reconcile(
+      store.transition,
+      job,
+      async () => ({ kind: "ok", value: 42 as unknown as string }),
+      "not_purchased",
+    );
     expect(r.status).toBe("needs_review");
     expect(store.jobs[0]!.state).toBe("uncertain");
   });
   it("found but saving fails → needs_review, not done", async () => {
     const { store, job } = await uncertainJob();
-    const r = await reconcile(async () => false, job, async () => ({ kind: "ok", value: "PN9" }), "not_purchased");
+    const r = await reconcile(
+      async () => false,
+      job,
+      async () => ({ kind: "ok", value: "PN9" }),
+      "not_purchased",
+    );
     expect(r.status).toBe("needs_review");
     expect(store.jobs[0]!.state).toBe("uncertain");
   });
   it("lookup itself failing keeps it unclear", async () => {
     const { store, job } = await uncertainJob();
-    const r = await reconcile(store.transition, job, async () => { throw new Error("down"); }, "not_purchased");
+    const r = await reconcile(
+      store.transition,
+      job,
+      async () => {
+        throw new Error("down");
+      },
+      "not_purchased",
+    );
     expect(r.status).toBe("needs_review");
     expect(store.jobs[0]!.state).toBe("uncertain");
   });
@@ -182,8 +287,14 @@ describe("reconciliation of unclear results", () => {
 describe("receptionist creation job", () => {
   it("parallel launches create one receptionist; unclear creates are not repeated", async () => {
     const store = memoryStore();
-    const create = vi.fn(async (): Promise<Outcome<{ agentId: string }>> => ({ kind: "ambiguous", code: "unconfirmed" }));
-    const [a, b] = await Promise.all([runAgentCreate({ ...store, create }, "a"), runAgentCreate({ ...store, create }, "b")]);
+    const create = vi.fn(async (): Promise<Outcome<{ agentId: string }>> => ({
+      kind: "ambiguous",
+      code: "unconfirmed",
+    }));
+    const [a, b] = await Promise.all([
+      runAgentCreate({ ...store, create }, "a"),
+      runAgentCreate({ ...store, create }, "b"),
+    ]);
     expect(create).toHaveBeenCalledTimes(1);
     expect([a.status, b.status].sort()).toEqual(["in_progress", "needs_review"].sort());
     expect((await runAgentCreate({ ...store, create }, "c")).status).toBe("needs_review");
@@ -193,7 +304,15 @@ describe("receptionist creation job", () => {
 
 describe("completion is only reported when it was saved", () => {
   const input = { key: "k1", businessNumber: BUSINESS, addressState: "AZ" };
-  for (const [label, tr] of [["returns false", async () => false], ["throws", async () => { throw new Error("db down"); }]] as const) {
+  for (const [label, tr] of [
+    ["returns false", async () => false],
+    [
+      "throws",
+      async () => {
+        throw new Error("db down");
+      },
+    ],
+  ] as const) {
     it(`purchase succeeds at provider but save ${label} → needs_review, job stays reconcilable`, async () => {
       const { deps, store } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }));
       const r = await runPurchase({ ...deps, transition: tr }, input);
@@ -204,8 +323,13 @@ describe("completion is only reported when it was saved", () => {
     });
     it(`agent create succeeds but save ${label} → needs_review`, async () => {
       const store = memoryStore();
-      const create = vi.fn(async (): Promise<Outcome<{ agentId: string }>> => ({ kind: "ok", value: { agentId: "ag1" } }));
-      expect((await runAgentCreate({ ...store, transition: tr, create }, "a")).status).toBe("needs_review");
+      const create = vi.fn(async (): Promise<Outcome<{ agentId: string }>> => ({
+        kind: "ok",
+        value: { agentId: "ag1" },
+      }));
+      expect((await runAgentCreate({ ...store, transition: tr, create }, "a")).status).toBe(
+        "needs_review",
+      );
       expect((await runAgentCreate({ ...store, create }, "b")).status).toBe("in_progress");
       expect(create).toHaveBeenCalledTimes(1);
     });
@@ -215,7 +339,10 @@ describe("completion is only reported when it was saved", () => {
       Object.assign(store.jobs[0]!, { state: "uncertain", token: null }); // lock expired mid-call
       return { kind: "ok", value: { sid: "PN1" } };
     });
-    expect((await runPurchase(deps, input))).toMatchObject({ status: "needs_review", code: "not_saved" });
+    expect(await runPurchase(deps, input)).toMatchObject({
+      status: "needs_review",
+      code: "not_saved",
+    });
     expect(store.jobs[0]!.state).toBe("uncertain");
   });
   it("after success, a new key never starts another purchase", async () => {
@@ -223,5 +350,35 @@ describe("completion is only reported when it was saved", () => {
     expect((await runPurchase(deps, input)).status).toBe("done");
     expect((await runPurchase(deps, { ...input, key: "k-later" })).status).toBe("done");
     expect(deps.buy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("new business phone selection", () => {
+  it("reserves by requested area without inventing an existing phone", async () => {
+    const { deps } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }));
+    const result = await runPurchase(deps, {
+      key: "new",
+      businessNumber: "",
+      addressState: "AZ",
+      areaCode: "480",
+    });
+    expect(result.status).toBe("done");
+    expect(deps.searchByArea).toHaveBeenCalledWith("480");
+    expect(deps.searchNearby).not.toHaveBeenCalled();
+  });
+  it("does not search nearby a fake number when the requested area is unavailable", async () => {
+    const { deps } = purchaseDeps(async () => ({ kind: "ok", value: { sid: "PN1" } }), []);
+    expect(
+      (
+        await runPurchase(deps, {
+          key: "new",
+          businessNumber: "",
+          addressState: "AZ",
+          areaCode: "520",
+        })
+      ).code,
+    ).toBe("no_local_numbers");
+    expect(deps.searchNearby).not.toHaveBeenCalled();
+    expect(deps.buy).not.toHaveBeenCalled();
   });
 });

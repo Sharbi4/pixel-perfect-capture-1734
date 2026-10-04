@@ -47,6 +47,16 @@ export const claimCheckout = createServerFn({ method: "POST" })
       d.business.business_type = p.preview.businessType as typeof d.business.business_type;
     // Keep free-form services as an unapproved note, never an active service list.
     d.service_notes = p.preview.services;
+    d.calendar.requested = p.preview.calendarIntent ?? "unsure";
+    Object.assign(d, {
+      onboarding: {
+        step: 0,
+        phoneIntent: p.preview.phoneIntent ?? "forward",
+        calendarIntent: p.preview.calendarIntent ?? "unsure",
+        addonInterests: p.preview.addonInterests ?? [],
+        areaCode: "",
+      },
+    });
     const { data: id, error: claimError } = await sb.rpc("claim_checkout", {
       p_owner: context.userId,
       p_email: u.user.email.toLowerCase(),

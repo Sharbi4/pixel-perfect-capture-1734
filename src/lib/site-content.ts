@@ -20,9 +20,9 @@ export const integrations = [
     name: "Square Appointments",
     monogram: "SQ",
     category: "Salon calendar",
-    status: "Planned first",
-    description: "The first external booking system on our integration roadmap.",
-    detail: "Calendar authorization and live booking sync are not available yet.",
+    status: "Available to connect",
+    description: "Authorize your salon’s Square account and review its service catalog.",
+    detail: "Connect during setup, review eligible services, then verify availability and a test booking. Square booking permissions and a compatible plan are required.",
   },
   {
     name: "Google Calendar",
@@ -110,7 +110,7 @@ export const faqs = [
   {
     category: "Calendar & bookings",
     q: "Which calendars can I connect?",
-    a: "Salon Pro Scheduling is the native option. Google Calendar can be authorized from your dashboard and requires a successful connection and booking test. Square Appointments is the next planned booking-system integration. Other planned connections are not available to authorize yet.",
+    a: "Salon Pro Scheduling is the native option. Google Calendar can be authorized from your dashboard and requires a successful connection and booking test. Square Appointments can be authorized during setup, with a reviewed service import and a test booking before launch. Other planned connections are not available to authorize yet.",
   },
   {
     category: "Calendar & bookings",

@@ -2,6 +2,9 @@ import { z } from "zod";
 export const previewKey = "salon-agent-ai:preview:v1";
 export const previewSchema = z.object({
   tier: z.enum(["essential", "pro", "premier"]).default("pro"),
+  phoneIntent: z.enum(["forward", "new", "port"]).default("forward"),
+  calendarIntent: z.enum(["square", "google", "salon_pro", "other", "unsure"]).default("unsure"),
+  addonInterests: z.array(z.enum(["scheduling", "extra_location"])).max(2).default([]),
   name: z.string().trim().min(1).max(120),
   businessType: z.string().max(80),
   website: z.string().max(500),

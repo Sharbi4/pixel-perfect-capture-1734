@@ -12,7 +12,11 @@ import {
   disconnectAppUser,
   exchangeAppUserOAuthCode,
 } from "@/integrations/lovable/appUserConnector";
-import { deleteSalonConnection, getSalonConnection, saveSalonConnection } from "./gcal-connections.server";
+import {
+  deleteSalonConnection,
+  getSalonConnection,
+  saveSalonConnection,
+} from "./gcal-connections.server";
 
 const GATEWAY = "https://connector-gateway.lovable.dev";
 const CONNECTOR_ID = "google_calendar";
@@ -25,8 +29,28 @@ export const GOOGLE_SCOPES = [
 
 const Id = z.object({ salonId: z.string().uuid() });
 
-async function role(sb: { from: (t: "salon_members") => any }, salonId: string, userId: string): Promise<string | null> {
-  const { data } = await sb.from("salon_members").select("role").eq("salon_id", salonId).eq("user_id", userId).maybeSingle();
+async function paid(salonId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { requirePaidAccess } = await import("./billing.server");
+  const { data, error } = await supabaseAdmin
+    .from("salons")
+    .select("paid_access_until")
+    .eq("id", salonId)
+    .single();
+  if (error) throw error;
+  requirePaidAccess(data);
+}
+async function role(
+  sb: { from: (t: "salon_members") => any },
+  salonId: string,
+  userId: string,
+): Promise<string | null> {
+  const { data } = await sb
+    .from("salon_members")
+    .select("role")
+    .eq("salon_id", salonId)
+    .eq("user_id", userId)
+    .maybeSingle();
   return data?.role ?? null;
 }
 
@@ -38,16 +62,22 @@ function returnUrl(): string {
   // x-forwarded-host is proxy-sanitized only behind the sandbox's localhost rewrite;
   // elsewhere it is client-spoofable, so trust the request URL.
   const sandboxHost = url.hostname === "localhost" ? request.headers.get("x-forwarded-host") : null;
-  return new URL("/oauth/google_calendar/return", sandboxHost ? `https://${sandboxHost}` : url.origin).toString();
+  return new URL(
+    "/oauth/google_calendar/return",
+    sandboxHost ? `https://${sandboxHost}` : url.origin,
+  ).toString();
 }
 
 function clientApiKey(): string {
   const key = process.env["GOOGLE_CALENDAR_APP_USER_CONNECTOR_CLIENT_API_KEY"];
-  if (!key) throw new Error("Google Calendar isn't set up on our side yet. Please contact support.");
+  if (!key)
+    throw new Error("Google Calendar isn't set up on our side yet. Please contact support.");
   return key;
 }
 
-async function probeCalendar(salonId: string): Promise<{ ok: boolean; reconnectRequired: boolean }> {
+async function probeCalendar(
+  salonId: string,
+): Promise<{ ok: boolean; reconnectRequired: boolean }> {
   const conn = await getSalonConnection(salonId);
   if (!conn) return { ok: false, reconnectRequired: false };
   try {
@@ -72,6 +102,7 @@ export const startGoogleCalendarConnect = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const r = await role(context.supabase, data.salonId, context.userId);
     if (!r || r === "staff") throw new Error("Only owners and managers can connect a calendar.");
+    await paid(data.salonId);
     const connectionAPIKey = (await getSalonConnection(data.salonId))?.connectionKey ?? undefined;
     const { authorizationUrl } = await authorizeAppUserOAuth({
       gatewayBaseUrl: GATEWAY,
@@ -92,12 +123,17 @@ export const completeGoogleCalendarConnection = createServerFn({ method: "POST" 
   .handler(async ({ data, context }) => {
     const r = await role(context.supabase, data.salonId, context.userId);
     if (!r || r === "staff") throw new Error("Only owners and managers can connect a calendar.");
+    await paid(data.salonId);
     const { connectionAPIKey, connectorId } = await exchangeAppUserOAuthCode(GATEWAY, data.code);
-    if (connectorId !== CONNECTOR_ID) throw new Error("OAuth completion returned the wrong connector");
+    if (connectorId !== CONNECTOR_ID)
+      throw new Error("OAuth completion returned the wrong connector");
     await saveSalonConnection(data.salonId, context.userId, connectionAPIKey);
     // This salon's bookings now flow through its Google Calendar.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("salons").update({ booking_provider: "google" }).eq("id", data.salonId);
+    await supabaseAdmin
+      .from("salons")
+      .update({ booking_provider: "google" })
+      .eq("id", data.salonId);
     const probe = await probeCalendar(data.salonId);
     return { ok: true, verified: probe.ok };
   });
@@ -107,7 +143,8 @@ export const getGoogleCalendarStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => Id.parse(d))
   .handler(async ({ data, context }) => {
-    if (!(await role(context.supabase, data.salonId, context.userId))) throw new Error("You don't have access to this location.");
+    if (!(await role(context.supabase, data.salonId, context.userId)))
+      throw new Error("You don't have access to this location.");
     const conn = await getSalonConnection(data.salonId);
     if (!conn) return { connected: false as const };
     const probe = await probeCalendar(data.salonId);
@@ -130,7 +167,11 @@ export const disconnectGoogleCalendar = createServerFn({ method: "POST" })
     const conn = await getSalonConnection(data.salonId);
     if (conn) {
       try {
-        await disconnectAppUser({ gatewayBaseUrl: GATEWAY, connectionAPIKey: conn.connectionKey, connectorId: CONNECTOR_ID });
+        await disconnectAppUser({
+          gatewayBaseUrl: GATEWAY,
+          connectionAPIKey: conn.connectionKey,
+          connectorId: CONNECTOR_ID,
+        });
       } catch (e) {
         // The gateway may already have revoked this grant; still clear our copy.
         console.error("gcal gateway disconnect", e instanceof Error ? e.message : e);
@@ -138,9 +179,16 @@ export const disconnectGoogleCalendar = createServerFn({ method: "POST" })
     }
     await deleteSalonConnection(data.salonId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: s } = await supabaseAdmin.from("salons").select("booking_provider").eq("id", data.salonId).single();
+    const { data: s } = await supabaseAdmin
+      .from("salons")
+      .select("booking_provider")
+      .eq("id", data.salonId)
+      .single();
     if (s?.booking_provider === "google") {
-      await supabaseAdmin.from("salons").update({ booking_provider: "salon_pro" }).eq("id", data.salonId);
+      await supabaseAdmin
+        .from("salons")
+        .update({ booking_provider: "salon_pro" })
+        .eq("id", data.salonId);
     }
     return { ok: true };
   });

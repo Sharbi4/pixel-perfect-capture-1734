@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useCallback, Fragment, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -29,6 +29,10 @@ import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
 import { BrandLogo } from "@/components/brand/Brand";
 import { SiteShell, PageHero, siteButton, siteGhost } from "@/components/site/SiteShell";
 
+import { SquareConnect } from "@/components/dashboard/SquareConnect";
+import { GoogleCalendarConnect } from "@/components/dashboard/GoogleCalendarConnect";
+import { readOnboarding, mergeServiceProposal, type Onboarding } from "@/lib/onboarding-model";
+import { saveOnboarding, selectNativeCalendar } from "@/lib/onboarding.functions";
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
     meta: [
@@ -49,7 +53,7 @@ export const Route = createFileRoute("/_authenticated/setup")({
   component: SetupPage,
 });
 
-const steps = ["Salon", "Services", "Voice", "Policies", "Review"];
+const steps = ["Business", "Calendar", "Services", "Voice", "Policies", "Review"];
 const input =
   "h-11 w-full rounded-2xl border border-border bg-background/60 px-4 text-sm outline-none focus:border-ring";
 const label = "mb-1.5 block text-xs font-medium text-muted-foreground";
@@ -57,6 +61,23 @@ const label = "mb-1.5 block text-xs font-medium text-muted-foreground";
 function SetupPage() {
   const nav = useNavigate();
   const [step, setStep] = useState(0);
+  const [preferences, setPreferences] = useState<Onboarding>(readOnboarding(null));
+  const selectNative = useServerFn(selectNativeCalendar);
+  const refreshConnection = useCallback(() => {
+    void loadOrCreateSalon()
+      .then((r) =>
+        setSalon((current) =>
+          current ? { ...current, booking_provider: r.salon.booking_provider } : r.salon,
+        ),
+      )
+      .catch((e) => setErr(e.message));
+  }, []);
+  const saveProgress = useServerFn(saveOnboarding);
+  const reloadServices = useCallback(() => {
+    void loadOrCreateSalon()
+      .then((r) => setServices(r.services))
+      .catch((e) => setErr(e.message));
+  }, []);
   const [salon, setSalon] = useState<Salon | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [saving, setSaving] = useState(false);
@@ -79,6 +100,9 @@ function SetupPage() {
           salon.website = d.business.website || "";
           salon.voice = d.receptionist?.voice || salon.voice;
         }
+        const progress = readOnboarding(salon.setup_draft);
+        setPreferences(progress);
+        setStep(progress.step);
         setSalon(salon);
         setServices(services);
       })
@@ -120,7 +144,7 @@ function SetupPage() {
     setErr(null);
     try {
       await saveSalon(salon!.id, salon!);
-      if (step === 1) await saveServices(salon!.id, services);
+      if (step === 2) await saveServices(salon!.id, services);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Couldn't save");
       setSaving(false);
@@ -134,21 +158,56 @@ function SetupPage() {
       setErr("Please add your salon name.");
       return;
     }
+    if (step === 0 && (!salon!.address.trim() || !salon!.hours.trim())) {
+      setErr("Add your business address and hours so your receptionist can answer accurately.");
+      return;
+    }
     if (step === 0) {
       const n = normalizeUsNumber(salon!.phone);
-      if (!n) {
+      if (!n && preferences.phoneIntent !== "new") {
         setErr("Please add your salon's current US phone number.");
         return;
       }
-      salon!.phone = formatUsNumber(n);
-      setSalon({ ...salon!, phone: formatUsNumber(n) });
+      if (n) {
+        salon!.phone = formatUsNumber(n);
+        setSalon({ ...salon!, phone: formatUsNumber(n) });
+      }
+      if (preferences.phoneIntent === "new" && !/^[2-9][0-9]{2}$/.test(preferences.areaCode)) {
+        setErr("Choose a three-digit US area code for your new number.");
+        return;
+      }
     }
-    if (await persist()) setStep((s) => Math.min(s + 1, 4));
+    if (
+      step === 2 &&
+      (!services.length ||
+        services.some(
+          (s) =>
+            !s.name.trim() ||
+            !Number.isFinite(s.price) ||
+            s.price < 0 ||
+            !Number.isFinite(s.minutes) ||
+            s.minutes <= 0,
+        ))
+    ) {
+      setErr("Add at least one service with a name, valid price and duration before continuing.");
+      return;
+    }
+    if (await persist()) {
+      try {
+        const nextStep = Math.min(step + 1, 5);
+        await saveProgress({ data: { ...preferences, step: nextStep } });
+        setStep(nextStep);
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Could not save your progress.");
+      }
+    }
   }
   async function doLaunch() {
     setSaving(true);
     try {
+      await saveSalon(salon!.id, salon!);
       await saveServices(salon!.id, services);
+      await saveProgress({ data: { ...preferences, step: 5 } });
       const r = await launch({ data: { idempotencyKey: launchKey.current } });
       if (r.status === "failed") {
         launchKey.current = crypto.randomUUID();
@@ -167,6 +226,21 @@ function SetupPage() {
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <BrandLogo />
           <div className="flex gap-4 text-sm text-muted-foreground">
+            <button
+              disabled={saving}
+              onClick={async () => {
+                if (await persist()) {
+                  try {
+                    await saveProgress({ data: { ...preferences, step } });
+                    nav({ to: "/dashboard" });
+                  } catch (e) {
+                    setErr((e as Error).message);
+                  }
+                }
+              }}
+            >
+              Save & finish later
+            </button>
             <Link to="/account" className="hover:text-foreground">
               My status
             </Link>
@@ -189,10 +263,15 @@ function SetupPage() {
             client.
           </p>
         </div>
-        <ol className="mt-10 flex gap-2">
+        <ol className="mt-10 grid grid-cols-3 gap-4 sm:grid-cols-6">
           {steps.map((s, i) => (
             <li key={s} className="flex-1">
-              <button onClick={() => i < step && setStep(i)} className="w-full text-left">
+              <button
+                disabled={saving || i > step}
+                aria-current={i === step ? "step" : undefined}
+                onClick={() => i < step && setStep(i)}
+                className="w-full text-left"
+              >
                 <div className={cn("h-1 rounded-full", i <= step ? "bg-brand" : "bg-muted")} />
                 <span
                   className={cn(
@@ -208,25 +287,163 @@ function SetupPage() {
         </ol>
 
         <div className="glass mt-8 rounded-[28px] p-6 md:p-10">
-          {step === 0 && <SalonStep salon={salon} set={set} />}
-          {step === 1 && (
-            <ServicesStep services={services} setServices={setServices} website={salon.website} />
+          {step === 0 && (
+            <>
+              <SalonStep salon={salon} set={set} />
+              <fieldset className="mt-6">
+                <legend className="text-sm font-medium">Your phone setup</legend>
+                <select
+                  aria-label="Phone setup"
+                  className={cn(input, "mt-3")}
+                  value={preferences.phoneIntent}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      phoneIntent: e.target.value as Onboarding["phoneIntent"],
+                    })
+                  }
+                >
+                  <option value="forward">Keep my number and forward calls</option>
+                  <option value="new">Reserve a new dedicated number</option>
+                  <option value="port">Request a managed number transfer</option>
+                </select>
+                {preferences.phoneIntent === "new" && (
+                  <input
+                    className={cn(input, "mt-3")}
+                    aria-label="Preferred US area code"
+                    placeholder="Preferred US area code, e.g. 520"
+                    inputMode="numeric"
+                    maxLength={3}
+                    value={preferences.areaCode}
+                    onChange={(e) =>
+                      setPreferences({
+                        ...preferences,
+                        areaCode: e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                  />
+                )}
+                <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                  Reserve and test your agent number after building your receptionist. Forwarding
+                  keeps your existing service. Porting requires an eligibility check and coordinated
+                  transfer; keep your current carrier active.
+                </p>
+              </fieldset>
+            </>
           )}
-          {step === 2 && <VoiceStep salon={salon} set={set} />}
-          {step === 3 && <PolicyStep salon={salon} set={set} />}
-          {step === 4 && <ReviewStep salon={salon} services={services} />}
+          {step === 1 && (
+            <>
+              <H
+                t="Bring your calendar along"
+                d="Connect the account that holds your appointments. Authorizing access is separate from verifying a successful test booking."
+              />
+              <p className="text-sm leading-6 text-muted-foreground">
+                Choose one booking source. Connecting another provider changes the active source.
+                You can continue and return here later; test availability and a booking before
+                forwarding client calls.
+              </p>
+              <p className="mt-4 text-sm font-medium">
+                Selected booking source:{" "}
+                {salon.booking_provider === "salon_pro"
+                  ? "Salon Pro Scheduling"
+                  : salon.booking_provider === "square"
+                    ? "Square Appointments"
+                    : salon.booking_provider === "google"
+                      ? "Google Calendar"
+                      : salon.booking_provider}
+                . Connection and a test booking still need to be confirmed.
+              </p>
+              <SquareConnect
+                salonId={salon.id}
+                canEdit
+                onChanged={refreshConnection}
+                returnTo="/setup"
+                beforeAction={async () => {
+                  await saveProgress({ data: { ...preferences, step: 1 } });
+                }}
+                showImport={false}
+              />
+              <GoogleCalendarConnect salonId={salon.id} canEdit onChanged={refreshConnection} />
+              <div className="mt-6 rounded-2xl border border-border p-5">
+                <h3 className="font-medium">Need a calendar, or use a different provider?</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Salon Pro Scheduling is included with Pro and Premier, or available for $79/month
+                  with Essential. Configure team availability in your dashboard with your launch
+                  team. For other platforms, contact support to confirm compatibility. Uploading a
+                  menu does not connect a calendar.
+                </p>
+                <a
+                  className="mt-3 inline-block text-sm underline"
+                  href="mailto:support@salonagentai.com"
+                >
+                  Get connection help
+                </a>
+                <button
+                  disabled={saving}
+                  className="mt-4 block rounded-full bg-accent px-5 py-3 text-sm"
+                  onClick={async () => {
+                    setSaving(true);
+                    setErr(null);
+                    try {
+                      await selectNative();
+                      refreshConnection();
+                    } catch (e) {
+                      setErr((e as Error).message);
+                    } finally {
+                      setSaving(false);
+                    }
+                  }}
+                >
+                  {salon.plan_tier === "essential" && !salon.scheduling_addon
+                    ? "Check scheduling add-on access"
+                    : "Use Salon Pro Scheduling"}
+                </button>
+              </div>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <SquareConnect
+                salonId={salon.id}
+                canEdit
+                onChanged={reloadServices}
+                returnTo="/setup"
+                beforeAction={async () => {
+                  await saveServices(salon.id, services);
+                  await saveProgress({ data: { ...preferences, step: 2 } });
+                }}
+              />
+              <ServicesStep
+                services={services}
+                setServices={setServices}
+                website={salon.website}
+                notes={(salon.setup_draft as { service_notes?: string })?.service_notes || ""}
+              />
+            </>
+          )}
+          {step === 3 && <VoiceStep salon={salon} set={set} />}
+          {step === 4 && <PolicyStep salon={salon} set={set} />}
+          {step === 5 && (
+            <>
+              <ReviewStep salon={salon} services={services} />
+              <p className="mt-6 text-sm leading-6 text-muted-foreground">
+                Next: build your receptionist, reserve a number and test calls and bookings.
+                Building does not forward client calls or complete a number transfer.
+              </p>
+            </>
+          )}
 
           {err && <p className="mt-6 text-sm text-destructive">{err}</p>}
           <div className="mt-10 flex items-center justify-between">
             <button
-              disabled={step === 0}
+              disabled={step === 0 || saving}
               onClick={() => setStep(step - 1)}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-0"
             >
               <ArrowLeft className="size-4" />
               Back
             </button>
-            {step < 4 ? (
+            {step < 5 ? (
               <button
                 onClick={next}
                 disabled={saving}
@@ -241,7 +458,7 @@ function SetupPage() {
                 disabled={saving}
                 className="bg-brand inline-flex h-12 items-center gap-2 rounded-full px-7 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60"
               >
-                {saving ? <Loader2 className="size-4 animate-spin" /> : null}Launch my receptionist
+                {saving ? <Loader2 className="size-4 animate-spin" /> : null}Build my receptionist
               </button>
             )}
           </div>
@@ -304,7 +521,7 @@ function SalonStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
         {f("name", "Salon name", "Modern Nails")}
         {f("contact_name", "Manager / contact person")}
         <div>
-          {f("phone", "Current salon phone number", "(555) 123-4567")}
+          {f("phone", "Current salon phone (optional for a new number)", "(555) 123-4567")}
           <p className="mt-1.5 text-xs text-muted-foreground">
             Your customers can keep the number they already know. Salon Pro Agent will help connect
             it.
@@ -312,6 +529,32 @@ function SalonStep({ salon, set }: { salon: Salon; set: (p: Partial<Salon>) => v
         </div>
         {f("website", "Website", "modernnails.com")}
         <div className="md:col-span-2">{f("address", "Address")}</div>
+        <div className="md:col-span-2">
+          <label className={label}>Business timezone</label>
+          <select
+            aria-label="Business timezone"
+            className={input}
+            value={salon.timezone}
+            onChange={(e) => set({ timezone: e.target.value })}
+          >
+            {[
+              "America/New_York",
+              "America/Chicago",
+              "America/Denver",
+              "America/Phoenix",
+              "America/Los_Angeles",
+              "America/Anchorage",
+              "Pacific/Honolulu",
+            ].map((z) => (
+              <option key={z} value={z}>
+                {z.replaceAll("_", " ")}
+              </option>
+            ))}
+          </select>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Use the same timezone as your connected calendar.
+          </p>
+        </div>
         <div className="md:col-span-2">
           <label className={label}>Hours</label>
           <textarea
@@ -359,11 +602,15 @@ function ServicesStep({
   services,
   setServices,
   website,
+  notes,
 }: {
   services: Service[];
   setServices: (s: Service[]) => void;
   website: string;
+  notes: string;
 }) {
+  const [proposal, setProposal] = useState<Service[] | null>(null);
+  const [menuText, setMenuText] = useState(notes);
   const extract = useServerFn(extractServices);
   const [url, setUrl] = useState(website);
   const [busy, setBusy] = useState<string | null>(null);
@@ -371,7 +618,13 @@ function ServicesStep({
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function run(
-    p: { kind: "website" | "file" | "text"; url?: string; fileBase64?: string; mediaType?: string },
+    p: {
+      kind: "website" | "file" | "text";
+      url?: string;
+      fileBase64?: string;
+      mediaType?: string;
+      text?: string;
+    },
     kind: string,
   ) {
     setBusy(kind);
@@ -382,8 +635,8 @@ function ServicesStep({
       else if (!r.services.length)
         setNote("No services found — try another file or add them below.");
       else {
-        setServices(r.services);
-        setNote(`Imported ${r.services.length} services. Check them below.`);
+        setProposal(r.services);
+        setNote(`Found ${r.services.length} services. Review the proposal before adding it.`);
       }
     } catch (e) {
       setNote(e instanceof Error ? e.message : "Import failed");
@@ -399,7 +652,13 @@ function ServicesStep({
     let bin = "";
     for (let i = 0; i < buf.length; i += 0x8000)
       bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
-    const mt = f.type || (f.name.endsWith(".csv") ? "text/csv" : "text/plain");
+    const mt =
+      f.type ||
+      (/\.pdf$/i.test(f.name)
+        ? "application/pdf"
+        : /\.csv$/i.test(f.name)
+          ? "text/csv"
+          : "text/plain");
     run({ kind: "file", fileBase64: btoa(bin), mediaType: mt }, "file");
   }
   const upd = (i: number, p: Partial<Service>) =>
@@ -452,6 +711,61 @@ function ServicesStep({
           </div>
         </div>
       </div>
+      <div className="mt-4 rounded-2xl border border-border p-5">
+        <label className={label}>Paste a menu or use your preview notes</label>
+        <textarea
+          className={cn(input, "h-28 py-3")}
+          value={menuText}
+          maxLength={6000}
+          onChange={(e) => setMenuText(e.target.value)}
+        />
+        <button
+          className="mt-3 rounded-full bg-accent px-5 py-2 text-sm"
+          disabled={!!busy || !menuText.trim()}
+          onClick={() => run({ kind: "text", text: menuText }, "text")}
+        >
+          Review services from text
+        </button>
+      </div>
+      {proposal && (
+        <section className="mt-5 rounded-2xl border border-violet/40 p-5">
+          <h3 className="font-medium">Review imported services</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Matching names update price and duration. Other existing services stay. Remove proposed
+            rows you don’t want; edit details after approval.
+          </p>
+          <ul className="mt-4 divide-y divide-border">
+            {proposal.map((s, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 py-3 text-sm">
+                <span>
+                  {s.name} · $ {s.price} · {s.minutes} min
+                </span>
+                <button
+                  aria-label={"Exclude " + s.name}
+                  onClick={() => setProposal(proposal.filter((_, j) => j !== i))}
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex gap-3">
+            <button
+              className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground"
+              onClick={() => {
+                setServices(mergeServiceProposal(services, proposal));
+                setProposal(null);
+                setNote("Approved rows added to your draft. Check details, then Save & continue.");
+              }}
+            >
+              Approve proposal
+            </button>
+            <button onClick={() => setProposal(null)} className="text-sm">
+              Discard
+            </button>
+          </div>
+        </section>
+      )}
       {busy && (
         <p className="mt-4 text-sm text-muted-foreground">
           Reading your menu… this can take up to a minute.
@@ -460,7 +774,7 @@ function ServicesStep({
       {note && <p className="mt-4 text-sm text-muted-foreground">{note}</p>}
 
       <div className="mt-8 space-y-2">
-        <div className="grid grid-cols-[1fr_80px_80px_70px_32px] gap-2 px-1 text-xs text-muted-foreground">
+        <div className="grid grid-cols-[minmax(100px,1fr)_65px_65px_45px_25px] gap-2 px-1 text-xs text-muted-foreground">
           <span>Service</span>
           <span>Price $</span>
           <span>Minutes</span>
@@ -468,7 +782,10 @@ function ServicesStep({
           <span />
         </div>
         {services.map((s, i) => (
-          <div key={i} className="grid grid-cols-[1fr_80px_80px_70px_32px] items-center gap-2">
+          <div
+            key={i}
+            className="grid grid-cols-[minmax(100px,1fr)_65px_65px_45px_25px] items-center gap-2"
+          >
             <input
               className={cn(input, "h-10")}
               value={s.name}

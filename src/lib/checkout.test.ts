@@ -27,6 +27,7 @@ const purchase = (): Purchase => ({
   },
   preview: {
     tier: "pro",
+    phoneIntent: "forward", calendarIntent: "unsure", addonInterests: [],
     name: "Test Studio",
     businessType: "Hair Salon",
     website: "",

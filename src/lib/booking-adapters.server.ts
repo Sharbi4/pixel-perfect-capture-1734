@@ -8,12 +8,25 @@ import * as native from "./booking.server";
 
 type Admin = typeof supabaseAdmin;
 type Src = "ai_call" | "ai_text";
-export type BookInput = { service: string; start: string; technician?: string | undefined; client_name: string; client_phone: string; source: Src; call_ref?: string | undefined; notes?: string | undefined };
+export type BookInput = {
+  service: string;
+  start: string;
+  technician?: string | undefined;
+  client_name: string;
+  client_phone: string;
+  source: Src;
+  call_ref?: string | undefined;
+  notes?: string | undefined;
+};
 
 export interface BookingAdapter {
   getServices(): Promise<unknown>;
   getStaff(): Promise<unknown>;
-  checkAvailability(q: { date?: string | undefined; service?: string | undefined; staff?: string | undefined }): Promise<unknown>;
+  checkAvailability(q: {
+    date?: string | undefined;
+    service?: string | undefined;
+    staff?: string | undefined;
+  }): Promise<unknown>;
   createBooking(i: BookInput): Promise<unknown>;
   rescheduleBooking(id: string, i: BookInput): Promise<unknown>;
   cancelBooking(id: string, phone: string): Promise<unknown>;
@@ -24,16 +37,33 @@ export interface BookingAdapter {
 function salonPro(sb: Admin, salonId: string): BookingAdapter {
   return {
     getServices: async () => {
-      const { data } = await sb.from("services").select("name,price,minutes,is_addon,description,deposit_cents,days").eq("salon_id", salonId).eq("archived", false).order("position");
+      const { data } = await sb
+        .from("services")
+        .select("name,price,minutes,is_addon,description,deposit_cents,days")
+        .eq("salon_id", salonId)
+        .eq("archived", false)
+        .order("position");
       return { services: (data ?? []).map((s) => ({ ...s, price: Number(s.price) })) };
     },
     getStaff: async () => {
       const [{ data: st }, { data: sv }] = await Promise.all([
-        sb.from("staff").select("name,service_ids").eq("salon_id", salonId).eq("active", true).order("position"),
+        sb
+          .from("staff")
+          .select("name,service_ids")
+          .eq("salon_id", salonId)
+          .eq("active", true)
+          .order("position"),
         sb.from("services").select("id,name").eq("salon_id", salonId).eq("archived", false),
       ]);
       const names = new Map((sv ?? []).map((s) => [s.id, s.name]));
-      return { technicians: (st ?? []).map((s) => ({ name: s.name, services: s.service_ids.length ? s.service_ids.map((i) => names.get(i)).filter(Boolean) : "all services" })) };
+      return {
+        technicians: (st ?? []).map((s) => ({
+          name: s.name,
+          services: s.service_ids.length
+            ? s.service_ids.map((i) => names.get(i)).filter(Boolean)
+            : "all services",
+        })),
+      };
     },
     checkAvailability: (q) => native.findSlots(sb, salonId, q),
     createBooking: (i) => native.book(sb, salonId, i),
@@ -47,13 +77,29 @@ function salonPro(sb: Admin, salonId: string): BookingAdapter {
 // Square, Google, Outlook, Acuity, Mindbody and Calendly adapters plug in here once their
 // per-salon connections exist. Until then they never invent data.
 function notConnected(sb: Admin, salonId: string): BookingAdapter {
-  const no = async () => ({ error: "calendar_not_connected", say: "I can't see the salon's calendar right now. Offer to take a message so the salon can call back to book." });
+  const no = async () => ({
+    error: "calendar_not_connected",
+    say: "I can't see the salon's calendar right now. Offer to take a message so the salon can call back to book.",
+  });
   const base = salonPro(sb, salonId);
-  return { getServices: base.getServices, getStaff: base.getStaff, checkAvailability: no, createBooking: no, rescheduleBooking: no, cancelBooking: no, getBookings: no, addWaitlist: base.addWaitlist };
+  return {
+    getServices: base.getServices,
+    getStaff: base.getStaff,
+    checkAvailability: no,
+    createBooking: no,
+    rescheduleBooking: no,
+    cancelBooking: no,
+    getBookings: no,
+    addWaitlist: base.addWaitlist,
+  };
 }
 
 export async function adapterFor(sb: Admin, salonId: string): Promise<BookingAdapter> {
-  const { data } = await sb.from("salons").select("booking_provider").eq("id", salonId).single();
+  const { data } = await sb
+    .from("salons")
+    .select("booking_provider,plan_tier,scheduling_addon")
+    .eq("id", salonId)
+    .single();
   const provider = data?.booking_provider ?? "salon_pro";
   // Google: books into the calendar the salon owner connected on the Salon Agent page.
   if (provider === "google") {
@@ -69,5 +115,8 @@ export async function adapterFor(sb: Admin, salonId: string): Promise<BookingAda
     if (s) return s;
     return notConnected(sb, salonId);
   }
-  return provider === "salon_pro" ? salonPro(sb, salonId) : notConnected(sb, salonId);
+  return provider === "salon_pro" &&
+    (data?.plan_tier === "pro" || data?.plan_tier === "premier" || data?.scheduling_addon)
+    ? salonPro(sb, salonId)
+    : notConnected(sb, salonId);
 }

@@ -2,10 +2,18 @@
 // necessity — Square sends the browser here — so trust comes from the HMAC-signed state param,
 // and the salon_members role in the state is re-verified before anything is stored.
 import { createFileRoute } from "@tanstack/react-router";
-import { exchangeSquareCode, fetchMerchantProfile, saveSquareConnection, verifySquareState } from "@/lib/square-client.server";
+import {
+  exchangeSquareCode,
+  fetchMerchantProfile,
+  saveSquareConnection,
+  verifySquareState,
+} from "@/lib/square-client.server";
 
-function redirect(origin: string, result: string): Response {
-  return new Response(null, { status: 302, headers: { Location: `${origin}/dashboard/agent?square=${result}` } });
+function redirect(origin: string, result: string, returnTo = "/dashboard/agent"): Response {
+  return new Response(null, {
+    status: 302,
+    headers: { Location: `${origin}${returnTo}?square=${result}` },
+  });
 }
 
 export const Route = createFileRoute("/api/public/square-oauth/callback")({
@@ -18,7 +26,10 @@ export const Route = createFileRoute("/api/public/square-oauth/callback")({
         const code = url.searchParams.get("code") ?? "";
         const state = url.searchParams.get("state") ?? "";
         const payload = verifySquareState(state);
-        if (!code || !payload) return redirect(origin, "invalid");
+        if (!payload) return redirect(origin, "invalid");
+        const returnTo = payload.returnTo || "/dashboard/agent";
+        if (url.searchParams.get("error")) return redirect(origin, "denied", returnTo);
+        if (!code) return redirect(origin, "invalid", returnTo);
         try {
           // The state proves the flow started from an owner/manager's session; re-check they
           // still hold that role before saving tokens for this salon.
@@ -29,16 +40,32 @@ export const Route = createFileRoute("/api/public/square-oauth/callback")({
             .eq("salon_id", payload.salonId)
             .eq("user_id", payload.userId)
             .maybeSingle();
-          if (!member || member.role === "staff") return redirect(origin, "forbidden");
+          if (!member || member.role === "staff") return redirect(origin, "forbidden", returnTo);
+          const { requirePaidAccess } = await import("@/lib/billing.server");
+          const { data: salon } = await supabaseAdmin
+            .from("salons")
+            .select("paid_access_until")
+            .eq("id", payload.salonId)
+            .single();
+          requirePaidAccess(salon);
           const tokens = await exchangeSquareCode(code);
           const profile = await fetchMerchantProfile(tokens);
-          await saveSquareConnection(payload.salonId, payload.userId, tokens, profile.locationId, profile.businessName);
+          await saveSquareConnection(
+            payload.salonId,
+            payload.userId,
+            tokens,
+            profile.locationId,
+            profile.businessName,
+          );
           // This salon's bookings now flow through its own Square Appointments.
-          await supabaseAdmin.from("salons").update({ booking_provider: "square" }).eq("id", payload.salonId);
-          return redirect(origin, "connected");
+          await supabaseAdmin
+            .from("salons")
+            .update({ booking_provider: "square" })
+            .eq("id", payload.salonId);
+          return redirect(origin, "connected", returnTo);
         } catch (e) {
           console.error("square oauth callback", e instanceof Error ? e.message : e);
-          return redirect(origin, "error");
+          return redirect(origin, "error", returnTo);
         }
       },
     },

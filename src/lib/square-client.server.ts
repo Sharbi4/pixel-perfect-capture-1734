@@ -10,14 +10,28 @@ const VERSION = "2025-10-16";
 export const SQUARE_SCOPES = [
   "APPOINTMENTS_READ",
   "APPOINTMENTS_WRITE",
+  "APPOINTMENTS_ALL_READ",
+  "APPOINTMENTS_ALL_WRITE",
+  "APPOINTMENTS_BUSINESS_SETTINGS_READ",
+  "EMPLOYEES_READ",
   "ITEMS_READ",
   "MERCHANT_PROFILE_READ",
   "CUSTOMERS_READ",
   "CUSTOMERS_WRITE",
 ];
 
-export type SquareTokens = { accessToken: string; refreshToken: string; expiresAt: string; merchantId: string };
-export type SquareConnection = { tokens: SquareTokens; locationId: string; businessName: string; updatedAt: string };
+export type SquareTokens = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  merchantId: string;
+};
+export type SquareConnection = {
+  tokens: SquareTokens;
+  locationId: string;
+  businessName: string;
+  updatedAt: string;
+};
 
 function appId(): string {
   const id = process.env["SQUARE_APPLICATION_ID"];
@@ -43,10 +57,26 @@ export function squareRedirectUri(): string {
 
 // ---- Signed OAuth state: the public callback must be able to trust which salon it is for. ----
 
-type StatePayload = { salonId: string; userId: string; exp: number; nonce: string };
+type StatePayload = {
+  salonId: string;
+  userId: string;
+  exp: number;
+  nonce: string;
+  returnTo?: "/setup" | "/dashboard/agent";
+};
 
-export function signSquareState(salonId: string, userId: string): string {
-  const payload: StatePayload = { salonId, userId, exp: Date.now() + 15 * 60_000, nonce: randomBytes(8).toString("hex") };
+export function signSquareState(
+  salonId: string,
+  userId: string,
+  returnTo: "/setup" | "/dashboard/agent" = "/dashboard/agent",
+): string {
+  const payload: StatePayload = {
+    salonId,
+    userId,
+    returnTo,
+    exp: Date.now() + 15 * 60_000,
+    nonce: randomBytes(8).toString("hex"),
+  };
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const sig = createHmac("sha256", appSecret()).update(body).digest("base64url");
   return `${body}.${sig}`;
@@ -61,7 +91,14 @@ export function verifySquareState(state: string): StatePayload | null {
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   try {
     const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as StatePayload;
-    if (!payload.salonId || !payload.userId || payload.exp < Date.now()) return null;
+    if (
+      !payload.salonId ||
+      !payload.userId ||
+      !Number.isFinite(payload.exp) ||
+      payload.exp < Date.now() ||
+      (payload.returnTo !== undefined && !["/setup", "/dashboard/agent"].includes(payload.returnTo))
+    )
+      return null;
     return payload;
   } catch {
     return null;
@@ -86,18 +123,31 @@ async function tokenRequest(body: Record<string, string>): Promise<SquareTokens>
     headers: { "Content-Type": "application/json", "Square-Version": VERSION },
     body: JSON.stringify({ client_id: appId(), client_secret: appSecret(), ...body }),
   });
-  const data = (await res.json().catch(() => null)) as
-    | { access_token?: string; refresh_token?: string; expires_at?: string; merchant_id?: string; message?: string }
-    | null;
+  const data = (await res.json().catch(() => null)) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_at?: string;
+    merchant_id?: string;
+    message?: string;
+  } | null;
   if (!res.ok || !data?.access_token || !data.refresh_token || !data.merchant_id) {
     console.error("square token request failed", res.status, data?.message ?? "");
     throw new Error("Square didn't finish the connection. Please try again.");
   }
-  return { accessToken: data.access_token, refreshToken: data.refresh_token, expiresAt: data.expires_at ?? "", merchantId: data.merchant_id };
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expiresAt: data.expires_at ?? "",
+    merchantId: data.merchant_id,
+  };
 }
 
 export function exchangeSquareCode(code: string): Promise<SquareTokens> {
-  return tokenRequest({ grant_type: "authorization_code", code, redirect_uri: squareRedirectUri() });
+  return tokenRequest({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: squareRedirectUri(),
+  });
 }
 
 function refreshSquareTokens(t: SquareTokens): Promise<SquareTokens> {
@@ -107,7 +157,11 @@ function refreshSquareTokens(t: SquareTokens): Promise<SquareTokens> {
 export async function revokeSquareToken(accessToken: string): Promise<void> {
   await fetch(`${BASE}/oauth2/revoke`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Square-Version": VERSION, Authorization: `Client ${appSecret()}` },
+    headers: {
+      "Content-Type": "application/json",
+      "Square-Version": VERSION,
+      Authorization: `Client ${appSecret()}`,
+    },
     body: JSON.stringify({ client_id: appId(), access_token: accessToken }),
   }).catch(() => undefined);
 }
@@ -122,7 +176,10 @@ export async function getSquareConnection(salonId: string): Promise<SquareConnec
     .eq("salon_id", salonId)
     .eq("provider", "square")
     .maybeSingle();
-  if (error) { console.error("square connection read", error.message); throw new Error("Couldn't read your Square connection. Please try again."); }
+  if (error) {
+    console.error("square connection read", error.message);
+    throw new Error("Couldn't read your Square connection. Please try again.");
+  }
   if (!data?.connection_key_ciphertext) return null;
   return {
     tokens: JSON.parse(decryptConnectionKey(data.connection_key_ciphertext)) as SquareTokens,
@@ -132,7 +189,13 @@ export async function getSquareConnection(salonId: string): Promise<SquareConnec
   };
 }
 
-export async function saveSquareConnection(salonId: string, userId: string, tokens: SquareTokens, locationId: string, businessName: string) {
+export async function saveSquareConnection(
+  salonId: string,
+  userId: string,
+  tokens: SquareTokens,
+  locationId: string,
+  businessName: string,
+) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("salon_calendar_connections").upsert(
     {
@@ -146,20 +209,32 @@ export async function saveSquareConnection(salonId: string, userId: string, toke
     },
     { onConflict: "salon_id" },
   );
-  if (error) { console.error("square connection save", error.message); throw new Error("Couldn't save your Square connection. Please try again."); }
+  if (error) {
+    console.error("square connection save", error.message);
+    throw new Error("Couldn't save your Square connection. Please try again.");
+  }
 }
 
 export async function deleteSquareConnection(salonId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { error } = await supabaseAdmin.from("salon_calendar_connections").delete().eq("salon_id", salonId).eq("provider", "square");
-  if (error) { console.error("square connection delete", error.message); throw new Error("Couldn't remove your Square connection. Please try again."); }
+  const { error } = await supabaseAdmin
+    .from("salon_calendar_connections")
+    .delete()
+    .eq("salon_id", salonId)
+    .eq("provider", "square");
+  if (error) {
+    console.error("square connection delete", error.message);
+    throw new Error("Couldn't remove your Square connection. Please try again.");
+  }
 }
 
 // ---- Authenticated API access, refreshing the token when it's close to expiry ----
 
 export type SquareApi = (path: string, init?: RequestInit) => Promise<unknown>;
 
-export async function squareClientFor(salonId: string): Promise<{ api: SquareApi; locationId: string; businessName: string } | null> {
+export async function squareClientFor(
+  salonId: string,
+): Promise<{ api: SquareApi; locationId: string; businessName: string } | null> {
   const conn = await getSquareConnection(salonId);
   if (!conn) return null;
   let tokens = conn.tokens;
@@ -168,8 +243,19 @@ export async function squareClientFor(salonId: string): Promise<{ api: SquareApi
     try {
       tokens = await refreshSquareTokens(tokens);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: row } = await supabaseAdmin.from("salon_calendar_connections").select("user_id").eq("salon_id", salonId).eq("provider", "square").single();
-      await saveSquareConnection(salonId, row?.user_id ?? "", tokens, conn.locationId, conn.businessName);
+      const { data: row } = await supabaseAdmin
+        .from("salon_calendar_connections")
+        .select("user_id")
+        .eq("salon_id", salonId)
+        .eq("provider", "square")
+        .single();
+      await saveSquareConnection(
+        salonId,
+        row?.user_id ?? "",
+        tokens,
+        conn.locationId,
+        conn.businessName,
+      );
     } catch (e) {
       console.error("square token refresh", e instanceof Error ? e.message : e);
       return null; // caller treats as calendar_not_connected
@@ -196,18 +282,31 @@ export async function squareClientFor(salonId: string): Promise<{ api: SquareApi
 }
 
 /** Business name + first active location, used right after OAuth completes. */
-export async function fetchMerchantProfile(tokens: SquareTokens): Promise<{ businessName: string; locationId: string }> {
+export async function fetchMerchantProfile(
+  tokens: SquareTokens,
+): Promise<{ businessName: string; locationId: string }> {
   const api: SquareApi = async (path) => {
     const res = await fetch(`${BASE}${path}`, {
-      headers: { Authorization: `Bearer ${tokens.accessToken}`, "Content-Type": "application/json", "Square-Version": VERSION },
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        "Content-Type": "application/json",
+        "Square-Version": VERSION,
+      },
     });
     if (!res.ok) throw new Error("Couldn't read the Square account details.");
     return res.json();
   };
-  const merchant = (await api(`/v2/merchants/${tokens.merchantId}`)) as { merchant?: { business_name?: string } };
-  const locations = (await api("/v2/locations")) as { locations?: { id: string; status?: string; name?: string }[] };
+  const merchant = (await api(`/v2/merchants/${tokens.merchantId}`)) as {
+    merchant?: { business_name?: string };
+  };
+  const locations = (await api("/v2/locations")) as {
+    locations?: { id: string; status?: string; name?: string }[];
+  };
   const active = (locations.locations ?? []).filter((l) => l.status === "ACTIVE");
   const locationId = active[0]?.id ?? locations.locations?.[0]?.id;
   if (!locationId) throw new Error("This Square account has no location to book into.");
-  return { businessName: merchant.merchant?.business_name ?? active[0]?.name ?? "Square", locationId };
+  return {
+    businessName: merchant.merchant?.business_name ?? active[0]?.name ?? "Square",
+    locationId,
+  };
 }

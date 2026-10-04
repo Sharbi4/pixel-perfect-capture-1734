@@ -283,6 +283,16 @@ function Checkout() {
                 <LockKeyhole className="size-4" />
                 Card details are collected securely by Square when checkout is available.
               </p>
+              {!!preview?.addonInterests.length && (
+                <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                  Launch-team requests:{" "}
+                  {preview.addonInterests
+                    .map((x) => (x === "scheduling" ? "Native Scheduling" : "Additional location"))
+                    .join(", ")}
+                  . These requests are excluded from today’s total and do not activate additional
+                  billing.
+                </p>
+              )}
               <Link to="/get-started" className="mt-6 inline-block text-sm text-muted-foreground">
                 Back to my preview
               </Link>

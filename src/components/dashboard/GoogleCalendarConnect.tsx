@@ -91,7 +91,7 @@ export function GoogleCalendarConnect({ salonId, canEdit, onChanged }: { salonId
     setErr(null); setNote(null); setConfirming(false); setBusy(true);
     try {
       await disconnect({ data: { salonId } });
-      setNote("Disconnected. Bookings now use Salon Pro Scheduling.");
+      setNote("Disconnected. Review your scheduling setup before accepting new bookings.");
       await qc.invalidateQueries({ queryKey: ["gcal-status", salonId] });
       onChanged();
     } catch (e) {
@@ -112,7 +112,7 @@ export function GoogleCalendarConnect({ salonId, canEdit, onChanged }: { salonId
           ) : s?.connected ? (
             <>
               <p className="mt-1 text-sm text-muted-foreground">
-                Connected{s.calendarSummary && s.calendarSummary !== "Google Calendar" ? ` — ${s.calendarSummary}` : ""}. Every appointment your Salon Agent books goes straight into this calendar, and it avoids events already on it.
+                Connected{s.calendarSummary && s.calendarSummary !== "Google Calendar" ? ` — ${s.calendarSummary}` : ""}. Test availability and a booking in this calendar before forwarding client calls. Add services separately; Google Calendar does not supply a menu.
               </p>
               {s.reconnectRequired && (
                 <p className="mt-2 flex items-center gap-2 text-sm text-coral"><TriangleAlert className="size-4" />Google access expired — reconnect to keep bookings flowing.</p>

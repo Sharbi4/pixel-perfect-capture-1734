@@ -1,15 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
-import { starterServices } from "./voices";
+
 import type { PhoneSetup } from "./phone-status";
 
 // Explicit, customer-safe columns only (provider IDs are never readable by customers).
 const SALON_COLS =
-  "id,setup_draft,name,address,phone,website,hours,languages,contact_name,voice,deposit_policy,cancellation_policy,walk_ins,booking_app,setup_method,status,launched_at,has_receptionist,agent_error,phone_number";
+  "id,setup_draft,booking_provider,plan_tier,scheduling_addon,timezone,name,address,phone,website,hours,languages,contact_name,voice,deposit_policy,cancellation_policy,walk_ins,booking_app,setup_method,status,launched_at,has_receptionist,agent_error,phone_number";
 const SETUP_COLS =
   "salon_id,business_number,portability_status,agent_status,agent_error,temp_number_status,temp_number_error,voice_status,forwarding_status,texting_status,updated_at";
 
 export type Salon = {
   setup_draft?: unknown;
+  booking_provider: string;
+  plan_tier: string;
+  scheduling_addon: boolean;
+  timezone: string;
   id: string;
   name: string;
   address: string;
@@ -57,10 +61,6 @@ export async function loadOrCreateSalon(): Promise<{ salon: Salon; services: Ser
     } else if (ins.error) throw ins.error;
     else {
       salon = ins.data;
-      const { error } = await supabase
-        .from("services")
-        .insert(starterServices.map((s, i) => ({ ...s, salon_id: salon!.id, position: i })));
-      if (error) throw error;
     }
   }
   const { data: services, error: serviceError } = await supabase
@@ -78,6 +78,7 @@ export async function loadOrCreateSalon(): Promise<{ salon: Salon; services: Ser
 
 // Only owner-editable fields; provider IDs, status and owner are backend-controlled.
 export const EDITABLE_SALON_FIELDS = [
+  "timezone",
   "name",
   "address",
   "phone",

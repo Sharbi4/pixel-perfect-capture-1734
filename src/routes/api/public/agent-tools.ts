@@ -23,8 +23,10 @@ export const Route = createFileRoute("/api/public/agent-tools")({
         const b = parsed.data;
         const { supabaseAdmin: sb } = await import("@/integrations/supabase/client.server");
         // Tenant comes only from the verified key; the salon must own a dedicated agent.
-        const { data: owner } = await sb.from("salons").select("agent_id").eq("id", salonId).maybeSingle();
+        const { data: owner } = await sb.from("salons").select("agent_id,agent_settings,voice").eq("id", salonId).maybeSingle();
         if (!owner?.agent_id) return new Response("Forbidden", { status: 403 });
+        const { readSettings, allowedTools } = await import("@/lib/agent-settings");
+        if (!allowedTools(readSettings(owner.agent_settings, { voice: owner.voice })).has(tool)) return Response.json({ error: "The salon handles this personally. Offer to have a team member follow up." });
         const ad = await (await import("@/lib/booking-adapters.server")).adapterFor(sb, salonId);
         const phone = b.client_phone ?? "";
         const base = { service: b.service ?? "", start: b.start ?? "", technician: b.technician, client_name: b.client_name ?? "", client_phone: phone, source: "ai_call" as const, call_ref: b.conversation_id, notes: b.notes };

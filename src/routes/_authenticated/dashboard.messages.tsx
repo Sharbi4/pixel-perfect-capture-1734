@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Bot, FileText, Loader2, MessageSquare, Phone, Send, UserRound, X } from "lucide-react";
@@ -148,7 +148,7 @@ function MessagesPage() {
         {info && (
           <aside className={cn("overflow-y-auto border-l border-border p-5", showInfo ? "fixed inset-y-0 right-0 z-50 w-80 bg-surface xl:static xl:w-auto xl:bg-transparent" : "hidden xl:block")}>
             <div className="flex items-center justify-between"><h2 className="font-medium">Client</h2><button onClick={() => setShowInfo(false)} aria-label="Close" className="xl:hidden"><X className="size-4" /></button></div>
-            <ClientPanel key={sel} info={info} onSave={saveThread} />
+            <ClientPanel key={sel} salonId={location.id} info={info} onSave={saveThread} />
           </aside>
         )}
       </div>
@@ -156,7 +156,7 @@ function MessagesPage() {
   );
 }
 
-function ClientPanel({ info, onSave }: { info: Thread; onSave: (p: Partial<Thread>) => void }) {
+function ClientPanel({ salonId, info, onSave }: { salonId: string; info: Thread; onSave: (p: Partial<Thread>) => void }) {
   const [name, setName] = useState(info.customer_name);
   const [notes, setNotes] = useState(info.notes);
   const [tag, setTag] = useState("");
@@ -166,7 +166,7 @@ function ClientPanel({ info, onSave }: { info: Thread; onSave: (p: Partial<Threa
       <label className="block"><span className="text-xs text-muted-foreground">Name</span>
         <input value={name} maxLength={120} onChange={(e) => setName(e.target.value)} onBlur={() => name !== info.customer_name && onSave({ customer_name: name.trim() })} placeholder="Add a name" className="mt-1 h-10 w-full rounded-xl bg-accent px-3 outline-none" /></label>
       <div><span className="text-xs text-muted-foreground">Phone</span><p className="mt-1">{formatUsNumber(info.customer_phone) || info.customer_phone}</p></div>
-      <div className="rounded-2xl bg-accent p-3 text-xs text-muted-foreground">Last appointment, upcoming appointment and total visits will show here once a booking system is connected.</div>
+      <Visits salonId={salonId} phone={info.customer_phone} />
       <div><span className="text-xs text-muted-foreground">Tags</span>
         <div className="mt-1 flex flex-wrap gap-1.5">{info.tags.map((t) => (
           <button key={t} onClick={() => onSave({ tags: info.tags.filter((x) => x !== t) })} className="rounded-full bg-violet/20 px-2.5 py-0.5 text-xs" title="Remove tag">{t} ×</button>))}
@@ -174,6 +174,27 @@ function ClientPanel({ info, onSave }: { info: Thread; onSave: (p: Partial<Threa
         </div></div>
       <label className="block"><span className="text-xs text-muted-foreground">Notes</span>
         <textarea value={notes} maxLength={4000} rows={5} onChange={(e) => setNotes(e.target.value)} onBlur={() => notes !== info.notes && onSave({ notes })} placeholder="Private notes for your team" className="mt-1 w-full rounded-xl bg-accent p-3 outline-none" /></label>
+    </div>
+  );
+}
+
+function Visits({ salonId, phone }: { salonId: string; phone: string }) {
+  const [v, setV] = useState<{ last: string | null; next: string | null; total: number } | null>(null);
+  useEffect(() => {
+    void supabase.from("appointments").select("service_name,starts_at,status").eq("salon_id", salonId).eq("client_phone", phone).order("starts_at").then(({ data }) => {
+      const now = Date.now(); const rows = data ?? [];
+      const past = rows.filter((r) => Date.parse(r.starts_at) < now && r.status === "completed");
+      const next = rows.find((r) => Date.parse(r.starts_at) >= now && ["booked", "confirmed"].includes(r.status));
+      const fmt = (r?: { service_name: string; starts_at: string }) => (r ? `${r.service_name} · ${when(r.starts_at)}` : null);
+      setV({ last: fmt(past[past.length - 1]), next: fmt(next), total: past.length });
+    });
+  }, [salonId, phone]);
+  if (!v) return null;
+  return (
+    <div className="space-y-2">
+      {([["Upcoming appointment", v.next ?? "None"], ["Last appointment", v.last ?? "None"], ["Total visits", String(v.total)]] as const).map(([k, x]) => (
+        <div key={k}><span className="text-xs text-muted-foreground">{k}</span><p className="mt-0.5">{x}</p></div>))}
+      <Link to="/dashboard/appointments" search={{ new: 1, phone }} className="inline-flex h-9 items-center rounded-full bg-accent px-3 text-xs">Book appointment</Link>
     </div>
   );
 }

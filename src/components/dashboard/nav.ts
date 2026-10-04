@@ -11,7 +11,7 @@ export const NAV = [
   { slug: "agent", label: "Salon Agent", icon: Bot },
   { slug: "services", label: "Services & Menu", icon: Scissors },
   { slug: "phone-numbers", label: "Phone Numbers", icon: Phone },
-  { slug: "team", label: "Team & Access", icon: UserCog },
+  { slug: "team", label: "Team & Hours", icon: UserCog },
   { slug: "analytics", label: "Analytics", icon: BarChart3 },
   { slug: "integrations", label: "Integrations", icon: Plug },
   { slug: "settings", label: "Settings", icon: Settings },

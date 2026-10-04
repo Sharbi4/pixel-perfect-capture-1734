@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/appointments")({
   component: AppointmentsPage,
 });
 
+type Init = { phone?: string | undefined; name?: string | undefined; call?: string | undefined; start?: string | undefined; staff?: string | undefined };
 type View = "day" | "week" | "month" | "staff";
 const DAY_START = 8 * 60, DAY_END = 21 * 60, PX = 1.1; // px per minute
 
@@ -32,7 +33,7 @@ function AppointmentsPage() {
   const [date, setDate] = useState<string>("");
   const [f, setF] = useState({ staff: "", service: "", status: "", source: "" });
   const [open, setOpen] = useState<Appt | null>(null);
-  const [creating, setCreating] = useState<null | { phone?: string; name?: string; call?: string; start?: string; staff?: string }>(null);
+  const [creating, setCreating] = useState<null | Init>(null);
   const tz = basics?.rules.timezone ?? "America/Phoenix";
 
   useEffect(() => { void loadBasics(location.id).then((b) => { setBasics(b); setDate((d) => d || localDate(new Date(), b.rules.timezone)); }); }, [location.id]);
@@ -55,7 +56,7 @@ function AppointmentsPage() {
 
   const shown = appts.filter((a) => (!f.staff || a.staff_id === f.staff) && (!f.service || a.service_id === f.service) && (!f.status || a.status === f.status) && (!f.source || a.source === f.source) && (f.status || a.status !== "cancelled"));
   const staffName = (id: string | null) => basics?.staff.find((s) => s.id === id)?.name ?? "Any";
-  const step = (n: number) => setDate((d) => addDays(d, view === "week" ? 7 * n : view === "month" ? 0 : n) && (view === "month" ? shiftMonth(d, n) : addDays(d, view === "week" ? 7 * n : n)));
+  const step = (n: number) => setDate((d) => (view === "month" ? shiftMonth(d, n) : addDays(d, view === "week" ? 7 * n : n)));
   const title = date ? (view === "month" ? new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : view === "week" ? `Week of ${new Date(`${range!.days[0]}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}` : new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })) : "";
 
   if (!basics) return <div className="grid place-items-center py-24"><Loader2 className="size-5 animate-spin" /></div>;
@@ -312,7 +313,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
 }
 const field = "mt-1 h-10 w-full rounded-xl bg-accent px-3 text-sm outline-none";
 
-function NewAppt({ salonId, basics, init, onClose, onSaved }: { salonId: string; basics: { rules: SalonRules; staff: Staff[]; services: Service[] }; init: { phone?: string; name?: string; call?: string; start?: string; staff?: string }; onClose: () => void; onSaved: (day: string) => void }) {
+function NewAppt({ salonId, basics, init, onClose, onSaved }: { salonId: string; basics: { rules: SalonRules; staff: Staff[]; services: Service[] }; init: Init; onClose: () => void; onSaved: (day: string) => void }) {
   const tz = basics.rules.timezone;
   const [v, setV] = useState({ name: init.name ?? "", phone: init.phone ? formatUsNumber(init.phone) || init.phone : "", service: basics.services[0]?.id ?? "", staff: init.staff ?? "", day: init.start ? localDate(new Date(init.start), tz) : localDate(new Date(), tz), notes: "" });
   const [slot, setSlot] = useState<{ start: string; staff: string } | null>(init.start && init.staff ? { start: init.start, staff: init.staff } : null);

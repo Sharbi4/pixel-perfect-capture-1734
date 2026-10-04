@@ -102,7 +102,7 @@ export async function book(sb: Admin, salonId: string, i: { service: string; sta
     id = data.id;
   }
   const when = `${fmtDay(slot.start, salon.timezone)} at ${fmtTime(slot.start, salon.timezone)}`;
-  if (salon.confirm_texts && salon.phone_number) {
+  if (i.source !== "ai_text" && salon.confirm_texts && salon.phone_number) {
     const { sendSms } = await import("./texting.server");
     const ok = await sendSms(sb, { salonId, from: salon.phone_number, to: phone, sentBy: "agent",
       body: `${salon.name || "Your salon"}: you're ${i.reschedule_id ? "rescheduled" : "booked"} for ${svc.name} with ${slot.staff_name} on ${when}.${salon.address ? ` ${salon.address}.` : ""} Reply to this text to make changes.` }).catch(() => false);

@@ -22,22 +22,22 @@ export const Route = createFileRoute("/api/public/agent-tools")({
         if (!parsed.success) return Response.json({ error: "Invalid input" }, { status: 400 });
         const b = parsed.data;
         const { supabaseAdmin: sb } = await import("@/integrations/supabase/client.server");
-        const bk = await import("@/lib/booking.server");
+        // Tenant comes only from the verified key; the salon must own a dedicated agent.
+        const { data: owner } = await sb.from("salons").select("agent_id").eq("id", salonId).maybeSingle();
+        if (!owner?.agent_id) return new Response("Forbidden", { status: 403 });
+        const ad = await (await import("@/lib/booking-adapters.server")).adapterFor(sb, salonId);
         const phone = b.client_phone ?? "";
+        const base = { service: b.service ?? "", start: b.start ?? "", technician: b.technician, client_name: b.client_name ?? "", client_phone: phone, source: "ai_call" as const, call_ref: b.conversation_id, notes: b.notes };
         let out: unknown;
         switch (tool) {
-          case "check_availability": out = await bk.findSlots(sb, salonId, { date: b.date, service: b.service, staff: b.technician }); break;
-          case "book_appointment":
-            if (!b.service || !b.start) { out = { error: "Need service and start." }; break; }
-            out = await bk.book(sb, salonId, { service: b.service, start: b.start, technician: b.technician, client_name: b.client_name ?? "", client_phone: phone, source: "ai_call", call_ref: b.conversation_id, notes: b.notes });
-            break;
-          case "find_my_appointments": out = await bk.lookup(sb, salonId, phone); break;
-          case "reschedule_appointment":
-            if (!b.appointment_id || !b.service || !b.start) { out = { error: "Need appointment_id, service and start." }; break; }
-            out = await bk.book(sb, salonId, { service: b.service, start: b.start, technician: b.technician, client_name: b.client_name ?? "", client_phone: phone, source: "ai_call", call_ref: b.conversation_id, reschedule_id: b.appointment_id });
-            break;
-          case "cancel_appointment": out = b.appointment_id ? await bk.cancel(sb, salonId, phone, b.appointment_id) : { error: "Need appointment_id." }; break;
-          case "add_to_waitlist": out = await bk.addWaitlist(sb, salonId, { client_name: b.client_name ?? "", client_phone: phone, service: b.service, technician: b.technician, preferred: b.preferred, source: "ai_call" }); break;
+          case "get_services": out = await ad.getServices(); break;
+          case "get_staff": out = await ad.getStaff(); break;
+          case "check_availability": out = await ad.checkAvailability({ date: b.date, service: b.service, staff: b.technician }); break;
+          case "book_appointment": out = b.service && b.start ? await ad.createBooking(base) : { error: "Need service and start." }; break;
+          case "find_my_appointments": out = await ad.getBookings(phone); break;
+          case "reschedule_appointment": out = b.appointment_id && b.service && b.start ? await ad.rescheduleBooking(b.appointment_id, base) : { error: "Need appointment_id, service and start." }; break;
+          case "cancel_appointment": out = b.appointment_id ? await ad.cancelBooking(b.appointment_id, phone) : { error: "Need appointment_id." }; break;
+          case "add_to_waitlist": out = await ad.addWaitlist({ client_name: b.client_name ?? "", client_phone: phone, service: b.service, technician: b.technician, preferred: b.preferred, source: "ai_call" }); break;
           default: return Response.json({ error: "Unknown tool" }, { status: 404 });
         }
         return Response.json(out);

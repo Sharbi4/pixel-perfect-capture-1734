@@ -12,6 +12,7 @@ import {
   type PreviewDraft,
 } from "@/lib/checkout-model";
 import { getPlan, setup, type Tier } from "@/lib/pricing";
+import { checkoutTotals, taxRate } from "@/lib/sales-tax";
 import { SiteShell } from "@/components/site/SiteShell";
 
 export const Route = createFileRoute("/checkout")({
@@ -90,10 +91,11 @@ function Checkout() {
   const plan = {
     ...selected,
     monthlyCents: purchase?.monthlyCents ?? config?.monthlyCents ?? selected.monthlyCents,
-    setupCents: purchase
-      ? purchase.totalCents - purchase.monthlyCents
-      : (config?.setupCents ?? setup.cents),
+    setupCents: config?.setupCents ?? setup.cents,
   };
+  const tax = checkoutTotals(plan.setupCents, plan.monthlyCents, buyer.state);
+  const hasState = taxRate(buyer.state) !== null;
+  const today = purchase?.totalCents ?? tax.todayCents;
   useEffect(() => {
     let active = true;
     let tier: Tier = getPlan(new URLSearchParams(window.location.search).get("plan")).id;
@@ -182,7 +184,7 @@ function Checkout() {
         return;
       }
       const result = await card.current.tokenize({
-        amount: ((config.totalCents ?? 0) / 100).toFixed(2),
+        amount: (checkoutTotals(plan.setupCents, plan.monthlyCents, b.state).todayCents / 100).toFixed(2),
         currencyCode: "USD",
         intent: "CHARGE_AND_STORE",
         customerInitiated: true,
@@ -285,13 +287,19 @@ function Checkout() {
                     <dt className="text-muted-foreground">First month</dt>
                     <dd>{money(plan.monthlyCents)}</dd>
                   </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-muted-foreground">
+                      Sales tax{hasState ? ` (${buyer.state.toUpperCase()} ${tax.rate}%)` : ""}
+                    </dt>
+                    <dd>{hasState || purchase ? money(today - plan.setupCents - plan.monthlyCents) : "Enter state"}</dd>
+                  </div>
                   <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-5 font-medium [&>dd]:text-2xl [&>dd]:tracking-tight">
                     <dt>Total today</dt>
-                    <dd>{money(plan.setupCents + plan.monthlyCents)}</dd>
+                    <dd>{money(today)}</dd>
                   </div>
                 </dl>
                 <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                  Then {money(plan.monthlyCents)}/month
+                  Then {money(hasState ? tax.recurringCents : plan.monthlyCents)}/month{hasState ? " incl. tax" : " plus tax"}
                   {config?.nextBillingDate ? ` starting ${config.nextBillingDate}` : ""}. The setup
                   fee is charged once.
                 </p>
@@ -429,8 +437,8 @@ function Checkout() {
                           onChange={(e) => setConsent(e.target.checked)}
                         />
                         <span>
-                          I authorize {money(plan.setupCents + plan.monthlyCents)} today and{" "}
-                          {money(plan.monthlyCents)} monthly starting{" "}
+                          I authorize {money(today)} today and{" "}
+                          {money(tax.recurringCents)} monthly (incl. sales tax) starting{" "}
                           {config.nextBillingDate || "on the date shown before payment"}. I
                           authorize Square to save my card for this subscription. I agree to the{" "}
                           <a href="/terms" target="_blank" rel="noreferrer" className="underline">
@@ -461,7 +469,7 @@ function Checkout() {
                         ) : (
                           <LockKeyhole className="size-4" />
                         )}
-                        Pay {money(plan.setupCents + plan.monthlyCents)} & continue
+                        Pay {money(today)} & continue
                       </button>
                       {!preview && (
                         <p className="mt-3 text-sm text-muted-foreground">

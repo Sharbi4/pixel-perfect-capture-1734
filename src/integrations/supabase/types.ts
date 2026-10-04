@@ -307,6 +307,38 @@ export type Database = {
           },
         ]
       }
+      salon_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["salon_role"]
+          salon_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["salon_role"]
+          salon_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["salon_role"]
+          salon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salon_members_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salons: {
         Row: {
           address: string
@@ -503,6 +535,10 @@ export type Database = {
         Args: { p_draft: Json; p_email: string; p_owner: string }
         Returns: string
       }
+      is_salon_member: {
+        Args: { _salon: string; _user: string }
+        Returns: boolean
+      }
       save_setup_draft: {
         Args: {
           p_draft: Json
@@ -530,7 +566,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      salon_role: "owner" | "manager" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -657,6 +693,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      salon_role: ["owner", "manager", "staff"],
+    },
   },
 } as const

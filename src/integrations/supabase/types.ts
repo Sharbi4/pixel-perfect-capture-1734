@@ -14,6 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          processed_at: string | null
+          purchase_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id: string
+          processed_at?: string | null
+          purchase_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+          purchase_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkout_purchases: {
+        Row: {
+          buyer: Json
+          card_id: string
+          consent_at: string
+          created_at: string
+          customer_id: string
+          email: string
+          environment: string
+          error_code: string
+          id: string
+          invite_state: string
+          location_id: string
+          lock_token: string | null
+          locked_at: string | null
+          monthly_cents: number
+          next_billing_date: string
+          owner_id: string | null
+          paid_through: string | null
+          payment_id: string
+          plan_id: string
+          plan_name: string
+          preview: Json
+          secret_hash: string
+          source_cipher: string
+          source_hash: string
+          state: string
+          subscription_id: string
+          timezone: string
+          total_cents: number
+          updated_at: string
+        }
+        Insert: {
+          buyer: Json
+          card_id?: string
+          consent_at: string
+          created_at?: string
+          customer_id?: string
+          email: string
+          environment: string
+          error_code?: string
+          id?: string
+          invite_state?: string
+          location_id: string
+          lock_token?: string | null
+          locked_at?: string | null
+          monthly_cents: number
+          next_billing_date: string
+          owner_id?: string | null
+          paid_through?: string | null
+          payment_id?: string
+          plan_id: string
+          plan_name: string
+          preview: Json
+          secret_hash: string
+          source_cipher?: string
+          source_hash?: string
+          state?: string
+          subscription_id?: string
+          timezone: string
+          total_cents: number
+          updated_at?: string
+        }
+        Update: {
+          buyer?: Json
+          card_id?: string
+          consent_at?: string
+          created_at?: string
+          customer_id?: string
+          email?: string
+          environment?: string
+          error_code?: string
+          id?: string
+          invite_state?: string
+          location_id?: string
+          lock_token?: string | null
+          locked_at?: string | null
+          monthly_cents?: number
+          next_billing_date?: string
+          owner_id?: string | null
+          paid_through?: string | null
+          payment_id?: string
+          plan_id?: string
+          plan_name?: string
+          preview?: Json
+          secret_hash?: string
+          source_cipher?: string
+          source_hash?: string
+          state?: string
+          subscription_id?: string
+          timezone?: string
+          total_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       phone_jobs: {
         Row: {
           attempts: number
@@ -293,6 +421,19 @@ export type Database = {
           target: string
         }[]
       }
+      acquire_checkout: {
+        Args: {
+          p_cipher?: string
+          p_hash?: string
+          p_id: string
+          p_secret: string
+        }
+        Returns: Json
+      }
+      apply_checkout_access: {
+        Args: { p_id: string; p_refunded: boolean; p_until: string }
+        Returns: undefined
+      }
       begin_phone_job: {
         Args: { p_key: string; p_kind: string; p_salon: string }
         Returns: {
@@ -304,6 +445,10 @@ export type Database = {
           provider_ref: string
           target: string
         }[]
+      }
+      claim_checkout: {
+        Args: { p_draft: Json; p_email: string; p_owner: string }
+        Returns: string
       }
       save_setup_draft: {
         Args: {

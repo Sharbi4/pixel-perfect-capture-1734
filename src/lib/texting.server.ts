@@ -51,17 +51,18 @@ You can book, reschedule and cancel with your tools. Always check_availability b
   const messages = ((hist ?? []) as { direction: string; body: string }[]).reverse().map((m) => ({ role: m.direction === "inbound" ? "user" : "assistant", content: m.body })) as never;
   let text = "";
   const bk = await import("./booking.server");
+  const ad = await (await import("./booking-adapters.server")).adapterFor(sb, salonId);
   const tools = {
     check_availability: tool({ description: "Find open times", inputSchema: z.object({ date: z.string().nullable().describe("YYYY-MM-DD or null for next 7 days"), service: z.string().nullable(), technician: z.string().nullable() }),
-      execute: (a) => bk.findSlots(sb, salonId, { date: a.date ?? undefined, service: a.service ?? undefined, staff: a.technician ?? undefined }) }),
+      execute: (a) => ad.checkAvailability({ date: a.date ?? undefined, service: a.service ?? undefined, staff: a.technician ?? undefined }) }),
     book_appointment: tool({ description: "Book an agreed open time (exact start from check_availability)", inputSchema: z.object({ service: z.string(), start: z.string(), technician: z.string().nullable(), client_name: z.string() }),
-      execute: (a) => bk.book(sb, salonId, { service: a.service, start: a.start, technician: a.technician ?? undefined, client_name: a.client_name, client_phone: customer, source: "ai_text" }) }),
-    find_my_appointments: tool({ description: "This client's upcoming appointments", inputSchema: z.object({}), execute: () => bk.lookup(sb, salonId, customer) }),
+      execute: (a) => ad.createBooking({ service: a.service, start: a.start, technician: a.technician ?? undefined, client_name: a.client_name, client_phone: customer, source: "ai_text" }) }),
+    find_my_appointments: tool({ description: "This client's upcoming appointments", inputSchema: z.object({}), execute: () => ad.getBookings(customer) }),
     reschedule_appointment: tool({ description: "Move an appointment to a new open time", inputSchema: z.object({ appointment_id: z.string(), service: z.string(), start: z.string(), technician: z.string().nullable() }),
-      execute: (a) => bk.book(sb, salonId, { service: a.service, start: a.start, technician: a.technician ?? undefined, client_name: t?.customer_name ?? "", client_phone: customer, source: "ai_text", reschedule_id: a.appointment_id }) }),
-    cancel_appointment: tool({ description: "Cancel after the client confirms", inputSchema: z.object({ appointment_id: z.string() }), execute: (a) => bk.cancel(sb, salonId, customer, a.appointment_id) }),
+      execute: (a) => ad.rescheduleBooking(a.appointment_id, { service: a.service, start: a.start, technician: a.technician ?? undefined, client_name: t?.customer_name ?? "", client_phone: customer, source: "ai_text" }) }),
+    cancel_appointment: tool({ description: "Cancel after the client confirms", inputSchema: z.object({ appointment_id: z.string() }), execute: (a) => ad.cancelBooking(a.appointment_id, customer) }),
     add_to_waitlist: tool({ description: "Add to waitlist", inputSchema: z.object({ client_name: z.string(), service: z.string().nullable(), technician: z.string().nullable(), preferred: z.string().nullable() }),
-      execute: (a) => bk.addWaitlist(sb, salonId, { client_name: a.client_name, client_phone: customer, service: a.service ?? undefined, technician: a.technician ?? undefined, preferred: a.preferred ?? undefined, source: "ai_text" }) }),
+      execute: (a) => ad.addWaitlist({ client_name: a.client_name, client_phone: customer, service: a.service ?? undefined, technician: a.technician ?? undefined, preferred: a.preferred ?? undefined, source: "ai_text" }) }),
   };
   try { text = (await writeReply(system, messages, tools)).slice(0, 480); } catch (e) { console.error("agent text reply failed", e); return; }
   if (text) await sendSms(sb, { salonId, from, to: customer, body: text, sentBy: "agent" });

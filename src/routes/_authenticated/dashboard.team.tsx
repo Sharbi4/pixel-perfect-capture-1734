@@ -6,6 +6,8 @@ import { useActiveLocation } from "@/components/dashboard/location-context";
 import { DAYS, hhmm, loadBasics, parseHHMM, type SalonRules, type Service, type Staff } from "@/lib/appointments";
 import type { Hours } from "@/lib/availability";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { syncAgent } from "@/lib/agent-sync.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/team")({
   head: () => ({ meta: [{ title: "Team & hours — Salon Pro Agent" }, { name: "description", content: "Your technicians, their services and working hours." }, { property: "og:title", content: "Team & hours — Salon Pro Agent" }, { property: "og:description", content: "Technicians, services and working hours." }, { name: "robots", content: "noindex" }] }),
@@ -52,6 +54,7 @@ function TeamPage() {
       <h1 className="mt-1 text-3xl font-semibold tracking-tight">Team & hours</h1>
       <p className="mt-2 text-muted-foreground">Your Salon Agent only offers times when a technician who does that service is working.</p>
       {err && <p className="mt-4 text-sm text-coral">{err}</p>}
+      <SyncBar salonId={location.id} tick={data} />
 
       <section className="glass mt-6 rounded-[28px] p-6">
         <h2 className="font-medium">Booking rules</h2>
@@ -112,6 +115,25 @@ function StaffCard({ s, services, onSave, onRemove }: { s: Staff; services: Serv
         <div className="mt-2 flex flex-wrap gap-1.5">{services.map((v) => (
           <button key={v.id} onClick={() => toggleSvc(v.id)} className={cn("rounded-full px-3 py-1 text-xs", s.service_ids.includes(v.id) ? "bg-violet/25 text-foreground" : "bg-accent text-muted-foreground")}>{v.name}</button>))}</div>
       </div>}
+    </div>
+  );
+}
+
+const SYNC: Record<string, string> = { synced: "Your Salon Agent is up to date.", syncing: "Updating your Salon Agent…", update_required: "You've made changes your Salon Agent doesn't know yet.", failed: "We couldn't update your Salon Agent. Try again." };
+function SyncBar({ salonId, tick }: { salonId: string; tick: unknown }) {
+  const run = useServerFn(syncAgent);
+  const [st, setSt] = useState<{ s: string; has: boolean } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const read = useCallback(async () => {
+    const { data } = await supabase.from("salons").select("agent_sync_status,has_receptionist").eq("id", salonId).single();
+    if (data) setSt({ s: data.agent_sync_status, has: !!data.has_receptionist });
+  }, [salonId]);
+  useEffect(() => { const t = setTimeout(read, 400); return () => clearTimeout(t); }, [read, tick]);
+  if (!st?.has) return null;
+  return (
+    <div className="glass mt-4 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm">
+      <span className="flex-1">{SYNC[st.s] ?? SYNC["update_required"]}</span>
+      {st.s !== "synced" && <button disabled={busy} onClick={async () => { setBusy(true); try { await run({ data: { salonId } }); } catch { /* shown via status */ } setBusy(false); void read(); }} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-primary px-3 text-xs text-primary-foreground disabled:opacity-60">{busy && <Loader2 className="size-3 animate-spin" />}Update Salon Agent</button>}
     </div>
   );
 }

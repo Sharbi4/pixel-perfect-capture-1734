@@ -339,7 +339,7 @@ function GetStarted() {
                 })}
               </div>
               <p className="mt-8 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">
-                Plans from $299/month plus $1,495 Custom Setup & Launch. Your complete price is
+                Plans from $299/month plus $199 Custom Setup & Launch. Your complete price is
                 shown before payment.
               </p>
             </aside>

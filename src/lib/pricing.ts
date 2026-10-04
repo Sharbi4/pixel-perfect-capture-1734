@@ -18,8 +18,8 @@ export type PricingPlan = {
 };
 export const setup = {
   label: "Custom Setup & Launch",
-  price: "$1,495",
-  cents: 149500,
+  price: "$199",
+  cents: 19900,
   note: "one-time",
 };
 export const schedulingAddon = {

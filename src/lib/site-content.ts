@@ -85,7 +85,7 @@ export const faqs = [
   {
     category: "Plans & billing",
     q: "What is Custom Setup & Launch?",
-    a: "The one-time $1,495 service covers salon configuration, menu and receptionist setup, phone and calendar connection assistance, messaging registration assistance, testing and launch support. Provider approval and number-porting timelines vary.",
+    a: "The one-time $199 service covers salon configuration, menu and receptionist setup, phone and calendar connection assistance, messaging registration assistance, testing and launch support. Provider approval and number-porting timelines vary.",
   },
   {
     category: "Plans & billing",

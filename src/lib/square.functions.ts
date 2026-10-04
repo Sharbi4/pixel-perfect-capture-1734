@@ -29,7 +29,7 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
   });
 
 /**
- * Create a Square hosted checkout for the $1,500 setup fee.
+ * Create a Square hosted checkout for the $199 setup fee.
  * Idempotent per salon: reuses an existing pending link, refuses when paid.
  */
 export const createSalonCheckout = createServerFn({ method: "POST" })
@@ -69,7 +69,7 @@ export const createSalonCheckout = createServerFn({ method: "POST" })
       salon_id: salon.id,
       kind: "setup",
       status: "pending",
-      amount_cents: 150_000,
+      amount_cents: 19_900,
       currency: "USD",
       square_order_id: link.orderId,
       checkout_url: link.url,

@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/appointments")({
   component: AppointmentsPage,
 });
 
+type Init = { phone?: string | undefined; name?: string | undefined; call?: string | undefined; start?: string | undefined; staff?: string | undefined };
 type View = "day" | "week" | "month" | "staff";
 const DAY_START = 8 * 60, DAY_END = 21 * 60, PX = 1.1; // px per minute
 
@@ -32,7 +33,7 @@ function AppointmentsPage() {
   const [date, setDate] = useState<string>("");
   const [f, setF] = useState({ staff: "", service: "", status: "", source: "" });
   const [open, setOpen] = useState<Appt | null>(null);
-  const [creating, setCreating] = useState<null | { phone?: string; name?: string; call?: string; start?: string; staff?: string }>(null);
+  const [creating, setCreating] = useState<null | Init>(null);
   const tz = basics?.rules.timezone ?? "America/Phoenix";
 
   useEffect(() => { void loadBasics(location.id).then((b) => { setBasics(b); setDate((d) => d || localDate(new Date(), b.rules.timezone)); }); }, [location.id]);
@@ -312,7 +313,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
 }
 const field = "mt-1 h-10 w-full rounded-xl bg-accent px-3 text-sm outline-none";
 
-function NewAppt({ salonId, basics, init, onClose, onSaved }: { salonId: string; basics: { rules: SalonRules; staff: Staff[]; services: Service[] }; init: { phone?: string; name?: string; call?: string; start?: string; staff?: string }; onClose: () => void; onSaved: (day: string) => void }) {
+function NewAppt({ salonId, basics, init, onClose, onSaved }: { salonId: string; basics: { rules: SalonRules; staff: Staff[]; services: Service[] }; init: Init; onClose: () => void; onSaved: (day: string) => void }) {
   const tz = basics.rules.timezone;
   const [v, setV] = useState({ name: init.name ?? "", phone: init.phone ? formatUsNumber(init.phone) || init.phone : "", service: basics.services[0]?.id ?? "", staff: init.staff ?? "", day: init.start ? localDate(new Date(init.start), tz) : localDate(new Date(), tz), notes: "" });
   const [slot, setSlot] = useState<{ start: string; staff: string } | null>(init.start && init.staff ? { start: init.start, staff: init.staff } : null);

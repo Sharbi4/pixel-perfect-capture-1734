@@ -8,4 +8,5 @@
 - [x] Google Workspace email verification for salonagentai.com — domain is Lovable-managed; user adds TXT record via Project Settings → Domains → Manage DNS records
 - [x] Dashboard stage 1: shell, sidebar/mobile nav, location switcher, Overview
 - [x] Dashboard: Calls and Messages pages with real saved history
-- [ ] Dashboard next: Salon Agent page; automatic background sync / webhooks; notes, resolve, follow-ups; adding new locations (needs per-location billing + setup)
+- [x] Calls: notes, resolve, follow-ups, recordings, key moments; Overview date ranges
+- [ ] Dashboard next: Salon Agent page; automatic background sync / webhooks; adding new locations (needs per-location billing + setup)

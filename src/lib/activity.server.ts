@@ -7,6 +7,7 @@ type Admin = any;
 type ElList = { conversations?: { conversation_id: string }[] };
 type ElDetail = {
   status?: string;
+  has_audio?: boolean;
   transcript?: { role: string; message: string | null; time_in_call_secs?: number }[];
   metadata?: { start_time_unix_secs?: number; call_duration_secs?: number; phone_call?: { external_number?: string; direction?: string } };
   analysis?: { transcript_summary?: string; call_summary_title?: string; call_successful?: string };
@@ -35,7 +36,7 @@ export async function syncCalls(sb: Admin, salonId: string, agentId: string): Pr
       duration_secs: Math.round(m.call_duration_secs ?? 0),
       direction: m.phone_call?.direction === "outbound" ? "outbound" : "inbound",
       customer_phone: m.phone_call?.external_number ?? "",
-      status: d.status ?? "", outcome: d.analysis?.call_successful ?? "",
+      status: d.status ?? "", outcome: d.analysis?.call_successful ?? "", has_recording: d.has_audio !== false,
       summary: d.analysis?.transcript_summary ?? "", title: d.analysis?.call_summary_title ?? "",
       transcript: (d.transcript ?? []).filter((t) => t.message).map((t) => ({ role: t.role === "agent" ? "agent" : "customer", text: t.message, t: Math.round(t.time_in_call_secs ?? 0) })),
     }, { onConflict: "provider_ref", ignoreDuplicates: true });

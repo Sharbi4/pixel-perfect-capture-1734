@@ -7,7 +7,7 @@ import { syncActivity } from "@/lib/activity.functions";
 import { formatUsNumber } from "@/lib/phone-format";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { cn } from "@/lib/utils";
-import { Empty, Header, when } from "./dashboard.calls";
+import { Empty, Header, when } from "@/components/dashboard/activity-ui";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages")({
   head: () => ({ meta: [{ title: "Messages — Salon Pro Agent" }, { name: "description", content: "Text conversations between your salon and its clients." }, { property: "og:title", content: "Messages — Salon Pro Agent" }, { property: "og:description", content: "Text conversations with your clients." }, { name: "robots", content: "noindex" }] }),

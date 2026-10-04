@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Loader2, PhoneCall, RefreshCw, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Loader2, PhoneCall, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { syncActivity } from "@/lib/activity.functions";
 import { formatUsNumber } from "@/lib/phone-format";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { cn } from "@/lib/utils";
+import { Empty, Header, dur, when } from "@/components/dashboard/activity-ui";
 
 export const Route = createFileRoute("/_authenticated/dashboard/calls")({
   head: () => ({ meta: [{ title: "Calls — Salon Pro Agent" }, { name: "description", content: "Every call your Salon Pro Agent answered, with summaries and transcripts." }, { property: "og:title", content: "Calls — Salon Pro Agent" }, { property: "og:description", content: "Call history with summaries and transcripts." }, { name: "robots", content: "noindex" }] }),
@@ -23,8 +24,6 @@ const FILTERS = [
   { k: "short", label: "Short / hung up", f: (c: Call) => c.duration_secs < 15 },
 ] as const;
 
-export const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-export const when = (iso: string) => new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
 function CallsPage() {
   const { location } = useActiveLocation();
@@ -82,18 +81,6 @@ function Outcome({ o }: { o: string }) {
   if (o === "success") return <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs text-success">Handled</span>;
   if (o === "failure") return <span className="rounded-full bg-coral/15 px-2.5 py-0.5 text-xs text-coral">Follow up</span>;
   return null;
-}
-
-export function Header({ title, sub, busy, onRefresh }: { title: string; sub: string; busy: boolean; onRefresh: () => void }) {
-  return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-1 text-muted-foreground">{sub}</p></div>
-      <button onClick={onRefresh} disabled={busy} className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm disabled:opacity-60"><RefreshCw className={cn("size-4", busy && "animate-spin")} /> Check for new</button>
-    </div>
-  );
-}
-export function Empty({ icon: I, text }: { icon: typeof PhoneCall; text: string }) {
-  return <div className="grid place-items-center px-6 py-20 text-center"><span className="grid size-12 place-items-center rounded-2xl bg-accent"><I className="size-5 text-violet" /></span><p className="mt-4 max-w-sm text-sm text-muted-foreground">{text}</p></div>;
 }
 
 function CallDrawer({ c, onClose }: { c: Call; onClose: () => void }) {

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { TestCall } from "@/components/nd/TestCall";
 import { GoogleCalendarConnect } from "@/components/dashboard/GoogleCalendarConnect";
+import { SquareConnect } from "@/components/dashboard/SquareConnect";
 import { KnowledgeEditor } from "@/components/dashboard/KnowledgeEditor";
 import { BrandMark } from "@/components/brand/Brand";
 import { voices } from "@/lib/voices";
@@ -106,6 +107,7 @@ function AgentPage() {
       </div>
 
       <GoogleCalendarConnect salonId={location.id} canEdit={canEdit} onChanged={load} />
+      <SquareConnect salonId={location.id} canEdit={canEdit} onChanged={load} />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-5"><h3 className="font-medium">Test My Agent</h3><p className="mt-1 text-sm text-muted-foreground">Talk to it in your browser like a client would.</p>

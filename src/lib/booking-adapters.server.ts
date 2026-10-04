@@ -56,6 +56,12 @@ export async function adapterFor(sb: Admin, salonId: string): Promise<BookingAda
   const { data } = await sb.from("salons").select("booking_provider").eq("id", salonId).single();
   const provider = data?.booking_provider ?? "salon_pro";
   // Google: books into the calendar the salon owner connected on the Salon Agent page.
+  // Square: books into the Square location the salon owner connected.
+  if (provider === "square") {
+    const { squareAdapter } = await import("./square-adapter.server");
+    const s = await squareAdapter(sb, salonId);
+    return s ?? notConnected(sb, salonId);
+  }
   if (provider === "google") {
     const { googleAdapter } = await import("./gcal-adapter.server");
     const g = await googleAdapter(sb, salonId);

@@ -37,6 +37,7 @@ import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/i
 import { Route as ApiPublicIncomingSmsRouteImport } from './routes/api/public/incoming-sms'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
 import { Route as OauthGoogle_calendarReturnRouteImport } from './routes/oauth/google_calendar/return'
+import { Route as ApiPublicSquareOauthCallbackRouteImport } from './routes/api/public/square-oauth/callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -189,6 +190,12 @@ const OauthGoogle_calendarReturnRoute =
     path: '/oauth/google_calendar/return',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSquareOauthCallbackRoute =
+  ApiPublicSquareOauthCallbackRouteImport.update({
+    id: '/api/public/square-oauth/callback',
+    path: '/api/public/square-oauth/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/oauth/google_calendar/return': typeof OauthGoogle_calendarReturnRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/api/public/square-oauth/callback': typeof ApiPublicSquareOauthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -246,6 +254,7 @@ export interface FileRoutesByTo {
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/oauth/google_calendar/return': typeof OauthGoogle_calendarReturnRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/api/public/square-oauth/callback': typeof ApiPublicSquareOauthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -277,6 +286,7 @@ export interface FileRoutesById {
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
   '/oauth/google_calendar/return': typeof OauthGoogle_calendarReturnRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/api/public/square-oauth/callback': typeof ApiPublicSquareOauthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/api/public/square-webhook'
     | '/oauth/google_calendar/return'
     | '/dashboard/'
+    | '/api/public/square-oauth/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/api/public/square-webhook'
     | '/oauth/google_calendar/return'
     | '/dashboard'
+    | '/api/public/square-oauth/callback'
   id:
     | '__root__'
     | '/'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
     | '/api/public/square-webhook'
     | '/oauth/google_calendar/return'
     | '/_authenticated/dashboard/'
+    | '/api/public/square-oauth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -384,6 +397,7 @@ export interface RootRouteChildren {
   ApiPublicIncomingSmsRoute: typeof ApiPublicIncomingSmsRoute
   ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
   OauthGoogle_calendarReturnRoute: typeof OauthGoogle_calendarReturnRoute
+  ApiPublicSquareOauthCallbackRoute: typeof ApiPublicSquareOauthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -584,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthGoogle_calendarReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/square-oauth/callback': {
+      id: '/api/public/square-oauth/callback'
+      path: '/api/public/square-oauth/callback'
+      fullPath: '/api/public/square-oauth/callback'
+      preLoaderRoute: typeof ApiPublicSquareOauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -652,6 +673,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicIncomingSmsRoute: ApiPublicIncomingSmsRoute,
   ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,
   OauthGoogle_calendarReturnRoute: OauthGoogle_calendarReturnRoute,
+  ApiPublicSquareOauthCallbackRoute: ApiPublicSquareOauthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

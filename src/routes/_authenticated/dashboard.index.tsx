@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, CalendarDays, MessageSquare, PhoneCall, TrendingUp } from "lucide-react";
 import { BrandMark } from "@/components/brand/Brand";
 import { loadPhoneSetup } from "@/lib/salon-data";
+import { supabase } from "@/integrations/supabase/client";
 import { formatUsNumber } from "@/lib/phone-format";
 import type { PhoneSetup } from "@/lib/phone-status";
 import { useActiveLocation as useLocation } from "@/components/dashboard/location-context";
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
   component: Overview,
 });
 
-// No call/text/booking history is stored yet, so these read zero until activity arrives.
+// Calls and texts count real saved activity; bookings and revenue stay zero until bookings are stored.
 const KPIS = [
   { label: "Calls answered", icon: PhoneCall },
   { label: "Appointments booked", icon: CalendarDays },
@@ -23,6 +24,14 @@ const KPIS = [
 function Overview() {
   const { location } = useLocation();
   const [setup, setSetup] = useState<PhoneSetup | null>(null);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const since = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    void Promise.all([
+      supabase.from("calls").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("started_at", since),
+      supabase.from("messages").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("sent_at", since),
+    ]).then(([c, m]) => setCounts({ "Calls answered": c.count ?? 0, "Texts handled": m.count ?? 0 }));
+  }, [location.id]);
   useEffect(() => { setSetup(null); void loadPhoneSetup(location.id).then(setSetup).catch(() => {}); }, [location.id]);
 
   const live = location.has_receptionist && !!location.phone_number;
@@ -54,7 +63,7 @@ function Overview() {
         {KPIS.map(({ label, icon: I, money }) => (
           <div key={label} className="glass rounded-3xl p-5">
             <div className="flex items-center justify-between text-muted-foreground"><span className="text-xs sm:text-sm">{label}</span><I className="size-4" /></div>
-            <div className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{money ? "$0" : "0"}</div>
+            <div className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{money ? "$0" : (counts[label] ?? 0)}</div>
             <div className="mt-1 text-xs text-muted-foreground">This month</div>
           </div>
         ))}

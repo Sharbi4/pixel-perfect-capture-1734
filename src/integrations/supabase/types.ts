@@ -46,6 +46,62 @@ export type Database = {
           },
         ]
       }
+      calls: {
+        Row: {
+          created_at: string
+          customer_phone: string
+          direction: string
+          duration_secs: number
+          id: string
+          outcome: string
+          provider_ref: string
+          salon_id: string
+          started_at: string
+          status: string
+          summary: string
+          title: string
+          transcript: Json
+        }
+        Insert: {
+          created_at?: string
+          customer_phone?: string
+          direction?: string
+          duration_secs?: number
+          id?: string
+          outcome?: string
+          provider_ref: string
+          salon_id: string
+          started_at: string
+          status?: string
+          summary?: string
+          title?: string
+          transcript?: Json
+        }
+        Update: {
+          created_at?: string
+          customer_phone?: string
+          direction?: string
+          duration_secs?: number
+          id?: string
+          outcome?: string
+          provider_ref?: string
+          salon_id?: string
+          started_at?: string
+          status?: string
+          summary?: string
+          title?: string
+          transcript?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checkout_purchases: {
         Row: {
           buyer: Json
@@ -141,6 +197,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          customer_phone: string
+          direction: string
+          id: string
+          provider_ref: string
+          salon_id: string
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          customer_phone?: string
+          direction: string
+          id?: string
+          provider_ref: string
+          salon_id: string
+          sent_at: string
+          status?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          customer_phone?: string
+          direction?: string
+          id?: string
+          provider_ref?: string
+          salon_id?: string
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {

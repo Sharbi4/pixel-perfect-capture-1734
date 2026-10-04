@@ -23,7 +23,7 @@ export async function sendSms(sb: Admin, o: { salonId: string; from: string; to:
 }
 
 /** Sends one automated text only if the salon has it switched on and the client hasn't opted out. */
-export async function sendAutomation(sb: Admin, salonId: string, kind: import("./sms-templates").SmsKind, to: string, vars: Record<string, string>) {
+export async function sendAutomation(sb: Admin, salonId: string, kind: import("./sms-templates").SmsKind, to: string, vars: Record<string, string>, opts?: { manual?: boolean }) {
   const { tpl, renderSms } = await import("./sms-templates");
   const t = tpl(kind);
   const [{ data: salon }, { data: set }, { data: th }] = await Promise.all([
@@ -31,7 +31,8 @@ export async function sendAutomation(sb: Admin, salonId: string, kind: import(".
     sb.from("sms_automations").select("enabled,body").eq("salon_id", salonId).eq("kind", kind).maybeSingle(),
     sb.from("sms_threads").select("opted_out,marketing_opt_in").eq("salon_id", salonId).eq("customer_phone", to).maybeSingle(),
   ]);
-  if (!salon?.phone_number || !(set ? set.enabled : t.defaultOn) || th?.opted_out) return false;
+  if (!salon?.phone_number || th?.opted_out) return false;
+  if (!opts?.manual && !(set ? set.enabled : t.defaultOn)) return false;
   if (t.marketing && !th?.marketing_opt_in) return false;
   const body = renderSms(kind, set?.body, { salon: salon.name || "Your salon", ...vars });
   return sendSms(sb, { salonId, from: salon.phone_number, to, body, sentBy: "agent" }).catch(() => false);

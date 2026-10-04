@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, Pause, Phone, Play, RefreshCw, TriangleAlert } f
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { TestCall } from "@/components/nd/TestCall";
+import { GoogleCalendarConnect } from "@/components/dashboard/GoogleCalendarConnect";
 import { KnowledgeEditor } from "@/components/dashboard/KnowledgeEditor";
 import { BrandMark } from "@/components/brand/Brand";
 import { voices } from "@/lib/voices";
@@ -103,6 +104,8 @@ function AgentPage() {
         <Stat k="Last updated" v={ago(info.last_synced_at)} />
         <Stat k="Greeting" v={saved!.greeting || defaultGreeting(info.name, saved!.agent_name)} small />
       </div>
+
+      <GoogleCalendarConnect salonId={location.id} canEdit={canEdit} onChanged={load} />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-5"><h3 className="font-medium">Test My Agent</h3><p className="mt-1 text-sm text-muted-foreground">Talk to it in your browser like a client would.</p>

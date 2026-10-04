@@ -29,6 +29,7 @@ export type Database = {
           notes: string
           price: number
           provider: string
+          provider_event_id: string
           salon_id: string
           service_id: string | null
           service_name: string
@@ -53,6 +54,7 @@ export type Database = {
           notes?: string
           price?: number
           provider?: string
+          provider_event_id?: string
           salon_id: string
           service_id?: string | null
           service_name?: string
@@ -77,6 +79,7 @@ export type Database = {
           notes?: string
           price?: number
           provider?: string
+          provider_event_id?: string
           salon_id?: string
           service_id?: string | null
           service_name?: string
@@ -596,6 +599,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "phone_setups_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: true
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      salon_calendar_connections: {
+        Row: {
+          calendar_id: string
+          calendar_summary: string
+          connection_key_ciphertext: string
+          created_at: string
+          id: string
+          provider: string
+          salon_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calendar_id?: string
+          calendar_summary?: string
+          connection_key_ciphertext?: string
+          created_at?: string
+          id?: string
+          provider?: string
+          salon_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calendar_id?: string
+          calendar_summary?: string
+          connection_key_ciphertext?: string
+          created_at?: string
+          id?: string
+          provider?: string
+          salon_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salon_calendar_connections_salon_id_fkey"
             columns: ["salon_id"]
             isOneToOne: true
             referencedRelation: "salons"

@@ -30,7 +30,7 @@ export function phoneConfigured(): boolean {
   return !!keys() && !!process.env["TWILIO_WEBHOOK_SECRET"] && !!publicOrigin();
 }
 
-async function tw(path: string, init?: RequestInit): Promise<{ status: number; json: unknown }> {
+export async function tw(path: string, init?: RequestInit): Promise<{ status: number; json: unknown }> {
   const h = keys();
   if (!h) return { status: 401, json: null };
   const res = await fetch(`${GATEWAY}${path}`, { ...init, headers: { ...h, ...(init?.headers ?? {}) } });

@@ -33,9 +33,9 @@ async function context(sb: Admin, salonId: string) {
   const [{ data: salon }, { data: staff }, { data: services }] = await Promise.all([
     sb.from("salons").select("timezone,buffer_min,lead_min,horizon_days,confirm_texts,phone_number,name,address").eq("id", salonId).single(),
     sb.from("staff").select("id,name,service_ids,hours,active").eq("salon_id", salonId).eq("active", true).order("position"),
-    sb.from("services").select("id,name,price,minutes").eq("salon_id", salonId),
+    sb.from("services").select("id,name,price,minutes,days,deposit_cents").eq("salon_id", salonId).eq("archived", false),
   ]);
-  return { salon, staff: (staff ?? []) as StaffLite[], services: (services ?? []) as { id: string; name: string; price: number; minutes: number }[] };
+  return { salon, staff: (staff ?? []) as StaffLite[], services: (services ?? []) as { id: string; name: string; price: number; minutes: number; days: number[]; deposit_cents: number }[] };
 }
 
 async function busy(sb: Admin, salonId: string, from: string, to: string, ignore?: string) {
@@ -61,6 +61,7 @@ export async function findSlots(sb: Admin, salonId: string, q: { date?: string |
   const b = await busy(sb, salonId, from, to, q.ignore);
   const slots = [];
   for (let i = 0; i < days && slots.length < 12; i++) {
+    if (svc?.days?.length && !svc.days.includes(weekday(addDays(start, i)))) continue;
     slots.push(...openSlots({ date: addDays(start, i), staff, busy: b, minutes: svc?.minutes ?? 30, rules, now: new Date(), serviceId: svc?.id, staffId: who?.id, step: 30 }).slice(0, 6));
   }
   return {

@@ -23,13 +23,13 @@ export interface BookingAdapter {
 function salonPro(sb: Admin, salonId: string): BookingAdapter {
   return {
     getServices: async () => {
-      const { data } = await sb.from("services").select("name,price,minutes,is_addon").eq("salon_id", salonId).order("position");
+      const { data } = await sb.from("services").select("name,price,minutes,is_addon,description,deposit_cents,days").eq("salon_id", salonId).eq("archived", false).order("position");
       return { services: (data ?? []).map((s) => ({ ...s, price: Number(s.price) })) };
     },
     getStaff: async () => {
       const [{ data: st }, { data: sv }] = await Promise.all([
         sb.from("staff").select("name,service_ids").eq("salon_id", salonId).eq("active", true).order("position"),
-        sb.from("services").select("id,name").eq("salon_id", salonId),
+        sb.from("services").select("id,name").eq("salon_id", salonId).eq("archived", false),
       ]);
       const names = new Map((sv ?? []).map((s) => [s.id, s.name]));
       return { technicians: (st ?? []).map((s) => ({ name: s.name, services: s.service_ids.length ? s.service_ids.map((i) => names.get(i)).filter(Boolean) : "all services" })) };

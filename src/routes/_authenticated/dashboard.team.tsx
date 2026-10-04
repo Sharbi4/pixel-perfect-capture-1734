@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,7 +65,7 @@ function TeamPage() {
           <Num label="Minimum notice (min)" v={data.rules.lead_min} max={10080} on={(n) => saveRules({ lead_min: n })} />
           <Num label="Book up to (days ahead)" v={data.rules.horizon_days} min={1} max={365} on={(n) => saveRules({ horizon_days: n })} />
         </div>
-        <label className="mt-4 flex items-center gap-2 text-sm"><input type="checkbox" checked={data.rules.confirm_texts} onChange={(e) => saveRules({ confirm_texts: e.target.checked })} /> Text clients a confirmation when the Salon Agent books on a call</label>
+        <p className="mt-4 text-sm text-muted-foreground">Confirmation and reminder texts are set in <Link to="/dashboard/settings" className="text-violet hover:underline">Settings</Link>.</p>
       </section>
 
       <section className="mt-4 space-y-4">

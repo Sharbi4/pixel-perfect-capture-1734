@@ -22,9 +22,33 @@ export async function sendSms(sb: Admin, o: { salonId: string; from: string; to:
   return true;
 }
 
+/** Sends one automated text only if the salon has it switched on and the client hasn't opted out. */
+export async function sendAutomation(sb: Admin, salonId: string, kind: import("./sms-templates").SmsKind, to: string, vars: Record<string, string>) {
+  const { tpl, renderSms } = await import("./sms-templates");
+  const t = tpl(kind);
+  const [{ data: salon }, { data: set }, { data: th }] = await Promise.all([
+    sb.from("salons").select("name,phone_number").eq("id", salonId).single(),
+    sb.from("sms_automations").select("enabled,body").eq("salon_id", salonId).eq("kind", kind).maybeSingle(),
+    sb.from("sms_threads").select("opted_out,marketing_opt_in").eq("salon_id", salonId).eq("customer_phone", to).maybeSingle(),
+  ]);
+  if (!salon?.phone_number || !(set ? set.enabled : t.defaultOn) || th?.opted_out) return false;
+  if (t.marketing && !th?.marketing_opt_in) return false;
+  const body = renderSms(kind, set?.body, { salon: salon.name || "Your salon", ...vars });
+  return sendSms(sb, { salonId, from: salon.phone_number, to, body, sentBy: "agent" }).catch(() => false);
+}
+
+/** Record STOP / START replies so automations respect them. */
+export async function recordOptOut(sb: Admin, salonId: string, phone: string, body: string) {
+  const w = body.trim().toLowerCase();
+  const stop = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"].includes(w);
+  const start = ["start", "unstop"].includes(w);
+  if (!stop && !start) return;
+  await sb.from("sms_threads").upsert({ salon_id: salonId, customer_phone: phone, opted_out: stop, ...(stop ? { marketing_opt_in: false } : {}) }, { onConflict: "salon_id,customer_phone" });
+}
+
 /** Called after an inbound text is saved. Replies only when the thread is in Salon Agent mode. */
 export async function agentReply(sb: Admin, salonId: string, from: string, customer: string, lastBody: string) {
-  if (OPT_OUT.test(lastBody)) return; // carrier keywords are handled by the phone provider
+  if (OPT_OUT.test(lastBody)) { await recordOptOut(sb, salonId, customer, lastBody); return; } // carrier keywords are handled by the phone provider
   const { data: t } = await sb.from("sms_threads").select("ai_enabled,customer_name").eq("salon_id", salonId).eq("customer_phone", customer).maybeSingle();
   if (t && !t.ai_enabled) return;
   const [{ data: s }, { data: svc }, { data: hist }] = await Promise.all([

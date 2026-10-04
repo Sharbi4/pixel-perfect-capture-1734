@@ -438,7 +438,7 @@ function Checkout() {
                         />
                         <span>
                           I authorize {money(today)} today and{" "}
-                          {money(tax.recurringCents)} monthly (incl. sales tax) starting{" "}
+                          {money(tax.recurringCents)} monthly{hasState ? " (incl. sales tax)" : " plus sales tax"} starting{" "}
                           {config.nextBillingDate || "on the date shown before payment"}. I
                           authorize Square to save my card for this subscription. I agree to the{" "}
                           <a href="/terms" target="_blank" rel="noreferrer" className="underline">

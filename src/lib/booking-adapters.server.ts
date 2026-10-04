@@ -62,5 +62,12 @@ export async function adapterFor(sb: Admin, salonId: string): Promise<BookingAda
     if (g) return g;
     return notConnected(sb, salonId);
   }
+  // Square: books into the Square Appointments calendar the salon owner connected.
+  if (provider === "square") {
+    const { squareAdapter } = await import("./square-adapter.server");
+    const s = await squareAdapter(sb, salonId);
+    if (s) return s;
+    return notConnected(sb, salonId);
+  }
   return provider === "salon_pro" ? salonPro(sb, salonId) : notConnected(sb, salonId);
 }

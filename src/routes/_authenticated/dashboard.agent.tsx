@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useActiveLocation } from "@/components/dashboard/location-context";
 import { TestCall } from "@/components/nd/TestCall";
 import { GoogleCalendarConnect } from "@/components/dashboard/GoogleCalendarConnect";
+import { SquareConnect } from "@/components/dashboard/SquareConnect";
 import { KnowledgeEditor } from "@/components/dashboard/KnowledgeEditor";
 import { BrandMark } from "@/components/brand/Brand";
 import { voices } from "@/lib/voices";

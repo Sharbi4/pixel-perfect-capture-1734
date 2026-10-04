@@ -19,12 +19,16 @@ export type Database = {
           call_id: string | null
           client_name: string
           client_phone: string
+          confirmation_sent_at: string | null
           created_at: string
           created_by: string | null
+          deposit_cents: number
+          deposit_status: string
           ends_at: string
           id: string
           notes: string
           price: number
+          provider: string
           salon_id: string
           service_id: string | null
           service_name: string
@@ -39,12 +43,16 @@ export type Database = {
           call_id?: string | null
           client_name?: string
           client_phone?: string
+          confirmation_sent_at?: string | null
           created_at?: string
           created_by?: string | null
+          deposit_cents?: number
+          deposit_status?: string
           ends_at: string
           id?: string
           notes?: string
           price?: number
+          provider?: string
           salon_id: string
           service_id?: string | null
           service_name?: string
@@ -59,12 +67,16 @@ export type Database = {
           call_id?: string | null
           client_name?: string
           client_phone?: string
+          confirmation_sent_at?: string | null
           created_at?: string
           created_by?: string | null
+          deposit_cents?: number
+          deposit_status?: string
           ends_at?: string
           id?: string
           notes?: string
           price?: number
+          provider?: string
           salon_id?: string
           service_id?: string | null
           service_name?: string

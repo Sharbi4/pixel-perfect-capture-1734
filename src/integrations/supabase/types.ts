@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          call_id: string | null
+          client_name: string
+          client_phone: string
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          id: string
+          notes: string
+          price: number
+          salon_id: string
+          service_id: string | null
+          service_name: string
+          source: string
+          staff_id: string | null
+          starts_at: string
+          status: string
+          text_confirmed: boolean
+          updated_at: string
+        }
+        Insert: {
+          call_id?: string | null
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          id?: string
+          notes?: string
+          price?: number
+          salon_id: string
+          service_id?: string | null
+          service_name?: string
+          source?: string
+          staff_id?: string | null
+          starts_at: string
+          status?: string
+          text_confirmed?: boolean
+          updated_at?: string
+        }
+        Update: {
+          call_id?: string | null
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          id?: string
+          notes?: string
+          price?: number
+          salon_id?: string
+          service_id?: string | null
+          service_name?: string
+          source?: string
+          staff_id?: string | null
+          starts_at?: string
+          status?: string
+          text_confirmed?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_events: {
         Row: {
           created_at: string
@@ -503,28 +595,35 @@ export type Database = {
           agent_id: string
           agent_synced_version: number
           booking_app: string
+          buffer_min: number
           cancellation_policy: string
           config_version: number
+          confirm_texts: boolean
           contact_name: string
           created_at: string
           deposit_policy: string
           has_receptionist: boolean | null
+          horizon_days: number
           hours: string
           id: string
           languages: string[]
           launched_at: string | null
+          lead_min: number
           name: string
           owner_id: string
           paid_access_until: string | null
           phone: string
           phone_number: string
           phone_number_sid: string
+          plan_tier: string
+          scheduling_addon: boolean
           setup_completed: number[]
           setup_config: Json
           setup_draft: Json | null
           setup_method: string
           setup_revision: number
           status: string
+          timezone: string
           updated_at: string
           voice: string
           walk_ins: boolean
@@ -536,28 +635,35 @@ export type Database = {
           agent_id?: string
           agent_synced_version?: number
           booking_app?: string
+          buffer_min?: number
           cancellation_policy?: string
           config_version?: number
+          confirm_texts?: boolean
           contact_name?: string
           created_at?: string
           deposit_policy?: string
           has_receptionist?: boolean | null
+          horizon_days?: number
           hours?: string
           id?: string
           languages?: string[]
           launched_at?: string | null
+          lead_min?: number
           name?: string
           owner_id: string
           paid_access_until?: string | null
           phone?: string
           phone_number?: string
           phone_number_sid?: string
+          plan_tier?: string
+          scheduling_addon?: boolean
           setup_completed?: number[]
           setup_config?: Json
           setup_draft?: Json | null
           setup_method?: string
           setup_revision?: number
           status?: string
+          timezone?: string
           updated_at?: string
           voice?: string
           walk_ins?: boolean
@@ -569,28 +675,35 @@ export type Database = {
           agent_id?: string
           agent_synced_version?: number
           booking_app?: string
+          buffer_min?: number
           cancellation_policy?: string
           config_version?: number
+          confirm_texts?: boolean
           contact_name?: string
           created_at?: string
           deposit_policy?: string
           has_receptionist?: boolean | null
+          horizon_days?: number
           hours?: string
           id?: string
           languages?: string[]
           launched_at?: string | null
+          lead_min?: number
           name?: string
           owner_id?: string
           paid_access_until?: string | null
           phone?: string
           phone_number?: string
           phone_number_sid?: string
+          plan_tier?: string
+          scheduling_addon?: boolean
           setup_completed?: number[]
           setup_config?: Json
           setup_draft?: Json | null
           setup_method?: string
           setup_revision?: number
           status?: string
+          timezone?: string
           updated_at?: string
           voice?: string
           walk_ins?: boolean
@@ -682,6 +795,146 @@ export type Database = {
             columns: ["salon_id"]
             isOneToOne: false
             referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff: {
+        Row: {
+          active: boolean
+          created_at: string
+          hours: Json
+          id: string
+          name: string
+          position: number
+          salon_id: string
+          service_ids: string[]
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          hours?: Json
+          id?: string
+          name: string
+          position?: number
+          salon_id: string
+          service_ids?: string[]
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          hours?: Json
+          id?: string
+          name?: string
+          position?: number
+          salon_id?: string
+          service_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_time_off: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          reason: string
+          salon_id: string
+          staff_id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          reason?: string
+          salon_id: string
+          staff_id: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          reason?: string
+          salon_id?: string
+          staff_id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_time_off_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_time_off_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist: {
+        Row: {
+          client_name: string
+          client_phone: string
+          created_at: string
+          id: string
+          preferred: string
+          salon_id: string
+          service_name: string
+          source: string
+          staff_id: string | null
+          status: string
+        }
+        Insert: {
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          preferred?: string
+          salon_id: string
+          service_name?: string
+          source?: string
+          staff_id?: string | null
+          status?: string
+        }
+        Update: {
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          preferred?: string
+          salon_id?: string
+          service_name?: string
+          source?: string
+          staff_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]

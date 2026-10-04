@@ -21,7 +21,7 @@ Use the platform owner's Square developer application and sandbox seller account
 | `SQUARE_BILLING_WEBHOOK_SIGNATURE_KEY` | Signature key from the webhook subscription below |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Existing backend database credentials; server only |
 
-The server verifies the location and catalog price before accepting payment. It charges $1,495 setup plus the selected first month: Essential $1,794, Pro $1,944, Premier $2,194. It stores the card with Square and starts the selected monthly subscription one calendar month later. Each variation must have no fixed catalog billing anchor or proration. Card numbers never pass through this server. Month ends are clamped, and access boundaries use the Square location's time zone.
+The server verifies the location and catalog price before accepting payment. It charges $199 setup plus the selected first month: Essential $498, Pro $648, Premier $894. It stores the card with Square and starts the selected monthly subscription one calendar month later. Each variation must have no fixed catalog billing anchor or proration. Card numbers never pass through this server. Month ends are clamped, and access boundaries use the Square location's time zone.
 
 Configure `https://YOUR-ORIGIN/api/public/square-billing-webhook` with the exact same origin as `PUBLIC_APP_ORIGIN`. Subscribe to payment.created/updated, subscription.created/updated, invoice.payment_made/updated/refunded, and refund.created/updated events supported by the app's API version. Localhost requires a separately configured HTTPS development endpoint for provider callbacks; do not put production credentials in a local sandbox.
 

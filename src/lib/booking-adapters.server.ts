@@ -1,7 +1,8 @@
 // One booking interface for every agent tool. The salon is always resolved by the server from the
 // trusted per-salon tool key, never from anything the agent sends. Each salon's booking_provider picks
-// the adapter; only Salon Pro Scheduling is live today. Other providers refuse to answer rather than
-// guess, so the agent can never claim availability or a booking that no calendar confirmed.
+// the adapter: Salon Pro Scheduling, or the salon's own connected Google Calendar. Unconnected providers
+// refuse to answer rather than guess, so the agent can never claim availability or a booking that no
+// calendar confirmed.
 import type { supabaseAdmin } from "@/integrations/supabase/client.server";
 import * as native from "./booking.server";
 
@@ -53,5 +54,13 @@ function notConnected(sb: Admin, salonId: string): BookingAdapter {
 
 export async function adapterFor(sb: Admin, salonId: string): Promise<BookingAdapter> {
   const { data } = await sb.from("salons").select("booking_provider").eq("id", salonId).single();
-  return (data?.booking_provider ?? "salon_pro") === "salon_pro" ? salonPro(sb, salonId) : notConnected(sb, salonId);
+  const provider = data?.booking_provider ?? "salon_pro";
+  // Google: books into the calendar the salon owner connected on the Salon Agent page.
+  if (provider === "google") {
+    const { googleAdapter } = await import("./gcal-adapter.server");
+    const g = await googleAdapter(sb, salonId);
+    if (g) return g;
+    return notConnected(sb, salonId);
+  }
+  return provider === "salon_pro" ? salonPro(sb, salonId) : notConnected(sb, salonId);
 }

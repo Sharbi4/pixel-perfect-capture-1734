@@ -16,7 +16,7 @@ function key() {
   if (set) {
     try {
       const p = JSON.parse(set) as Record<string, unknown>;
-      const f = [p.default, ...Object.values(p)].find((v): v is string => typeof v === "string" && v.startsWith("sb_publishable_"));
+      const f = [p["default"], ...Object.values(p)].find((v): v is string => typeof v === "string" && v.startsWith("sb_publishable_"));
       if (f) return f;
     } catch { /* fall through */ }
   }

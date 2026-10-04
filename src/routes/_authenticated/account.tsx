@@ -142,6 +142,7 @@ function AccountPage() {
         )}
         {salon.has_receptionist && <TestCall />}
         <div className="mt-6 flex flex-wrap gap-3">
+          <Link to="/dashboard" className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground">Open dashboard</Link>
           {salon.has_receptionist && !salon.phone_number && (numState === "none" || numState === "failed") && (
             <button onClick={getNumber} disabled={!!busy} className="bg-brand inline-flex min-h-11 items-center gap-2 rounded-full px-6 py-2 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
               {busy === "number" && <Loader2 className="size-4 animate-spin" />} Set up my temporary number

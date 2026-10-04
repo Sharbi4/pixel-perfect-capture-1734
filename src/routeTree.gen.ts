@@ -14,8 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardSectionRouteImport } from './routes/_authenticated/dashboard.$section'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
@@ -44,6 +47,11 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
   id: '/setup',
   path: '/setup',
@@ -54,6 +62,18 @@ const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   path: '/api/voice-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardSectionRoute =
+  AuthenticatedDashboardSectionRouteImport.update({
+    id: '/$section',
+    path: '/$section',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
   id: '/api/public/agent-token',
   path: '/api/public/agent-token',
@@ -75,11 +95,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -88,9 +111,11 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -99,11 +124,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/_authenticated/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -112,11 +140,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/account'
+    | '/dashboard'
     | '/setup'
     | '/api/voice-preview'
+    | '/dashboard/$section'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -125,9 +156,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/setup'
     | '/api/voice-preview'
+    | '/dashboard/$section'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
@@ -135,11 +168,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/account'
+    | '/_authenticated/dashboard'
     | '/_authenticated/setup'
     | '/api/voice-preview'
+    | '/_authenticated/dashboard/$section'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
+    | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -190,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/setup': {
       id: '/_authenticated/setup'
       path: '/setup'
@@ -203,6 +246,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/voice-preview'
       preLoaderRoute: typeof ApiVoicePreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/$section': {
+      id: '/_authenticated/dashboard/$section'
+      path: '/$section'
+      fullPath: '/dashboard/$section'
+      preLoaderRoute: typeof AuthenticatedDashboardSectionRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/api/public/agent-token': {
       id: '/api/public/agent-token'
@@ -228,13 +285,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardSectionRoute: typeof AuthenticatedDashboardSectionRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardSectionRoute: AuthenticatedDashboardSectionRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedSetupRoute: AuthenticatedSetupRoute,
 }
 

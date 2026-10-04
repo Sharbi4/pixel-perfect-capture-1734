@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check, Globe, Loader2, Pause, Play, Plus, Trash2
 import { supabase } from "@/integrations/supabase/client";
 import { loadOrCreateSalon, saveSalon, saveServices, type Salon, type Service } from "@/lib/salon-data";
 import { extractServices, launchSalon } from "@/lib/setup.functions";
+import { createSalonCheckout, getPaymentStatus } from "@/lib/square.functions";
 import { voices, greeting } from "@/lib/voices";
 import { cn } from "@/lib/utils";
 import { formatUsNumber, normalizeUsNumber } from "@/lib/phone-format";
@@ -37,10 +38,22 @@ function SetupPage() {
   const [err, setErr] = useState<string | null>(null);
   const launch = useServerFn(launchSalon);
   const launchKey = useRef<string>(crypto.randomUUID());
+  const paymentStatus = useServerFn(getPaymentStatus);
+  const [paid, setPaid] = useState<boolean | null>(null);
 
   useEffect(() => { loadOrCreateSalon().then(({ salon, services }) => { setSalon(salon); setServices(services); }).catch((e) => setErr(e.message)); }, []);
 
-  if (!salon) return <div className="grid min-h-screen place-items-center text-muted-foreground">{err ?? <Loader2 className="size-5 animate-spin" />}</div>;
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => paymentStatus().then((r) => { if (!cancelled) setPaid(r.paid); }).catch(() => { if (!cancelled) setPaid(false); });
+    check();
+    // Poll while a checkout is in flight (e.g. just returned from Square).
+    const t = setInterval(() => { if (!cancelled) check(); }, 5000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [paymentStatus]);
+
+  if (!salon || paid === null) return <div className="grid min-h-screen place-items-center text-muted-foreground">{err ?? <Loader2 className="size-5 animate-spin" />}</div>;
+  if (!paid) return <PayGate />;
   const set = (p: Partial<Salon>) => setSalon({ ...salon, ...p });
 
   async function persist() {
@@ -110,6 +123,47 @@ function SetupPage() {
             )}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PayGate() {
+  const nav = useNavigate();
+  const checkout = useServerFn(createSalonCheckout);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const key = useRef<string>(crypto.randomUUID());
+
+  async function pay() {
+    setBusy(true); setErr(null);
+    try {
+      const r = await checkout({ data: { idempotencyKey: key.current } });
+      if (r.alreadyPaid || !r.url) { window.location.reload(); return; }
+      window.location.href = r.url;
+    } catch (e) {
+      key.current = crypto.randomUUID();
+      setErr(e instanceof Error ? e.message : "Couldn't start checkout");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="grid min-h-screen place-items-center px-4 py-8">
+      <div className="glass w-full max-w-lg rounded-[28px] p-8 text-center md:p-10">
+        <BrandLogo />
+        <h1 className="mt-8 text-2xl font-semibold tracking-tight">One step before setup</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Salon Pro Agent is $449/month with a one-time $1,500 custom setup &amp; launch.
+          Start with the setup payment — your monthly plan begins when your receptionist goes live.
+        </p>
+        {err && <p className="mt-4 text-sm text-destructive">{err}</p>}
+        <button onClick={pay} disabled={busy} className="bg-brand mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-7 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
+          {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+          Pay $1,500 setup &amp; continue
+        </button>
+        <p className="mt-4 text-xs text-muted-foreground">Secure checkout by Square. Already paid? This page updates automatically.</p>
+        <button onClick={() => supabase.auth.signOut().then(() => nav({ to: "/" }))} className="mt-6 text-sm text-muted-foreground hover:text-foreground">Sign out</button>
       </div>
     </div>
   );

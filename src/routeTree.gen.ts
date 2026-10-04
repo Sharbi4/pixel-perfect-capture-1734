@@ -17,6 +17,7 @@ import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
+import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -57,6 +58,11 @@ const ApiPublicIncomingCallRoute = ApiPublicIncomingCallRouteImport.update({
   path: '/api/public/incoming-call',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSquareWebhookRoute = ApiPublicSquareWebhookRouteImport.update({
+  id: '/api/public/square-webhook',
+  path: '/api/public/square-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/api/voice-preview': typeof ApiVoicePreviewRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
+  '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/square-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/square-webhook'
   id:
     | '__root__'
     | '/'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/api/voice-preview'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
+    | '/api/public/square-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -125,6 +137,7 @@ export interface RootRouteChildren {
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
+  ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIncomingCallRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/square-webhook': {
+      id: '/api/public/square-webhook'
+      path: '/api/public/square-webhook'
+      fullPath: '/api/public/square-webhook'
+      preLoaderRoute: typeof ApiPublicSquareWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -208,6 +228,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
+  ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

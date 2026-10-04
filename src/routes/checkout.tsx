@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, LockKeyhole, ArrowRight } from "lucide-react";
-import { BrandLogo } from "@/components/brand/Brand";
+import { BrandLogo, BrandMark } from "@/components/brand/Brand";
 import { Field, inputClass, buttonClass } from "@/components/setup/Fields";
 import {
   buyerSchema,
@@ -225,7 +225,7 @@ function Checkout() {
         required
         autoComplete={key === "email" ? "email" : undefined}
         type={type}
-        className={inputClass}
+        className={`${inputClass} checkout-input`}
         value={buyer[key]}
         onChange={(e) => setBuyer({ ...buyer, [key]: e.target.value })}
       />
@@ -233,14 +233,21 @@ function Checkout() {
   );
   return (
     <SiteShell>
-      <div className="min-h-screen px-5 py-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mt-6 grid gap-8 lg:grid-cols-[.85fr_1.15fr]">
-            <aside>
+      <div className="checkout-stage min-h-screen px-5 py-10 sm:py-16">
+        <div className="relative z-10 mx-auto max-w-6xl">
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-6">
+            <BrandLogo className="w-[220px] sm:w-[250px]" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-muted-foreground">
+              <LockKeyhole className="size-3.5" />
+              Secure checkout
+            </span>
+          </div>
+          <div className="grid items-start gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-12">
+            <aside className="lg:sticky lg:top-8">
               <p className="text-xs uppercase tracking-[.16em] text-muted-foreground">
                 Get started today
               </p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight">
+              <h1 className="mt-4 text-4xl font-semibold leading-[1.12] tracking-[-.045em] sm:text-5xl">
                 Your front desk.
                 <br />
                 <span className="text-gradient">Ready for what's next.</span>
@@ -249,11 +256,21 @@ function Checkout() {
                 {preview?.name || "Your salon"} gets a guided setup, a receptionist to make its own,
                 and support through launch.
               </p>
-              <div className="glass mt-7 rounded-2xl p-6">
+              <div className="checkout-glass mt-8 rounded-[28px] p-6 sm:p-7">
                 <p className="text-xs uppercase tracking-[.14em] text-muted-foreground">
                   Your plan
                 </p>
-                <p className="mt-2 font-medium">Salon Pro Agent {plan.name}</p>
+                <div className="mt-4 flex items-center gap-4">
+                  <span className="checkout-mark grid size-12 place-items-center rounded-2xl">
+                    <BrandMark className="size-8" />
+                  </span>
+                  <div>
+                    <p className="text-xl font-semibold">{plan.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Your Salon Pro Agent membership
+                    </p>
+                  </div>
+                </div>
                 <p className="mt-3 text-xs leading-5 text-muted-foreground">
                   {selected.minutes.toLocaleString()} voice minutes ·{" "}
                   {selected.sms.toLocaleString()} SMS segments · {selected.locations}{" "}
@@ -268,7 +285,7 @@ function Checkout() {
                     <dt className="text-muted-foreground">First month</dt>
                     <dd>{money(plan.monthlyCents)}</dd>
                   </div>
-                  <div className="flex justify-between gap-4 border-t border-border pt-4 font-medium">
+                  <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-5 font-medium [&>dd]:text-2xl [&>dd]:tracking-tight">
                     <dt>Total today</dt>
                     <dd>{money(plan.setupCents + plan.monthlyCents)}</dd>
                   </div>
@@ -297,7 +314,21 @@ function Checkout() {
                 Back to my preview
               </Link>
             </aside>
-            <section className="glass min-w-0 rounded-[28px] p-6 sm:p-8">
+            <section
+              aria-label="Secure payment"
+              className="checkout-glass checkout-payment min-w-0 rounded-[32px] p-6 sm:p-9"
+            >
+              <div className="mb-7 flex items-center gap-3 border-b border-white/10 pb-6">
+                <span className="checkout-mark grid size-10 shrink-0 place-items-center rounded-xl">
+                  <BrandMark className="size-6" />
+                </span>
+                <div>
+                  <p className="text-sm font-medium">Salon Pro Agent</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    A better welcome starts here.
+                  </p>
+                </div>
+              </div>
               {!config ? (
                 <div role="status" className="flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin" />
@@ -384,7 +415,10 @@ function Checkout() {
                           United States · USD
                         </p>
                       </fieldset>
-                      <div id="square-card" className="mt-6 min-h-12" />
+                      <div
+                        id="square-card"
+                        className="checkout-card-field mt-6 min-h-12 rounded-2xl border border-white/10 bg-black/15 p-4"
+                      />
                       <label className="mt-5 flex items-start gap-3 text-xs leading-relaxed text-muted-foreground">
                         <input
                           disabled={!config.available || busy}
@@ -394,31 +428,33 @@ function Checkout() {
                           checked={consent}
                           onChange={(e) => setConsent(e.target.checked)}
                         />
-                        I authorize {money(plan.setupCents + plan.monthlyCents)} today and{" "}
-                        {money(plan.monthlyCents)} monthly starting{" "}
-                        {config.nextBillingDate || "on the date shown before payment"}. I authorize
-                        Square to save my card for this subscription. I agree to the{" "}
-                        <a href="/terms" target="_blank" rel="noreferrer" className="underline">
-                          Terms
-                        </a>{" "}
-                        and have read the{" "}
-                        <a href="/privacy" target="_blank" rel="noreferrer" className="underline">
-                          Privacy Policy
-                        </a>
-                        . I can request cancellation before renewal at support@salonagentai.com.{" "}
-                        <a
-                          href="/cancellation-refunds"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="underline"
-                        >
-                          Cancellation & refunds
-                        </a>
-                        .
+                        <span>
+                          I authorize {money(plan.setupCents + plan.monthlyCents)} today and{" "}
+                          {money(plan.monthlyCents)} monthly starting{" "}
+                          {config.nextBillingDate || "on the date shown before payment"}. I
+                          authorize Square to save my card for this subscription. I agree to the{" "}
+                          <a href="/terms" target="_blank" rel="noreferrer" className="underline">
+                            Terms
+                          </a>{" "}
+                          and have read the{" "}
+                          <a href="/privacy" target="_blank" rel="noreferrer" className="underline">
+                            Privacy Policy
+                          </a>
+                          . I can request cancellation before renewal at support@salonagentai.com.{" "}
+                          <a
+                            href="/cancellation-refunds"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline"
+                          >
+                            Cancellation & refunds
+                          </a>
+                          .
+                        </span>
                       </label>
                       <button
                         disabled={!config.available || !preview || !cardReady || !consent || busy}
-                        className="bg-brand mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium text-white disabled:opacity-40"
+                        className="checkout-pay-button bg-brand mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold text-white transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         {busy ? (
                           <Loader2 className="size-4 animate-spin" />
@@ -444,6 +480,18 @@ function Checkout() {
                   {error}
                 </p>
               )}
+              <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-2">
+                  <LockKeyhole className="size-3.5" />
+                  Payments by Square
+                </span>
+                <a
+                  href="mailto:support@salonagentai.com"
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  Questions? We’re here to help.
+                </a>
+              </div>
             </section>
           </div>
         </div>

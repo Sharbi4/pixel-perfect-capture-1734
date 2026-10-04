@@ -21,17 +21,35 @@ const KPIS = [
   { label: "Est. revenue captured", icon: TrendingUp, money: true },
 ];
 
+const RANGES = [
+  { k: "today", label: "Today" },
+  { k: "7", label: "7 days" },
+  { k: "30", label: "30 days" },
+  { k: "custom", label: "Custom" },
+] as const;
+const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
 function Overview() {
   const { location } = useLocation();
   const [setup, setSetup] = useState<PhoneSetup | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [range, setRange] = useState<string>("30");
+  const [from, setFrom] = useState(() => ymd(new Date(Date.now() - 29 * 864e5)));
+  const [to, setTo] = useState(() => ymd(new Date()));
+  const today = dayStart(new Date());
+  const [since, until] = range === "custom"
+    ? [new Date(`${from}T00:00:00`), new Date(new Date(`${to}T00:00:00`).getTime() + 864e5)]
+    : [range === "today" ? today : new Date(today.getTime() - (Number(range) - 1) * 864e5), new Date(today.getTime() + 864e5)];
+  const periodLabel = range === "today" ? "Today" : range === "custom" ? "Selected dates" : `Last ${range} days`;
+  const s = since.toISOString(), u = until.toISOString();
   useEffect(() => {
-    const since = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    if (Number.isNaN(Date.parse(s)) || Number.isNaN(Date.parse(u))) return;
     void Promise.all([
-      supabase.from("calls").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("started_at", since),
-      supabase.from("messages").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("sent_at", since),
+      supabase.from("calls").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("started_at", s).lt("started_at", u),
+      supabase.from("messages").select("id", { count: "exact", head: true }).eq("salon_id", location.id).gte("sent_at", s).lt("sent_at", u),
     ]).then(([c, m]) => setCounts({ "Calls answered": c.count ?? 0, "Texts handled": m.count ?? 0 }));
-  }, [location.id]);
+  }, [location.id, s, u]);
   useEffect(() => { setSetup(null); void loadPhoneSetup(location.id).then(setSetup).catch(() => {}); }, [location.id]);
 
   const live = location.has_receptionist && !!location.phone_number;
@@ -59,12 +77,25 @@ function Overview() {
         </span>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        {RANGES.map((r) => (
+          <button key={r.k} onClick={() => setRange(r.k)} className={`rounded-full px-4 py-1.5 text-sm ${range === r.k ? "bg-primary text-primary-foreground" : "bg-accent text-muted-foreground hover:text-foreground"}`}>{r.label}</button>
+        ))}
+        {range === "custom" && (
+          <span className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm">
+            <input type="date" aria-label="From" value={from} max={to} onChange={(e) => setFrom(e.target.value)} className="bg-transparent outline-none" />
+            <span className="text-muted-foreground">to</span>
+            <input type="date" aria-label="To" value={to} min={from} onChange={(e) => setTo(e.target.value)} className="bg-transparent outline-none" />
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {KPIS.map(({ label, icon: I, money }) => (
           <div key={label} className="glass rounded-3xl p-5">
             <div className="flex items-center justify-between text-muted-foreground"><span className="text-xs sm:text-sm">{label}</span><I className="size-4" /></div>
             <div className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{money ? "$0" : (counts[label] ?? 0)}</div>
-            <div className="mt-1 text-xs text-muted-foreground">This month</div>
+            <div className="mt-1 text-xs text-muted-foreground">{periodLabel}</div>
           </div>
         ))}
       </div>

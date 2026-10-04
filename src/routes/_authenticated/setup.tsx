@@ -128,6 +128,48 @@ function SetupPage() {
   );
 }
 
+function PayGate({ salonReady }: { salonReady: boolean }) {
+  const nav = useNavigate();
+  const checkout = useServerFn(createSalonCheckout);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const key = useRef<string>(crypto.randomUUID());
+
+  async function pay() {
+    setBusy(true); setErr(null);
+    try {
+      const r = await checkout({ data: { idempotencyKey: key.current } });
+      if (r.alreadyPaid || !r.url) { window.location.reload(); return; }
+      window.location.href = r.url;
+    } catch (e) {
+      key.current = crypto.randomUUID();
+      setErr(e instanceof Error ? e.message : "Couldn't start checkout");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="grid min-h-screen place-items-center px-4 py-8">
+      <div className="glass w-full max-w-lg rounded-[28px] p-8 text-center md:p-10">
+        <BrandLogo />
+        <h1 className="mt-8 text-2xl font-semibold tracking-tight">One step before setup</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Salon Pro Agent is $449/month with a one-time $1,500 custom setup &amp; launch.
+          Start with the setup payment — your monthly plan begins when your receptionist goes live.
+        </p>
+        {err && <p className="mt-4 text-sm text-destructive">{err}</p>}
+        <button onClick={pay} disabled={busy || !salonReady} className="bg-brand mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-7 text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60">
+          {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+          Pay $1,500 setup &amp; continue
+        </button>
+        {!salonReady && <p className="mt-3 text-xs text-muted-foreground">Add your salon name first — it appears on your receipt.</p>}
+        <p className="mt-4 text-xs text-muted-foreground">Secure checkout by Square. Already paid? This page updates automatically.</p>
+        <button onClick={() => supabase.auth.signOut().then(() => nav({ to: "/" }))} className="mt-6 text-sm text-muted-foreground hover:text-foreground">Sign out</button>
+      </div>
+    </div>
+  );
+}
+
 function H({ t, d }: { t: string; d: string }) {
   return <div className="mb-8"><h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t}</h1><p className="mt-2 text-muted-foreground">{d}</p></div>;
 }

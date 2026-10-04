@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * Served at /robots.txt. Points crawlers at the sitemap and keeps
  * private app areas (setup, account, APIs) out of search results.
  */
-export const Route = createFileRoute("/robots.txt")({
+export const Route = createFileRoute("/robots/txt")({
   server: {
     handlers: {
       GET: async () => {

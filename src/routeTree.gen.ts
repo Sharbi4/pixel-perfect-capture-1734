@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
 import { Route as ApiVoicePreviewRouteImport } from './routes/api/voice-preview'
+import { Route as RobotsTxtRouteImport } from './routes/robots.txt'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
 import { Route as ApiPublicSquareWebhookRouteImport } from './routes/api/public/square-webhook'
@@ -48,6 +50,16 @@ const ApiVoicePreviewRoute = ApiVoicePreviewRouteImport.update({
   path: '/api/voice-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsTxtRoute = RobotsTxtRouteImport.update({
+  id: '/robots/txt',
+  path: '/robots/txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAgentTokenRoute = ApiPublicAgentTokenRouteImport.update({
   id: '/api/public/agent-token',
   path: '/api/public/agent-token',
@@ -70,6 +82,8 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -80,6 +94,8 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -92,6 +108,8 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/api/voice-preview': typeof ApiVoicePreviewRoute
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/square-webhook': typeof ApiPublicSquareWebhookRoute
@@ -104,6 +122,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/setup'
     | '/api/voice-preview'
+    | '/robots/txt'
+    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -114,6 +134,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/setup'
     | '/api/voice-preview'
+    | '/robots/txt'
+    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -125,6 +147,8 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/setup'
     | '/api/voice-preview'
+    | '/robots/txt'
+    | '/sitemap/xml'
     | '/api/public/agent-token'
     | '/api/public/incoming-call'
     | '/api/public/square-webhook'
@@ -135,6 +159,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiVoicePreviewRoute: typeof ApiVoicePreviewRoute
+  RobotsTxtRoute: typeof RobotsTxtRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
   ApiPublicSquareWebhookRoute: typeof ApiPublicSquareWebhookRoute
@@ -184,6 +210,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVoicePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots/txt': {
+      id: '/robots/txt'
+      path: '/robots/txt'
+      fullPath: '/robots/txt'
+      preLoaderRoute: typeof RobotsTxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/agent-token': {
       id: '/api/public/agent-token'
       path: '/api/public/agent-token'
@@ -226,6 +266,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiVoicePreviewRoute: ApiVoicePreviewRoute,
+  RobotsTxtRoute: RobotsTxtRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
   ApiPublicSquareWebhookRoute: ApiPublicSquareWebhookRoute,

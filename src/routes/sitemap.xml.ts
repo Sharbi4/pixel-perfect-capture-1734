@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * Served at /sitemap.xml. Only public, indexable pages are listed —
  * authenticated pages (/setup, /account) and API endpoints stay out.
  */
-export const Route = createFileRoute("/sitemap.xml")({
+export const Route = createFileRoute("/sitemap/xml")({
   server: {
     handlers: {
       GET: async () => {

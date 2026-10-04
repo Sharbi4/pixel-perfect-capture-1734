@@ -353,6 +353,41 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_notes: {
+        Row: {
+          body: string
+          created_at: string
+          customer_phone: string
+          id: string
+          salon_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          customer_phone: string
+          id?: string
+          salon_id: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          customer_phone?: string
+          id?: string
+          salon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notes_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           body: string
@@ -820,12 +855,15 @@ export type Database = {
           created_at: string
           customer_name: string
           customer_phone: string
+          email: string
           id: string
           marketing_opt_in: boolean
           marketing_opt_in_at: string | null
           marketing_opt_in_source: string
           notes: string
           opted_out: boolean
+          preferred_language: string
+          preferred_staff_id: string | null
           salon_id: string
           tags: string[]
           updated_at: string
@@ -835,12 +873,15 @@ export type Database = {
           created_at?: string
           customer_name?: string
           customer_phone: string
+          email?: string
           id?: string
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
           marketing_opt_in_source?: string
           notes?: string
           opted_out?: boolean
+          preferred_language?: string
+          preferred_staff_id?: string | null
           salon_id: string
           tags?: string[]
           updated_at?: string
@@ -850,17 +891,27 @@ export type Database = {
           created_at?: string
           customer_name?: string
           customer_phone?: string
+          email?: string
           id?: string
           marketing_opt_in?: boolean
           marketing_opt_in_at?: string | null
           marketing_opt_in_source?: string
           notes?: string
           opted_out?: boolean
+          preferred_language?: string
+          preferred_staff_id?: string | null
           salon_id?: string
           tags?: string[]
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sms_threads_preferred_staff_id_fkey"
+            columns: ["preferred_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sms_threads_salon_id_fkey"
             columns: ["salon_id"]

@@ -55,7 +55,7 @@ function AppointmentsPage() {
 
   const shown = appts.filter((a) => (!f.staff || a.staff_id === f.staff) && (!f.service || a.service_id === f.service) && (!f.status || a.status === f.status) && (!f.source || a.source === f.source) && (f.status || a.status !== "cancelled"));
   const staffName = (id: string | null) => basics?.staff.find((s) => s.id === id)?.name ?? "Any";
-  const step = (n: number) => setDate((d) => addDays(d, view === "week" ? 7 * n : view === "month" ? 0 : n) && (view === "month" ? shiftMonth(d, n) : addDays(d, view === "week" ? 7 * n : n)));
+  const step = (n: number) => setDate((d) => (view === "month" ? shiftMonth(d, n) : addDays(d, view === "week" ? 7 * n : n)));
   const title = date ? (view === "month" ? new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : view === "week" ? `Week of ${new Date(`${range!.days[0]}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}` : new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })) : "";
 
   if (!basics) return <div className="grid place-items-center py-24"><Loader2 className="size-5 animate-spin" /></div>;

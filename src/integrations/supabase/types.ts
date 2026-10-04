@@ -46,15 +46,60 @@ export type Database = {
           },
         ]
       }
+      call_notes: {
+        Row: {
+          body: string
+          call_id: string
+          created_at: string
+          id: string
+          salon_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          call_id: string
+          created_at?: string
+          id?: string
+          salon_id: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          call_id?: string
+          created_at?: string
+          id?: string
+          salon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_notes_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_notes_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calls: {
         Row: {
           created_at: string
           customer_phone: string
           direction: string
           duration_secs: number
+          follow_up_at: string | null
+          has_recording: boolean
           id: string
           outcome: string
           provider_ref: string
+          resolved_at: string | null
           salon_id: string
           started_at: string
           status: string
@@ -67,9 +112,12 @@ export type Database = {
           customer_phone?: string
           direction?: string
           duration_secs?: number
+          follow_up_at?: string | null
+          has_recording?: boolean
           id?: string
           outcome?: string
           provider_ref: string
+          resolved_at?: string | null
           salon_id: string
           started_at: string
           status?: string
@@ -82,9 +130,12 @@ export type Database = {
           customer_phone?: string
           direction?: string
           duration_secs?: number
+          follow_up_at?: string | null
+          has_recording?: boolean
           id?: string
           outcome?: string
           provider_ref?: string
+          resolved_at?: string | null
           salon_id?: string
           started_at?: string
           status?: string

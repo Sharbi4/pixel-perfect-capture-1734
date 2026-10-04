@@ -23,7 +23,7 @@ export const SOURCE: Record<string, string> = { staff: "Staff", ai_call: "AI cal
 export const BOOKED_BY: Record<string, string> = { staff: "Staff booked", ai_call: "AI booked", ai_text: "AI booked", online: "Online booked" };
 export const DEPOSIT: Record<string, string> = { none: "No deposit", required: "Deposit due", link_sent: "Payment link sent", paid: "Deposit paid", waived: "Deposit waived" };
 export const PROVIDER: Record<string, string> = { salon_pro: "Salon Pro Scheduling", square: "Square", google: "Google Calendar", outlook: "Outlook", acuity: "Acuity", mindbody: "Mindbody", calendly: "Calendly" };
-export const minutesOf = (a: { starts_at: string; ends_at: string }) => Math.round((Date.parse(a.ends_at) - Date.parse(a.starts_at)) / 60000);
+export const durationMin = (a: { starts_at: string; ends_at: string }) => Math.round((Date.parse(a.ends_at) - Date.parse(a.starts_at)) / 60000);
 export const ACTIVE = ["booked", "confirmed"];
 
 export async function loadBasics(salonId: string) {

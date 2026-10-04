@@ -9,7 +9,7 @@ import { sendApptConfirmation, sendText } from "@/lib/texting.functions";
 import { formatUsNumber } from "@/lib/phone-format";
 import { cn } from "@/lib/utils";
 import { addDays, fmtDay, fmtTime, localDate, openSlots, weekday, zoned } from "@/lib/availability";
-import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, BOOKED_BY, DEPOSIT, PROVIDER, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
+import { ACTIVE, SOURCE, STATUS, loadAppts, loadBasics, loadTimeOff, minutesOf, BOOKED_BY, durationMin, DEPOSIT, PROVIDER, type Appt, type SalonRules, type Service, type Staff, type WaitItem } from "@/lib/appointments";
 
 const Search_ = z.object({ new: z.coerce.number().optional(), phone: z.string().max(30).optional(), name: z.string().max(120).optional(), call: z.string().uuid().optional() });
 
@@ -134,7 +134,7 @@ function Card({ a, tz, staffName, onOpen, style }: { a: Appt; tz: string; staffN
     <button onClick={() => onOpen(a)} style={style} className={cn("absolute inset-x-1 overflow-hidden rounded-xl border border-border bg-surface px-2.5 py-1.5 text-left text-xs shadow-sm hover:border-violet", a.status === "cancelled" && "opacity-50")}>
       <span className="block truncate font-semibold">{a.client_name || formatUsNumber(a.client_phone) || "Client"}</span>
       <span className="block truncate text-muted-foreground">{a.service_name}</span>
-      <span className="block truncate text-muted-foreground">{fmtTime(a.starts_at, tz)} · {minutesOf(a)} min · {staffName(a.staff_id)}</span>
+      <span className="block truncate text-muted-foreground">{fmtTime(a.starts_at, tz)} · {durationMin(a)} min · {staffName(a.staff_id)}</span>
       <span className="mt-1 flex flex-wrap gap-1">
         <span className={cn("rounded-full px-1.5 py-px text-[10px]", STATUS[a.status]?.cls)}>{STATUS[a.status]?.label}</span>
         <span className={cn("inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[10px]", a.source.startsWith("ai") ? "bg-violet/20 text-violet" : "bg-accent text-muted-foreground")}>{a.source.startsWith("ai") && <Bot className="size-2.5" />}{BOOKED_BY[a.source]}</span>
@@ -223,7 +223,7 @@ function ListTab({ salonId, tz, staffName, onOpen }: { salonId: string; tz: stri
                 <td className="px-5 py-3">{a.client_name || "—"}<span className="block text-xs text-muted-foreground">{formatUsNumber(a.client_phone)}</span></td>
                 <td className="px-5 py-3">{a.service_name}</td><td className="px-5 py-3">{staffName(a.staff_id)}</td>
                 <td className="px-5 py-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", STATUS[a.status]?.cls)}>{STATUS[a.status]?.label}</span></td>
-                <td className="px-5 py-3 text-muted-foreground">{BOOKED_BY[a.source]}<span className="block text-xs">{minutesOf(a)} min · {a.text_confirmed ? "Confirmed" : "Not confirmed"} · {DEPOSIT[a.deposit_status]}</span></td>
+                <td className="px-5 py-3 text-muted-foreground">{BOOKED_BY[a.source]}<span className="block text-xs">{durationMin(a)} min · {a.text_confirmed ? "Confirmed" : "Not confirmed"} · {DEPOSIT[a.deposit_status]}</span></td>
               </tr>))}</tbody></table>}
       </div>
     </div>
@@ -407,7 +407,7 @@ function ApptDrawer({ a, tz, basics, salonId, onClose, onChanged }: { a: Appt; t
         <span className={cn("rounded-full px-2.5 py-0.5 text-xs", cur.text_confirmed ? "bg-success/15 text-success" : "bg-accent text-muted-foreground")}>{cur.text_confirmed ? `✓ Confirmation sent${cur.confirmation_sent_at ? ` ${new Date(cur.confirmation_sent_at).toLocaleDateString()}` : ""}` : "Not confirmed"}</span>
       </div>
       <dl className="grid grid-cols-2 gap-2 text-sm">
-        {([["When", `${fmtDay(cur.starts_at, tz)}, ${fmtTime(cur.starts_at, tz)}–${fmtTime(cur.ends_at, tz)}`], ["Service", `${cur.service_name}${cur.price ? ` · $${cur.price}` : ""}`], ["Technician", basics.staff.find((s) => s.id === cur.staff_id)?.name ?? "Any"], ["Phone", formatUsNumber(cur.client_phone) || "—"], ["Duration", `${minutesOf(cur)} min`], ["Calendar", PROVIDER[cur.provider] ?? cur.provider], ["Deposit", `${DEPOSIT[cur.deposit_status]}${cur.deposit_cents ? ` · $${(cur.deposit_cents / 100).toFixed(2)}` : ""}`]] as const).map(([k, v]) => (
+        {([["When", `${fmtDay(cur.starts_at, tz)}, ${fmtTime(cur.starts_at, tz)}–${fmtTime(cur.ends_at, tz)}`], ["Service", `${cur.service_name}${cur.price ? ` · $${cur.price}` : ""}`], ["Technician", basics.staff.find((s) => s.id === cur.staff_id)?.name ?? "Any"], ["Phone", formatUsNumber(cur.client_phone) || "—"], ["Duration", `${durationMin(cur)} min`], ["Calendar", PROVIDER[cur.provider] ?? cur.provider], ["Deposit", `${DEPOSIT[cur.deposit_status]}${cur.deposit_cents ? ` · $${(cur.deposit_cents / 100).toFixed(2)}` : ""}`]] as const).map(([k, v]) => (
           <div key={k} className="rounded-2xl bg-accent px-3 py-2"><dt className="text-[11px] text-muted-foreground">{k}</dt><dd>{v}</dd></div>))}
       </dl>
       <label className="block text-sm"><span className="text-xs text-muted-foreground">Notes</span>

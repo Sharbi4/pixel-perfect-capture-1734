@@ -1,0 +1,2 @@
+GRANT INSERT (email, preferred_language, preferred_staff_id) ON public.sms_threads TO authenticated;
+GRANT UPDATE (email, preferred_language, preferred_staff_id) ON public.sms_threads TO authenticated;

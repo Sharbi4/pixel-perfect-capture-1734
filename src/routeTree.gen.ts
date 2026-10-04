@@ -25,6 +25,7 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedDashboardSectionRouteImport } from './routes/_authenticated/dashboard.$section'
 import { Route as AuthenticatedDashboardAppointmentsRouteImport } from './routes/_authenticated/dashboard.appointments'
 import { Route as AuthenticatedDashboardCallsRouteImport } from './routes/_authenticated/dashboard.calls'
+import { Route as AuthenticatedDashboardCustomersRouteImport } from './routes/_authenticated/dashboard.customers'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
 import { Route as AuthenticatedDashboardTeamRouteImport } from './routes/_authenticated/dashboard.team'
@@ -118,6 +119,12 @@ const AuthenticatedDashboardCallsRoute =
     path: '/calls',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardCustomersRoute =
+  AuthenticatedDashboardCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardMessagesRoute =
   AuthenticatedDashboardMessagesRouteImport.update({
     id: '/messages',
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
+  '/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
@@ -201,6 +209,7 @@ export interface FileRoutesByTo {
   '/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
+  '/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
@@ -228,6 +237,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$section': typeof AuthenticatedDashboardSectionRoute
   '/_authenticated/dashboard/appointments': typeof AuthenticatedDashboardAppointmentsRoute
   '/_authenticated/dashboard/calls': typeof AuthenticatedDashboardCallsRoute
+  '/_authenticated/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/_authenticated/dashboard/team': typeof AuthenticatedDashboardTeamRoute
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/dashboard/$section'
     | '/dashboard/appointments'
     | '/dashboard/calls'
+    | '/dashboard/customers'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/dashboard/team'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/dashboard/$section'
     | '/dashboard/appointments'
     | '/dashboard/calls'
+    | '/dashboard/customers'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/dashboard/team'
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$section'
     | '/_authenticated/dashboard/appointments'
     | '/_authenticated/dashboard/calls'
+    | '/_authenticated/dashboard/customers'
     | '/_authenticated/dashboard/messages'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/dashboard/team'
@@ -447,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardCallsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/customers': {
+      id: '/_authenticated/dashboard/customers'
+      path: '/customers'
+      fullPath: '/dashboard/customers'
+      preLoaderRoute: typeof AuthenticatedDashboardCustomersRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/messages': {
       id: '/_authenticated/dashboard/messages'
       path: '/messages'
@@ -510,6 +530,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardSectionRoute: typeof AuthenticatedDashboardSectionRoute
   AuthenticatedDashboardAppointmentsRoute: typeof AuthenticatedDashboardAppointmentsRoute
   AuthenticatedDashboardCallsRoute: typeof AuthenticatedDashboardCallsRoute
+  AuthenticatedDashboardCustomersRoute: typeof AuthenticatedDashboardCustomersRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
   AuthenticatedDashboardTeamRoute: typeof AuthenticatedDashboardTeamRoute
@@ -522,6 +543,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAppointmentsRoute:
       AuthenticatedDashboardAppointmentsRoute,
     AuthenticatedDashboardCallsRoute: AuthenticatedDashboardCallsRoute,
+    AuthenticatedDashboardCustomersRoute: AuthenticatedDashboardCustomersRoute,
     AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
     AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
     AuthenticatedDashboardTeamRoute: AuthenticatedDashboardTeamRoute,

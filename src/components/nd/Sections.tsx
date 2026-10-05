@@ -57,25 +57,25 @@ const heroAddons = [
 
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden px-4 pt-20 pb-24 md:pt-28">
+    <section id="top" className="relative overflow-hidden px-4 pt-14 pb-16 md:pt-28 md:pb-24">
       <div className="aurora -top-40 left-[-10%] size-[620px] bg-cobalt" />
       <div className="aurora top-10 right-[-15%] size-[560px] bg-magenta [animation-delay:-6s]" />
       <div className="aurora top-[40%] left-[35%] size-[420px] bg-violet [animation-delay:-11s]" />
       <div className="grid-fade absolute inset-0" />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
         <div className="animate-rise">
           <Eyebrow>The AI receptionist for salons</Eyebrow>
-          <h1 className="mt-6 text-5xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance md:text-7xl">
+          <h1 className="mt-5 text-4xl leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-5xl md:text-7xl">
             Your salon is busy.
             <br />
             <span className="text-gradient">Your front desk shouldn't be.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-pretty text-muted-foreground">
+          <p className="mt-4 max-w-xl text-base text-pretty text-muted-foreground md:mt-6 md:text-lg">
             Salon Pro Agent is your salon's AI answering service — it picks up every call, texts
             clients back and books appointments around the clock, even when everyone in the salon is
             busy with a client.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3 md:mt-8">
             <NdButton size="lg" href="#talk">
               <Phone className="size-4" /> See it in action
             </NdButton>
@@ -83,31 +83,39 @@ export function Hero() {
               Get Started <ArrowRight className="size-4" />
             </NdButton>
           </div>
-          <div className="mt-10 rounded-3xl border border-border bg-surface/60 p-5 backdrop-blur-sm">
+          <div className="mt-6 rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur-sm sm:mt-10 sm:rounded-3xl sm:p-5">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="bg-brand inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide text-primary-foreground uppercase">
                 <TrendingUp className="size-3.5" /> Proven to increase revenue
               </span>
               <span className="text-sm font-medium">Add-ons that pay for themselves</span>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {heroAddons.map(({ icon: I, name, line, tag }) => (
-                <div key={name} className="rounded-2xl border border-border bg-surface-2/70 p-3.5">
+            <div className="mt-3 grid gap-2 sm:mt-4 sm:grid-cols-3 sm:gap-3">
+              {heroAddons.map(({ icon: I, name, line, short, tag }) => (
+                <div
+                  key={name}
+                  className="rounded-2xl border border-border bg-surface-2/70 p-3 sm:p-3.5"
+                >
                   <div className="flex items-center gap-2">
                     <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent">
                       <I className="size-3.5" />
                     </span>
                     <span className="text-sm font-medium">{name}</span>
+                    <span className="ml-auto font-mono text-[10px] tracking-wide whitespace-nowrap text-foreground/70 uppercase sm:hidden">
+                      {short}
+                    </span>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{line}</p>
-                  <p className="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
+                  <p className="mt-2 hidden text-xs leading-relaxed text-muted-foreground sm:block">
+                    {line}
+                  </p>
+                  <p className="mt-2 hidden font-mono text-[10px] tracking-wide text-foreground/70 uppercase sm:block">
                     {tag}
                   </p>
                 </div>
               ))}
             </div>
           </div>
-          <p className="mt-8 text-sm text-muted-foreground">
+          <p className="mt-6 text-sm text-muted-foreground md:mt-8">
             Built for salons & studios <span className="mx-2 opacity-40">•</span> Works with your
             existing number <span className="mx-2 opacity-40">•</span> English + Vietnamese
           </p>

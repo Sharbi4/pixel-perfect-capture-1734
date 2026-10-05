@@ -36,18 +36,21 @@ const heroAddons = [
     icon: CalendarCheck,
     name: "Salon Pro Scheduling",
     line: "Turns the calls you miss into chairs you booked.",
+    short: `+$${(schedulingAddon.cents / 100).toFixed(0)}/mo`,
     tag: `+$${(schedulingAddon.cents / 100).toFixed(0)}/mo · included with Pro & Premier`,
   },
   {
     icon: BadgeDollarSign,
     name: "Deposit links",
     line: "Hold the slot with a deposit before the appointment day.",
+    short: "Pro & Premier",
     tag: "Pro & Premier",
   },
   {
     icon: BellRing,
     name: "Confirmations & reminders",
     line: "Fewer no-shows, with nobody at the salon on the phone.",
+    short: "Every plan",
     tag: "Every plan",
   },
 ];

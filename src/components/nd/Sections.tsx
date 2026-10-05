@@ -3,6 +3,7 @@ import { PlanCards, PricingNotes, PlanComparison } from "@/components/site/PlanC
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  BadgeDollarSign,
   BellRing,
   CalendarCheck,
   Check,
@@ -14,6 +15,7 @@ import {
   Phone,
   PhoneForwarded,
   Repeat,
+  TrendingUp,
   UserRound,
   X,
 } from "lucide-react";
@@ -28,6 +30,27 @@ import { BrandMark } from "@/components/brand/Brand";
 export function Nav() {
   return <SiteHeader />;
 }
+
+const heroAddons = [
+  {
+    icon: CalendarCheck,
+    name: "Salon Pro Scheduling",
+    line: "Turns the calls you miss into chairs you booked.",
+    tag: `+$${(schedulingAddon.cents / 100).toFixed(0)}/mo · included with Pro & Premier`,
+  },
+  {
+    icon: BadgeDollarSign,
+    name: "Deposit links",
+    line: "Hold the slot with a deposit before the appointment day.",
+    tag: "Pro & Premier",
+  },
+  {
+    icon: BellRing,
+    name: "Confirmations & reminders",
+    line: "Fewer no-shows, with nobody at the salon on the phone.",
+    tag: "Every plan",
+  },
+];
 
 export function Hero() {
   return (
@@ -53,9 +76,33 @@ export function Hero() {
             <NdButton size="lg" href="#talk">
               <Phone className="size-4" /> See it in action
             </NdButton>
-            <NdButton size="lg" variant="ghost" href="#how">
-              See How It Works
+            <NdButton size="lg" variant="ghost" href="/get-started">
+              Get Started <ArrowRight className="size-4" />
             </NdButton>
+          </div>
+          <div className="mt-10 rounded-3xl border border-border bg-surface/60 p-5 backdrop-blur-sm">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="bg-brand inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide text-primary-foreground uppercase">
+                <TrendingUp className="size-3.5" /> Proven to increase revenue
+              </span>
+              <span className="text-sm font-medium">Add-ons that pay for themselves</span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {heroAddons.map(({ icon: I, name, line, tag }) => (
+                <div key={name} className="rounded-2xl border border-border bg-surface-2/70 p-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent">
+                      <I className="size-3.5" />
+                    </span>
+                    <span className="text-sm font-medium">{name}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{line}</p>
+                  <p className="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
+                    {tag}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
           <p className="mt-8 text-sm text-muted-foreground">
             Built for salons & studios <span className="mx-2 opacity-40">•</span> Works with your

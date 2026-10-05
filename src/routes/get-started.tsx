@@ -83,10 +83,10 @@ function GetStarted() {
       const restored = result.success ? result.data : initial;
       setDraft({ ...restored, tier: isTier(p) ? p : restored.tier, step: restored.step });
     } catch {}
-    setSpeech("speechSynthesis" in window);
+    setSpeech(true);
     setReady(true);
     return () => {
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      audioRef.current?.pause();
     };
   }, []);
   useEffect(() => {
@@ -100,8 +100,6 @@ function GetStarted() {
       }
   }, [ready, draft]);
   function update(p: Partial<PreviewDraft>) {
-    if (speech) window.speechSynthesis.cancel();
-    setPlaying(false);
     setDraft((d) => ({ ...d, ...p }));
   }
   function go(step: number) {
@@ -113,23 +111,23 @@ function GetStarted() {
     update({ step });
     setTimeout(() => heading.current?.focus(), 0);
   }
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   function listen() {
     if (!speech) return;
-    window.speechSynthesis.cancel();
+    const a = (audioRef.current ??= new Audio("/api/public/demo-voice"));
     if (playing) {
+      a.pause();
+      a.currentTime = 0;
       setPlaying(false);
       return;
     }
-    const u = new SpeechSynthesisUtterance(sample);
-    u.lang = "en-US";
-    u.rate = 0.95;
-    u.onend = () => setPlaying(false);
-    u.onerror = () => {
+    a.onended = () => setPlaying(false);
+    a.onerror = () => {
       setPlaying(false);
-      setMessage("Audio is unavailable in this browser. You can still review your greeting.");
+      setMessage("The voice sample couldn't load right now. Please try again shortly.");
     };
     setPlaying(true);
-    window.speechSynthesis.speak(u);
+    a.play().catch(() => setPlaying(false));
   }
   function interest(value: "scheduling" | "extra_location") {
     update({
@@ -360,8 +358,8 @@ function GetStarted() {
                 {playing ? "Stop sample" : "Hear a sample"}
               </button>
               <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                Browser voice illustration. Preview the exact ElevenLabs voice and test real calls
-                during your paid setup.
+                This is the real voice of our live Salon Pro Agent demo. After checkout you can
+                choose a different voice, edit the greeting and test real calls.
               </p>
               <Field label="Preferred voice personality">
                 <select

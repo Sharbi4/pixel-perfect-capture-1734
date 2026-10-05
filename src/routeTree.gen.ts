@@ -53,6 +53,7 @@ import { Route as AuthenticatedDashboardTeamRouteImport } from './routes/_authen
 import { Route as ApiPublicAgentTokenRouteImport } from './routes/api/public/agent-token'
 import { Route as ApiPublicAgentToolsRouteImport } from './routes/api/public/agent-tools'
 import { Route as ApiPublicCheckoutRouteImport } from './routes/api/public/checkout'
+import { Route as ApiPublicDemoVoiceRouteImport } from './routes/api/public/demo-voice'
 import { Route as ApiPublicIncomingCallRouteImport } from './routes/api/public/incoming-call'
 import { Route as ApiPublicIncomingSmsRouteImport } from './routes/api/public/incoming-sms'
 import { Route as ApiPublicSquareBillingWebhookRouteImport } from './routes/api/public/square-billing-webhook'
@@ -290,6 +291,11 @@ const ApiPublicCheckoutRoute = ApiPublicCheckoutRouteImport.update({
   path: '/api/public/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDemoVoiceRoute = ApiPublicDemoVoiceRouteImport.update({
+  id: '/api/public/demo-voice',
+  path: '/api/public/demo-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIncomingCallRoute = ApiPublicIncomingCallRouteImport.update({
   id: '/api/public/incoming-call',
   path: '/api/public/incoming-call',
@@ -367,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/checkout': typeof ApiPublicCheckoutRoute
+  '/api/public/demo-voice': typeof ApiPublicDemoVoiceRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
@@ -417,6 +424,7 @@ export interface FileRoutesByTo {
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/checkout': typeof ApiPublicCheckoutRoute
+  '/api/public/demo-voice': typeof ApiPublicDemoVoiceRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
@@ -470,6 +478,7 @@ export interface FileRoutesById {
   '/api/public/agent-token': typeof ApiPublicAgentTokenRoute
   '/api/public/agent-tools': typeof ApiPublicAgentToolsRoute
   '/api/public/checkout': typeof ApiPublicCheckoutRoute
+  '/api/public/demo-voice': typeof ApiPublicDemoVoiceRoute
   '/api/public/incoming-call': typeof ApiPublicIncomingCallRoute
   '/api/public/incoming-sms': typeof ApiPublicIncomingSmsRoute
   '/api/public/square-billing-webhook': typeof ApiPublicSquareBillingWebhookRoute
@@ -523,6 +532,7 @@ export interface FileRouteTypes {
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/checkout'
+    | '/api/public/demo-voice'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
     | '/api/public/square-billing-webhook'
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/checkout'
+    | '/api/public/demo-voice'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
     | '/api/public/square-billing-webhook'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/api/public/agent-token'
     | '/api/public/agent-tools'
     | '/api/public/checkout'
+    | '/api/public/demo-voice'
     | '/api/public/incoming-call'
     | '/api/public/incoming-sms'
     | '/api/public/square-billing-webhook'
@@ -666,6 +678,7 @@ export interface RootRouteChildren {
   ApiPublicAgentTokenRoute: typeof ApiPublicAgentTokenRoute
   ApiPublicAgentToolsRoute: typeof ApiPublicAgentToolsRoute
   ApiPublicCheckoutRoute: typeof ApiPublicCheckoutRoute
+  ApiPublicDemoVoiceRoute: typeof ApiPublicDemoVoiceRoute
   ApiPublicIncomingCallRoute: typeof ApiPublicIncomingCallRoute
   ApiPublicIncomingSmsRoute: typeof ApiPublicIncomingSmsRoute
   ApiPublicSquareBillingWebhookRoute: typeof ApiPublicSquareBillingWebhookRoute
@@ -984,6 +997,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/demo-voice': {
+      id: '/api/public/demo-voice'
+      path: '/api/public/demo-voice'
+      fullPath: '/api/public/demo-voice'
+      preLoaderRoute: typeof ApiPublicDemoVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/incoming-call': {
       id: '/api/public/incoming-call'
       path: '/api/public/incoming-call'
@@ -1110,6 +1130,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAgentTokenRoute: ApiPublicAgentTokenRoute,
   ApiPublicAgentToolsRoute: ApiPublicAgentToolsRoute,
   ApiPublicCheckoutRoute: ApiPublicCheckoutRoute,
+  ApiPublicDemoVoiceRoute: ApiPublicDemoVoiceRoute,
   ApiPublicIncomingCallRoute: ApiPublicIncomingCallRoute,
   ApiPublicIncomingSmsRoute: ApiPublicIncomingSmsRoute,
   ApiPublicSquareBillingWebhookRoute: ApiPublicSquareBillingWebhookRoute,
